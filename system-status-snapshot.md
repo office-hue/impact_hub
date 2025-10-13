@@ -106,3 +106,13 @@ _Auto update: 2025-10-13 02:44:05_
 staging: HTTP 200 (1000 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
 production: HTTP 200 (951 ms, ok) – https://app.sharity.hu/wp-json/
 ```
+
+---
+_Auto update: 2025-10-13 08:33:22_
+
+### Health check summary
+
+```
+staging: HTTP 500 (517 ms, fail) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (884 ms, ok) – https://app.sharity.hu/wp-json/
+```
