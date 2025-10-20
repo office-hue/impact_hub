@@ -324,3 +324,15 @@ production: HTTP 200 (952 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-10-15.md
+
+---
+_Auto update: 2025-10-20 11:58:39_
+
+### Health check summary
+
+```
+staging: HTTP 200 (911 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (942 ms, ok) – https://app.sharity.hu/wp-json/
+```
+
+**Baseline referencia:** impactshop-baseline-2025-10-15.md
