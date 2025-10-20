@@ -1,0 +1,22 @@
+# Python workspace (non-invasive)
+.venv/
+__pycache__/
+*.py[cod]
+.codex/backups/
+.codex/wheels/
+.codex/reports/
+*.png
+*.svg
+*.ipynb_checkpoints/
+
+# Status snapshots
+/impactshop-status.md
+/status
+/status_snapshots
+
+# Old snippets
+impactshop_snippet_*.php
+shortcode_sample*.php
+
+# macOS
+.DS_Store
