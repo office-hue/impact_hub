@@ -17,14 +17,23 @@ __pycache__/
 # Local automation tree – track only specific guardrails
 /.codex/*
 !/.codex/scripts/
+!/.codex/cron/
 /.codex/scripts/*
 !/.codex/scripts/tradetracker-scope-check.sh
+!/.codex/scripts/impact-social-ledger-sync.php
+/.codex/cron/*
+!/.codex/cron/impact-social-ledger-sync.sh
 /.github/
 
 # External repos / vendor code (handled elsewhere)
 /impactshop-notes/
+!/impactshop-notes/impact-hub-system-v1.3.md
 /mu-plugins/
-/wp-content/
+/wp-content/*
+!/wp-content/mu-plugins/
+wp-content/mu-plugins/*
+!/wp-content/mu-plugins/impactshop-strict-pack.php
+!/wp-content/mu-plugins/impact-social-mvp.php
 /ads-bridge/
 /impact-bridge-local/
 /scripts/
