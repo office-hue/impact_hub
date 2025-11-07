@@ -2,11 +2,25 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$REPO_ROOT"
+GUARD_NAME="ledger-sync"
+source "$ROOT/.codex/scripts/lib/guard-common.sh"
+guard_run_in_terminal_if_needed "$0" "$@"
 SCRIPT_PATH="${REPO_ROOT}/.codex/scripts/impact-social-ledger-sync.php"
 STAGING_ENV="${REPO_ROOT}/impactshop-notes/.deploy.staging.env"
 PROD_ENV="${REPO_ROOT}/impactshop-notes/.deploy.production.env"
+OG_BATCH_SCRIPT="${REPO_ROOT}/.codex/scripts/og-image-batch.sh"
+OG_BATCH_LIMIT="${OG_BATCH_LIMIT:-10}"
+OG_BATCH_CLOUDFLARE="${OG_BATCH_CLOUDFLARE:-0}"
 
-[[ -f "$SCRIPT_PATH" ]] || { echo "❌ Ledger sync script missing: $SCRIPT_PATH" >&2; exit 1; }
+[[ -f "$SCRIPT_PATH" ]] || { echo "❌ Ledger sync script missing: $SCRIPT_PATH" >&2; guard_result "$GUARD_NAME" "FAIL" "Script missing"; exit 1; }
+
+guard_fail_trap() {
+  local code=$?
+  guard_result "$GUARD_NAME" "FAIL" "Ledger sync aborted (exit ${code})"
+  exit "$code"
+}
+trap guard_fail_trap ERR
 
 usage() {
   cat <<'EOF'
@@ -78,6 +92,30 @@ run_remote() {
   fi
 }
 
+run_og_batch() {
+  local label="$1"
+  local env_key="$2"
+
+  if [[ ! -x "$OG_BATCH_SCRIPT" ]]; then
+    if [[ -f "$OG_BATCH_SCRIPT" ]]; then
+      echo "ℹ️  ${label}: OG batch script not executable (${OG_BATCH_SCRIPT}) – skipping."
+    else
+      echo "ℹ️  ${label}: OG batch script missing (${OG_BATCH_SCRIPT}) – skipping."
+    fi
+    return 0
+  fi
+
+  local args=("--env=${env_key}" "--limit=${OG_BATCH_LIMIT}")
+  if [[ "$OG_BATCH_CLOUDFLARE" == "1" ]]; then
+    args+=("--cloudflare")
+  fi
+
+  echo "🖼️  ${label}: refreshing OG images (limit=${OG_BATCH_LIMIT})"
+  if ! "${OG_BATCH_SCRIPT}" "${args[@]}"; then
+    echo "⚠️  ${label}: OG batch script reported an error."
+  fi
+}
+
 TARGETS=()
 case "$ENV_TARGET" in
   staging)
@@ -104,11 +142,14 @@ for target in "${TARGETS[@]}"; do
   case "$target" in
     staging)
       run_remote "Staging" "$STAGING_SSH_HOST" "$STAGING_WP_PATH"
+      run_og_batch "Staging" "staging"
       ;;
     production)
       run_remote "Production" "$PROD_SSH_HOST" "$PROD_WP_PATH"
+      run_og_batch "Production" "production"
       ;;
   esac
 done
 
 echo "✅ Impact Social ledger sync complete."
+guard_result "$GUARD_NAME" "OK" "Ledger sync completed for ${TARGETS[*]}"
