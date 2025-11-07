@@ -696,3 +696,14 @@ production: HTTP 200 (841 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Auto update: 2025-11-07 17:33:44_
+
+### Health check summary
+
+```
+staging: curl error (exit=6) – https://www.sharity.hu/impactshop-staging/wp-json/
+```
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
