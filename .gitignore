@@ -50,12 +50,15 @@ wp-content/mu-plugins/*
 !/wp-content/mu-plugins/impactshop-strict-pack.php
 !/wp-content/mu-plugins/impact-social-mvp.php
 !/wp-content/mu-plugins/impactshop-ngo-card.php
+!/wp-content/mu-plugins/impact-mini-helpers.php
+!/wp-content/mu-plugins/impactshop-rest-totals.php
 /ads-bridge/
 /impact-bridge-local/
 /scripts/*
 !/scripts/impactshop-ngo-card-restore.sh
 /docs/*
 !/docs/system-recovery-map.md
+!/docs/impactshop-badge-system.md
 /bin/
 /impactshop-baseline-2025-10-15.md
 /impactshop-link-diagnostics.php

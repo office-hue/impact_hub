@@ -468,7 +468,6 @@ final class ImpactShop_NGO_Card_API
             $rate = 392.0;
         }
 
-        $donationRate = self::donation_rate();
         $announcement = self::global_announcement();
         $items        = [];
         $rank         = 1;
@@ -476,7 +475,7 @@ final class ImpactShop_NGO_Card_API
         $fromDate     = self::leaderboard_start_date();
         $fromDateTime = self::leaderboard_start_datetime();
         $source       = 'totals';
-        $rows         = self::collect_totals_rows($fromDate, $rate, $donationRate);
+        $rows         = self::collect_totals_rows($fromDate, $rate);
 
         if (!is_array($rows)) {
             $source = 'ledger';
@@ -507,11 +506,17 @@ final class ImpactShop_NGO_Card_API
             if ($source === 'totals') {
                 $nameRaw = $row['ngo'] ?? ($row['ngo_label'] ?? '');
                 $amount  = (int) round($row['donation_converted'] ?? 0);
+                $rankValue = isset($row['rank']) ? (int) $row['rank'] : $rank;
+                $mode = $row['donation_mode'] ?? impactshop_rank_mode_for_position($rankValue);
+                $itemDonationRate = isset($row['donation_rate']) ? (float) $row['donation_rate'] : impactshop_mode_donation_rate($mode);
             } else {
                 $nameRaw   = $row['ngo_display'] ?? '';
                 $rawAmount = (int) ($row['amount_huf'] ?? 0);
                 $rawAmount = max(0, $rawAmount);
-                $amount    = (int) round($rawAmount * $donationRate);
+                $rankValue = $rank;
+                $mode = impactshop_rank_mode_for_position($rankValue);
+                $itemDonationRate = impactshop_mode_donation_rate($mode);
+                $amount    = (int) round($rawAmount * $itemDonationRate);
             }
 
             if ($amount < 0) {
@@ -556,8 +561,10 @@ final class ImpactShop_NGO_Card_API
                 'tombola_url'      => self::tombola_url($slug),
                 'video_support_url'=> self::video_support_url($slug),
                 'amount'           => $amountData,
-                'rank'             => $rank,
-                'badge_status'     => self::badge_status_for($slug, $rank, $amount),
+                'rank'             => $rankValue,
+                'mode'             => $mode,
+                'donation_rate'    => $itemDonationRate,
+                'badge_status'     => self::badge_status_for($slug, $rankValue, $amount),
                 'next_milestone'   => $nextMilestone,
                 'last_updated'     => gmdate('c', $latestTs),
                 'share_url'        => self::share_url($slug),
@@ -590,23 +597,24 @@ final class ImpactShop_NGO_Card_API
 
     private static function badge_status_for(string $slug, int $rank, int $amount, bool $skipFilters = false): array
     {
+        $mode = impactshop_rank_mode_for_position($rank);
         $status = [
-            'key'         => 'spark',
-            'label'       => __('Boost Mode', 'impactshop'),
-            'description' => __('Lendületbe hozod a közösséget – most gyűlnek az első támogatások.', 'impactshop'),
+            'key'         => 'base',
+            'label'       => __('Base Mode', 'impactshop'),
+            'description' => __('Stabil támogatási szint – épül a lendület.', 'impactshop'),
         ];
 
-        if ($rank <= 3) {
+        if ($mode === 'legend') {
             $status = [
                 'key'         => 'legend',
                 'label'       => __('Legend Mode', 'impactshop'),
                 'description' => __('Ikonikus teljesítmény – kiemelkedő mozgósítás.', 'impactshop'),
             ];
-        } elseif ($rank <= 10) {
+        } elseif ($mode === 'rising') {
             $status = [
-                'key'         => 'momentum',
-                'label'       => __('Momentum Mode', 'impactshop'),
-                'description' => __('Folyamatos lendület – hétről hétre érkeznek az támogatások.', 'impactshop'),
+                'key'         => 'rising',
+                'label'       => __('Rising Mode', 'impactshop'),
+                'description' => __('Folyamatosan bővülő támogatói kör – erős felfutás.', 'impactshop'),
             ];
         }
 
@@ -626,15 +634,15 @@ final class ImpactShop_NGO_Card_API
 
         return is_array($status) ? array_merge(
             [
-                'key' => 'spark',
-                'label' => __('Boost Mode', 'impactshop'),
-                'description' => __('Lendületbe hozod a közösséget – most gyűlnek az első támogatások.', 'impactshop'),
+                'key' => 'base',
+                'label' => __('Base Mode', 'impactshop'),
+                'description' => __('Stabil támogatási szint – épül a lendület.', 'impactshop'),
             ],
             $status
         ) : [
-            'key' => 'spark',
-            'label' => __('Boost Mode', 'impactshop'),
-            'description' => __('Lendületbe hozod a közösséget – most gyűlnek az első támogatások.', 'impactshop'),
+            'key' => 'base',
+            'label' => __('Base Mode', 'impactshop'),
+            'description' => __('Stabil támogatási szint – épül a lendület.', 'impactshop'),
         ];
     }
 
@@ -695,7 +703,7 @@ final class ImpactShop_NGO_Card_API
         return '2025-10-23';
     }
 
-    private static function collect_totals_rows(string $fromDate, float $rateHuf, float $donationRate): ?array
+    private static function collect_totals_rows(string $fromDate, float $rateHuf, ?float $donationRate = null): ?array
     {
         if (!function_exists('impactshop_totals_collect')) {
             return null;
@@ -742,29 +750,6 @@ final class ImpactShop_NGO_Card_API
         }
 
         return $rows;
-    }
-
-    private static function donation_rate(): float
-    {
-        $rate = defined('IMPACT_DONATION_RATE') ? (float) IMPACT_DONATION_RATE : 0.5;
-        /**
-         * Allows overriding the donation rate used by NGO cards.
-         *
-         * @param float $rate Current rate (0 - 1).
-         */
-        $rate = apply_filters('impactshop_ngo_card_donation_rate', $rate);
-        if (!is_numeric($rate)) {
-            return 0.5;
-        }
-
-        $rate = (float) $rate;
-        if ($rate < 0) {
-            $rate = 0.0;
-        } elseif ($rate > 1) {
-            $rate = 1.0;
-        }
-
-        return $rate;
     }
 
     private static function logo_url(string $slug): string
@@ -918,10 +903,10 @@ final class ImpactShop_NGO_Card_API
         switch ($key) {
             case 'legend':
                 return __('Legend Mode', 'impactshop');
-            case 'momentum':
-                return __('Momentum Mode', 'impactshop');
+            case 'rising':
+                return __('Rising Mode', 'impactshop');
             default:
-                return __('Boost Mode', 'impactshop');
+                return __('Base Mode', 'impactshop');
         }
     }
 
@@ -930,10 +915,10 @@ final class ImpactShop_NGO_Card_API
         switch ($key) {
             case 'legend':
                 return __('Ikonikus teljesítmény – kiemelkedő mozgósítás.', 'impactshop');
-            case 'momentum':
-                return __('Folyamatos lendület – hétről hétre érkeznek az támogatások.', 'impactshop');
+            case 'rising':
+                return __('Felfutó lendület – hétről hétre szélesedő támogatói kör.', 'impactshop');
             default:
-                return __('Lendületbe hozod a közösséget – most gyűlnek az első támogatások.', 'impactshop');
+                return __('Stabil támogatási szint – épül a lendület.', 'impactshop');
         }
     }
 
@@ -2120,9 +2105,14 @@ final class ImpactShop_NGO_Card_API
       color:#0f172a;
       border-color: transparent;
     }
-    .impact-ngo-share__badge[data-mode="momentum"] {
+    .impact-ngo-share__badge[data-mode="rising"] {
       background: linear-gradient(135deg, #34d399, #10b981);
       color:#022c22;
+      border-color: transparent;
+    }
+    .impact-ngo-share__badge[data-mode="base"] {
+      background: linear-gradient(135deg, #cbd5f5, #93c5fd);
+      color:#0f172a;
       border-color: transparent;
     }
     .impact-ngo-share__actions {
