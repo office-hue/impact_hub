@@ -5,6 +5,25 @@
 
 _Recorded: '"$TS"'_
 
+---
+_Auto update: 2025-11-19 15:35:46_
+
+### Health check summary
+
+```
+staging: HTTP 200 (2261 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (983 ms, ok) – https://app.sharity.hu/wp-json/
+```
+
+### Guard overview
+- Secret expiry guard → ⚠️ WARN (empty log). Action: futtasd `.codex/cron/secret-expiry-guard.sh --debug` és töltsd fel a lejáró credential listát.
+- Sprint red-flag → 🚨 FAIL (17% completion). Action: frissítsd a `.codex/sprint-tasks/S1.md` státuszát és jegyezd a blokkereket (`guard-actions.md`).
+- Gmail keychain guard → ✅ OK (app password 30 napos).
+
+### Quick ops checklist
+- `wp impactshop billingo ping` (staging/prod) → sandbox Billingo kulcs ellenőrzése (`--endpoint=invoices` opció támogatott).
+- NGO card CLI futtatás: `wp impactshop ngo-card rate-limit-test` + `prewarm` dokumentálva (`docs/impactshop-ngo-card-usage.md`).
+
 ### ✅ Implementation Excellence: 10/10
 Your dual-bastion architecture (Repository Protection + Time Machine) has reached **enterprise-grade reliability**.
 
@@ -3413,6 +3432,18 @@ _Auto update: 2025-11-19 15:35:38_
 ```
 staging: HTTP 200 (963 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
 production: HTTP 200 (918 ms, ok) – https://app.sharity.hu/wp-json/
+```
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Auto update: 2025-11-19 16:08:03_
+
+### Health check summary
+
+```
+staging: HTTP 200 (993 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (941 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
