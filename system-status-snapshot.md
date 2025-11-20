@@ -6,6 +6,25 @@
 _Recorded: '"$TS"'_
 
 ---
+_Auto update: 2025-11-19 16:14:41_
+
+### Health check summary
+
+```
+staging: HTTP 200 (1173 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (967 ms, ok) – https://app.sharity.hu/wp-json/
+```
+
+### Guard overview
+- Secret expiry guard → ✅ OK | GitHub token safe (79 days left, expires 2026-02-06 08:04:16 +0100). Source: `.codex/reports/cron-secret-expiry.log`.
+- Sprint red-flag → 🚨 FAIL (17% completion). Action: owners haladjanak a `.codex/sprint-tasks/S1.md` blokkereivel (T-1.2/T-1.3/T-1.4) és update `guard-actions.md`.
+- Gmail keychain guard → ✅ OK (app password 30 napos).
+
+### Quick ops checklist
+- Billingo smoke: `wp impactshop billingo ping --endpoint=clients --dump`.
+- NGO card CLI monitoring: `wp impactshop ngo-card rate-limit-test` + `prewarm` (ld. `docs/impactshop-ngo-card-usage.md` 9.1 fejezet).
+
+---
 _Auto update: 2025-11-19 15:35:46_
 
 ### Health check summary
@@ -3468,6 +3487,18 @@ _Auto update: 2025-11-19 16:14:35_
 ```
 staging: HTTP 200 (957 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
 production: HTTP 200 (885 ms, ok) – https://app.sharity.hu/wp-json/
+```
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Auto update: 2025-11-20 07:58:00_
+
+### Health check summary
+
+```
+staging: HTTP 200 (915 ms, ok) – https://www.sharity.hu/impactshop-staging/wp-json/ (redirected_to:app.sharity.hu)
+production: HTTP 200 (974 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
