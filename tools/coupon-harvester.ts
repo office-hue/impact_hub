@@ -22,7 +22,7 @@ const GOOGLE_SEARCH_RESULTS_PER_DOMAIN = Math.max(
 );
 const GOOGLE_SEARCH_MAX_DOMAINS = Math.max(
   1,
-  Number(process.env.GOOGLE_SEARCH_MAX_DOMAINS || '20'),
+  Number(process.env.GOOGLE_SEARCH_MAX_DOMAINS || '5'),
 );
 const PLAYWRIGHT_GOTO_TIMEOUT = Math.max(
   3000,
