@@ -91,7 +91,28 @@ async function loadConfig(): Promise<Config> {
 }
 
 function mapDomainToShop(domain: string, whitelist: WhitelistItem[]) {
-  const hit = whitelist.find(w => domain.endsWith(w.domain));
+  const cleaned = domain
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/[>\s].*$/, '')
+    .replace(/^mailto:/, '')
+    .replace(/^.*@/, '')
+    .replace(/^mail[.-]/, '')
+    .replace(/^newsletter[.-]/, '')
+    .replace(/^news[.-]/, '')
+    .replace(/^akcio[.-]/, '')
+    .replace(/^info[.-]/, '')
+    .replace(/^m[.-]/, '')
+    .replace(/^hirlevel[.-]/, '')
+    .replace(/^mailer[.-]/, '');
+
+  const parts = cleaned.split('.');
+  const base =
+    parts.length >= 2 ? parts.slice(parts.length - 2).join('.') : cleaned;
+
+  const hit = whitelist.find(
+    w => cleaned.endsWith(w.domain) || base.endsWith(w.domain),
+  );
   if (hit) return {slug: hit.slug, name: hit.slug.replace(/_/g, ' ')};
   return {slug: 'NEEDS_MAPPING', name: domain};
 }
@@ -103,11 +124,13 @@ export function extractFromHtml(html: string, subject: string, from: string, whi
   const contextRegex = /(kuponkód|kedvezménykód|coupon|promo)[^A-Z0-9]{0,40}([A-Z0-9-]{4,16})/i;
   const ctx = text.match(contextRegex);
   const code = ctx?.[2] || (text.match(/\b[A-Z0-9-]{4,16}\b/) || [])[0];
+  const badCodes = new Set(['DOCTYPE', 'BACKGROUND-IMAGE', 'DATA', '2025', '2026']);
   const discount = (text.match(/(-\s?\d{1,2}%|\d{3,5}\s?ft|\d{1,2}\s?eur|ingyenes szállítás)/i) || [])[1] || '';
   const expiry = (text.match(/(20\d{2}[.\-]\d{2}[.\-]\d{2}|\d{2}[.\-]\d{2}[.\-]20\d{2}|érvényes\s+[^\n]+ig)/i) || [])[1] || '';
-  if (!code || !discount) return null;
+  if (!code || !discount || badCodes.has(code.toUpperCase())) return null;
   const domain = (from.match(/@([^> ]+)/) || [])[1] || '';
   const shop = mapDomainToShop(domain, whitelist);
+  if (shop.slug === 'NEEDS_MAPPING') return null;
   return {
     shop_slug: shop.slug,
     shop_name: shop.name,
