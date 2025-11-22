@@ -20,7 +20,8 @@ jobs:
 
       - name: Playwright + deps
         run: |
-          npm install
+          cd tools
+          npm install node-html-parser csv-stringify googleapis playwright ts-node typescript --no-save
           npx playwright install chromium
 
       - name: Harvester futtatás
