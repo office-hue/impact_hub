@@ -78,3 +78,11 @@ PLAYWRIGHT=1 DRY_RUN=0 TS_NODE_TRANSPILE_ONLY=1 \
 - ENV: `PLAYWRIGHT=1` kapcsolja be. Ha nem indul, fallback a sima fetch.
 - Kattintási próbák: kupon/kód gombok felismerésére néhány selectorral (text kupon/coupon/kód, `.coupon-code`, `.show-code`, button:has-text).
 - Webtalálat akkor várható, ha a `scrape` listában kupon/akció URL-ek vannak, vagy a root oldalon ténylegesen megjelenik kuponkód. JS-es oldalakhoz Playwright kell.
+
+## AI asszisztens / Chat integráció röviden
+- API Gateway: `/api/v1/chat/command` (chat parancs router), `/api/v1/search` (CSE wrapper).
+- Chat parancsok: `/keres`, `/task-new`, `/task-list`, `/task-info`, `/task-done` (handleCommand).
+- Auth: `x-api-key` (default `dev-api-key` vagy `CORE_API_KEY`), vagy dummy JWT payload (aláírást nem ellenőrzi).
+- CSE secretek: `GOOGLE_SEARCH_API_KEY`, `GOOGLE_SEARCH_CX` – nélkül csak a parancsok futnak, keresés üres.
+- OCR: harvesterben CSE image + tesseract; AI agentben nincs bekötve.
+- Discord/drótolás: a chat endpoint hívható bármilyen bot/CLI-ból (`POST /api/v1/chat/command` + API key), válasz `reply` mezőben.
