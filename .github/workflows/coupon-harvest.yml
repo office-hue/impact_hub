@@ -1,0 +1,37 @@
+name: coupon-harvest
+
+on: workflow_dispatch
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Írd ki a Gmail secreteket
+        run: |
+          mkdir -p tools/secrets/gmail
+          echo '${{ secrets.GMAIL_CREDENTIALS_JSON }}' > tools/secrets/gmail/credentials.json
+          echo '${{ secrets.GMAIL_TOKEN_JSON }}' > tools/secrets/gmail/token.json
+
+      - name: Playwright + deps
+        run: |
+          npm ci
+          npx playwright install chromium
+
+      - name: Harvester futtatás
+        run: |
+          cd tools
+          PLAYWRIGHT=1 DRY_RUN=0 TS_NODE_TRANSPILE_ONLY=1 \
+          GMAIL_CREDENTIALS=./secrets/gmail/credentials.json \
+          GMAIL_TOKEN=./secrets/gmail/token.json \
+          npx ts-node coupon-harvester.ts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manual_coupons_draft
+          path: tools/out/sandbox/manual_coupons_draft-*.csv

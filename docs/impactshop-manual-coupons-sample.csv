@@ -1,0 +1,4 @@
+shop_slug,shop_name,logo_url,coupon_code,discount_label,cta_url,starts_at,expires_at,coupon_type,priority,title
+minta-shop,Shop Minta,https://example.com/logo.png,BLACKFRI20,-20%,https://example.com/landing,2025-11-20T00:00:00+01:00,2025-11-30T23:59:59+01:00,black_friday,10,"Black Friday extra -20%"
+minta-shop2,Akcióbolt,,XMAS3000,"-3000 Ft",,2025-12-01,2025-12-26,christmas,5,"Karácsonyi kedvezmény"
+minta-shop3,KódBolt,,WELCOME10,-10%,,,"","",3,"Új vásárlóknak egyszeri -10%"
