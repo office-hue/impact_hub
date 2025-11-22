@@ -1,0 +1,17 @@
+{
+  "id": "sample-msg-id",
+  "payload": {
+    "headers": [
+      { "name": "From", "value": "Decathlon <promo@decathlon.hu>" },
+      { "name": "Subject", "value": "Kuponkód: SPORT20 -20% kedvezmény" }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/html",
+        "body": {
+          "data": "PGRpdj5LdXBvbmtvZDoganNwb3J0MjA8L2Rpdj48ZGl2Pi0yMCUgazxkaXY+RXJ2ZW55ZXM6IDIwMjUtMTItMzE8L2Rpdj4="
+        }
+      }
+    ]
+  }
+}
