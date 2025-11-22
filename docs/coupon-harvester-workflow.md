@@ -47,8 +47,8 @@ PLAYWRIGHT=1 DRY_RUN=0 TS_NODE_TRANSPILE_ONLY=1 \
 - Utolsó sikeres futások: pl. run ID `19595822363` (main, success). Letöltés: `gh run download <run_id> --name manual_coupons_draft -R office-hue/impact_hub`.
 - Opcionális Google Custom Search (CSE): ha az alábbi env/secretek megvannak, a scraper a registry domainekre CSE találatokat is felvesz a `scrape` listába:
   - Secrets: `GOOGLE_SEARCH_API_KEY`, `GOOGLE_SEARCH_CX`
-  - Env: `GOOGLE_SEARCH_ENABLED=1`, opcionális: `GOOGLE_SEARCH_RESULTS_PER_DOMAIN` (1–10, alap 3), `GOOGLE_SEARCH_MAX_DOMAINS` (alap 20)
-  - Keresés: `<domain> (kupon OR kuponkód OR coupon OR akció OR sale)`, az első N találat URL-je bekerül a scrape-be (Playwright/fetch dolgozza fel).
+  - Env: `GOOGLE_SEARCH_ENABLED=1`, opcionális: `GOOGLE_SEARCH_RESULTS_PER_DOMAIN` (1–10, alap 1), `GOOGLE_SEARCH_MAX_DOMAINS` (alap 20)
+  - Keresés: `<domain> (kupon OR kuponkód OR coupon OR akció OR sale)`, az első N találat URL-je bekerül a scrape-be; Playwright csak a CSE linkeken fut (timeout alap 5s, wait 300 ms), path-hint scrape fetch-csel megy (`''`, `/kupon`, `/akcio`).
 
 ## Futtatás szerveren (ha van sudo hiány, Playwright nem indul)
 - Ha nincs sudo (cp40), Playwright nem fut, marad a fetch-alapú scrape. Gmail fut, de web 0 lehet.
