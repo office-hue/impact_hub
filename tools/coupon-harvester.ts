@@ -9,6 +9,7 @@ import {parse} from 'node-html-parser';
 import {stringify} from 'csv-stringify/sync';
 import {google} from 'googleapis';
 import {getGmailAuth, GmailAuthConfig} from './gmail-auth';
+import Tesseract from 'tesseract.js';
 // Playwright csak akkor töltődik be, ha PLAYWRIGHT=1 – így a fetch fallback marad az alap.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let playwright: any = null;
@@ -23,6 +24,10 @@ const GOOGLE_SEARCH_RESULTS_PER_DOMAIN = Math.max(
 const GOOGLE_SEARCH_MAX_DOMAINS = Math.max(
   1,
   Number(process.env.GOOGLE_SEARCH_MAX_DOMAINS || '5'),
+);
+const GOOGLE_SEARCH_IMAGE_RESULTS_PER_DOMAIN = Math.max(
+  1,
+  Math.min(3, Number(process.env.GOOGLE_SEARCH_IMAGE_RESULTS_PER_DOMAIN || '1')),
 );
 const PLAYWRIGHT_GOTO_TIMEOUT = Math.max(
   3000,
@@ -251,6 +256,61 @@ async function fetchGmailCoupons(cfg: Config): Promise<Coupon[]> {
     const body = htmlPart?.body?.data ? Buffer.from(htmlPart.body.data, 'base64').toString('utf8') : '';
     const coupon = extractFromHtml(body, subject, from, cfg.whitelist);
     if (coupon) out.push(coupon);
+  }
+  return out;
+}
+
+async function fetchImageCoupons(cfg: Config): Promise<Coupon[]> {
+  if (!GOOGLE_SEARCH_ENABLED || !GOOGLE_SEARCH_KEY || !GOOGLE_SEARCH_CX) return [];
+  const toSearch = cfg.whitelist
+    .map(w => w.domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase())
+    .filter(Boolean)
+    .slice(0, GOOGLE_SEARCH_MAX_DOMAINS);
+
+  const out: Coupon[] = [];
+  for (const domain of toSearch) {
+    try {
+      const query = encodeURIComponent(`${domain} (kupon OR kuponkód OR coupon OR akció OR sale)`);
+      const url =
+        `https://customsearch.googleapis.com/customsearch/v1?searchType=image&key=${GOOGLE_SEARCH_KEY}` +
+        `&cx=${GOOGLE_SEARCH_CX}&q=${query}&num=${GOOGLE_SEARCH_IMAGE_RESULTS_PER_DOMAIN}&lr=lang_hu`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.warn(`CSE image hiba ${domain}: HTTP ${res.status}`);
+        continue;
+      }
+      const data = (await res.json()) as any;
+      const items = Array.isArray(data.items) ? data.items : [];
+      for (const it of items) {
+        const link = typeof it.link === 'string' ? it.link : '';
+        if (!link) continue;
+        try {
+          const img = await fetch(link, {redirect: 'follow'});
+          if (!img.ok) continue;
+          const buf = Buffer.from(await img.arrayBuffer());
+          const ocr = await Tesseract.recognize(buf, 'eng', {
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-',
+          });
+          const text = ocr.data?.text || '';
+          const code = (text.match(/\b[A-Z0-9-]{4,16}\b/) || [])[0];
+          if (!code) continue;
+          out.push({
+            shop_slug: domain.replace(/^www\./, '').replace(/[^a-z0-9_-]/g, ''),
+            shop_name: domain,
+            coupon_code: code.toUpperCase(),
+            discount_label: '',
+            title: 'Képes kupon (CSE)',
+            source_type: 'web',
+            source_ref: link,
+            expiry_unknown: true,
+          });
+        } catch (err) {
+          console.warn(`OCR hiba ${link}:`, (err as Error).message);
+        }
+      }
+    } catch (err) {
+      console.warn(`CSE image hiba ${domain}:`, (err as Error).message);
+    }
   }
   return out;
 }
