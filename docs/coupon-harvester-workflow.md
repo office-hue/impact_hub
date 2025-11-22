@@ -64,6 +64,10 @@ PLAYWRIGHT=1 DRY_RUN=0 TS_NODE_TRANSPILE_ONLY=1 \
 ## Kimenet
 - Fájlok: `tools/out/sandbox/manual_coupons_draft-YYYY-MM-DD.csv`, `manual_coupons_draft-latest.csv`
 - Artifact (CI): `manual_coupons_draft` (azonos CSV-k)
+- Az éles (Shops / manual coupons) felé másolható adatok a draft CSV-kben vannak:
+  - `manual_coupons_draft-YYYY-MM-DD.csv`
+  - `manual_coupons_draft-latest.csv`
+  Ezeket az Actions artifactból vagy lokális futásból töltheted le, majd manuális review után viheted át a Shops-ba / manual_coupons feedbe.
 
 ## Teendők, ha hiányzik partner (pl. Pink Panda)
 - Add a megfelelő slug–domain párt a registrybe (`tools/shops_registry.json`), vagy generáld újra a registryt olyan forrásból, amely tartalmazza a partnert (Dognet/CJ export).
