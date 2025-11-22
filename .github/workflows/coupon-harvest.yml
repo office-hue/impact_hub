@@ -30,6 +30,9 @@ jobs:
           PLAYWRIGHT=1 DRY_RUN=0 TS_NODE_TRANSPILE_ONLY=1 \
           GMAIL_CREDENTIALS=./secrets/gmail/credentials.json \
           GMAIL_TOKEN=./secrets/gmail/token.json \
+          GOOGLE_SEARCH_ENABLED=1 \
+          GOOGLE_SEARCH_API_KEY=${{ secrets.GOOGLE_SEARCH_API_KEY }} \
+          GOOGLE_SEARCH_CX=${{ secrets.GOOGLE_SEARCH_CX }} \
           npx ts-node coupon-harvester.ts
 
       - uses: actions/upload-artifact@v4
