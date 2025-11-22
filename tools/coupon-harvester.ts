@@ -73,19 +73,36 @@ async function loadConfig(): Promise<Config> {
     }
   }
 
-  // Ha nincs explicit scrape lista, generáljunk a whitelist alapján (HTTPS root).
+  // Ha nincs explicit scrape lista, generáljunk a whitelist alapján (HTTPS root + kupon/akció path hint-ek).
   if (!base.scrape || base.scrape.length === 0) {
+    const pathHints = [
+      '',
+      '/kupon',
+      '/kuponok',
+      '/akcio',
+      '/akciok',
+      '/black-friday',
+      '/promocio',
+      '/kedvezmeny',
+      '/coupon',
+      '/coupons',
+      '/sale',
+    ];
     const seen = new Set<string>();
-    base.scrape = base.whitelist
+    const targets: ScrapeTarget[] = [];
+    base.whitelist
       .map(w => w.domain)
       .filter(Boolean)
       .map(d => d.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase())
-      .filter(d => {
-        if (seen.has(d)) return false;
-        seen.add(d);
-        return true;
-      })
-      .map(domain => ({slug: domain.replace(/^www\./, '').replace(/[^a-z0-9_-]/g, ''), url: `https://${domain}`}));
+      .forEach(domain => {
+        if (seen.has(domain)) return;
+        seen.add(domain);
+        const slug = domain.replace(/^www\./, '').replace(/[^a-z0-9_-]/g, '');
+        for (const p of pathHints) {
+          targets.push({slug, url: `https://${domain}${p}`});
+        }
+      });
+    base.scrape = targets;
   }
   return base;
 }
