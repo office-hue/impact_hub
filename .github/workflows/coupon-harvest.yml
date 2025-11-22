@@ -1,6 +1,9 @@
 name: coupon-harvest
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1" # weekly run (Mon 03:00 UTC)
 
 jobs:
   harvest:
