@@ -18,11 +18,19 @@ const GOOGLE_SEARCH_KEY = process.env.GOOGLE_SEARCH_API_KEY || '';
 const GOOGLE_SEARCH_CX = process.env.GOOGLE_SEARCH_CX || '';
 const GOOGLE_SEARCH_RESULTS_PER_DOMAIN = Math.max(
   1,
-  Math.min(10, Number(process.env.GOOGLE_SEARCH_RESULTS_PER_DOMAIN || '3')),
+  Math.min(10, Number(process.env.GOOGLE_SEARCH_RESULTS_PER_DOMAIN || '1')),
 );
 const GOOGLE_SEARCH_MAX_DOMAINS = Math.max(
   1,
   Number(process.env.GOOGLE_SEARCH_MAX_DOMAINS || '20'),
+);
+const PLAYWRIGHT_GOTO_TIMEOUT = Math.max(
+  3000,
+  Number(process.env.PLAYWRIGHT_GOTO_TIMEOUT || '8000'),
+);
+const PLAYWRIGHT_WAIT_AFTER_LOAD = Math.max(
+  0,
+  Number(process.env.PLAYWRIGHT_WAIT_AFTER_LOAD || '500'),
 );
 
 type WhitelistItem = { slug: string; domain: string };
@@ -270,7 +278,7 @@ async function scrapePublicCoupons(target: ScrapeTarget): Promise<Coupon[]> {
       }
       const browser = await playwright.chromium.launch({headless: true});
       const page = await browser.newPage({viewport: {width: 1280, height: 720}});
-      await page.goto(target.url, {waitUntil: 'networkidle', timeout: 30000});
+      await page.goto(target.url, {waitUntil: 'networkidle', timeout: PLAYWRIGHT_GOTO_TIMEOUT});
       // Próbáljuk meg kinyitni a kupon/„mutasd a kódot” gombokat.
       const clickSelectors = [
         'text=/kupon/i',
@@ -293,7 +301,7 @@ async function scrapePublicCoupons(target: ScrapeTarget): Promise<Coupon[]> {
           // ha nincs, megyünk tovább
         }
       }
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(PLAYWRIGHT_WAIT_AFTER_LOAD);
       html = await page.content();
       await browser.close();
     } catch (err) {
