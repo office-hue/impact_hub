@@ -26,15 +26,15 @@ const GOOGLE_SEARCH_MAX_DOMAINS = Math.max(
 );
 const PLAYWRIGHT_GOTO_TIMEOUT = Math.max(
   3000,
-  Number(process.env.PLAYWRIGHT_GOTO_TIMEOUT || '8000'),
+  Number(process.env.PLAYWRIGHT_GOTO_TIMEOUT || '5000'),
 );
 const PLAYWRIGHT_WAIT_AFTER_LOAD = Math.max(
   0,
-  Number(process.env.PLAYWRIGHT_WAIT_AFTER_LOAD || '500'),
+  Number(process.env.PLAYWRIGHT_WAIT_AFTER_LOAD || '300'),
 );
 
 type WhitelistItem = { slug: string; domain: string };
-type ScrapeTarget = { slug: string; url: string };
+type ScrapeTarget = { slug: string; url: string; cse?: boolean };
 type Config = {
   outDir: string;
   newerThanDays: number;
@@ -94,19 +94,7 @@ async function loadConfig(): Promise<Config> {
 
   // Ha nincs explicit scrape lista, generáljunk a whitelist alapján (HTTPS root + kupon/akció path hint-ek).
   if (!base.scrape || base.scrape.length === 0) {
-    const pathHints = [
-      '',
-      '/kupon',
-      '/kuponok',
-      '/akcio',
-      '/akciok',
-      '/black-friday',
-      '/promocio',
-      '/kedvezmeny',
-      '/coupon',
-      '/coupons',
-      '/sale',
-    ];
+    const pathHints = ['', '/kupon', '/akcio'];
     const seen = new Set<string>();
     const targets: ScrapeTarget[] = [];
     base.whitelist
@@ -153,6 +141,7 @@ async function loadConfig(): Promise<Config> {
           extra.push({
             slug: domain.replace(/^www\./, '').replace(/[^a-z0-9_-]/g, ''),
             url: link,
+            cse: true,
           });
         }
       } catch (err) {
@@ -270,7 +259,7 @@ async function scrapePublicCoupons(target: ScrapeTarget): Promise<Coupon[]> {
   if (!target.url) return [];
   let html = '';
 
-  if (USE_PLAYWRIGHT) {
+  if (USE_PLAYWRIGHT && target.cse) {
     try {
       if (!playwright) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
