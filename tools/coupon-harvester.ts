@@ -13,6 +13,17 @@ import {getGmailAuth, GmailAuthConfig} from './gmail-auth';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let playwright: any = null;
 const USE_PLAYWRIGHT = process.env.PLAYWRIGHT === '1';
+const GOOGLE_SEARCH_ENABLED = process.env.GOOGLE_SEARCH_ENABLED === '1';
+const GOOGLE_SEARCH_KEY = process.env.GOOGLE_SEARCH_API_KEY || '';
+const GOOGLE_SEARCH_CX = process.env.GOOGLE_SEARCH_CX || '';
+const GOOGLE_SEARCH_RESULTS_PER_DOMAIN = Math.max(
+  1,
+  Math.min(10, Number(process.env.GOOGLE_SEARCH_RESULTS_PER_DOMAIN || '3')),
+);
+const GOOGLE_SEARCH_MAX_DOMAINS = Math.max(
+  1,
+  Number(process.env.GOOGLE_SEARCH_MAX_DOMAINS || '20'),
+);
 
 type WhitelistItem = { slug: string; domain: string };
 type ScrapeTarget = { slug: string; url: string };
@@ -103,6 +114,51 @@ async function loadConfig(): Promise<Config> {
         }
       });
     base.scrape = targets;
+  }
+
+  // Google Custom Search: ha engedélyezve, egészítsük ki a scrape listát keresési találatokkal.
+  if (
+    GOOGLE_SEARCH_ENABLED &&
+    GOOGLE_SEARCH_KEY &&
+    GOOGLE_SEARCH_CX &&
+    base.whitelist.length > 0
+  ) {
+    const toSearch = base.whitelist
+      .map(w => w.domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase())
+      .filter(Boolean)
+      .slice(0, GOOGLE_SEARCH_MAX_DOMAINS);
+    const extra: ScrapeTarget[] = [];
+    for (const domain of toSearch) {
+      try {
+        const query = encodeURIComponent(`${domain} (kupon OR kuponkód OR coupon OR akció OR sale)`);
+        const url = `https://customsearch.googleapis.com/customsearch/v1?key=${GOOGLE_SEARCH_KEY}&cx=${GOOGLE_SEARCH_CX}&q=${query}&num=${GOOGLE_SEARCH_RESULTS_PER_DOMAIN}&lr=lang_hu`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.warn(`CSE hiba ${domain}: HTTP ${res.status}`);
+          continue;
+        }
+        const data = (await res.json()) as any;
+        const items = Array.isArray(data.items) ? data.items : [];
+        for (const it of items) {
+          const link = typeof it.link === 'string' ? it.link : '';
+          if (!link) continue;
+          extra.push({
+            slug: domain.replace(/^www\./, '').replace(/[^a-z0-9_-]/g, ''),
+            url: link,
+          });
+        }
+      } catch (err) {
+        console.warn(`CSE hiba ${domain}:`, (err as Error).message);
+      }
+    }
+    if (extra.length > 0) {
+      const seen = new Set(base.scrape.map(t => t.url));
+      for (const t of extra) {
+        if (seen.has(t.url)) continue;
+        seen.add(t.url);
+        base.scrape.push(t);
+      }
+    }
   }
   return base;
 }
