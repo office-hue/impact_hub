@@ -49,3 +49,18 @@ registerCommand('/task-list', async (args, _ctx) => {
     .map((t) => `#${t.id} [${t.status}] ${t.type} – ${t.payload?.description ?? ''}`)
     .join('\n');
 });
+
+registerCommand('/task-info', async (args, _ctx) => {
+  const id = args.trim();
+  if (!id) return 'Használat: /task-info <taskId>';
+  const task = await getTask(id);
+  if (!task) return `Nem találom a #${id} feladatot.`;
+  return `#${task.id} [${task.status}] ${task.type}\nPayload: ${JSON.stringify(task.payload)}\nPriority: ${task.priority ?? '-'}\nCreated: ${task.createdAt ?? '-'}`;
+});
+
+registerCommand('/task-done', async (args, _ctx) => {
+  const id = args.trim();
+  if (!id) return 'Használat: /task-done <taskId>';
+  await markTaskStatus(id, 'completed');
+  return `Feladat lezárva: #${id}`;
+});
