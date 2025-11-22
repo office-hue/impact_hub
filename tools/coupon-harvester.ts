@@ -96,23 +96,32 @@ function mapDomainToShop(domain: string, whitelist: WhitelistItem[]) {
     .replace(/^https?:\/\//, '')
     .replace(/[>\s].*$/, '')
     .replace(/^mailto:/, '')
-    .replace(/^.*@/, '')
-    .replace(/^mail[.-]/, '')
-    .replace(/^newsletter[.-]/, '')
-    .replace(/^news[.-]/, '')
-    .replace(/^akcio[.-]/, '')
-    .replace(/^info[.-]/, '')
-    .replace(/^m[.-]/, '')
-    .replace(/^hirlevel[.-]/, '')
-    .replace(/^mailer[.-]/, '');
+    .replace(/^.*@/, '');
 
-  const parts = cleaned.split('.');
-  const base =
-    parts.length >= 2 ? parts.slice(parts.length - 2).join('.') : cleaned;
+  const stripPrefixes = (host: string) =>
+    host
+      .replace(/^(mail|newsletter|news|akcio|info|hello|owner|owner-membermessaging|marketing|sales|m|hirlevel|mailer|noreply)[.-]/, '')
+      .replace(/^[a-z0-9-]+\.([a-z0-9-]+\.[a-z0-9.-]+)$/, '$1') // dobjuk az első labelt ha van további
+      .replace(/^(mail|newsletter|news|akcio|info|hello|owner|marketing|sales|m|hirlevel|mailer|noreply)-/, '');
 
-  const hit = whitelist.find(
-    w => cleaned.endsWith(w.domain) || base.endsWith(w.domain),
-  );
+  const candidates = new Set<string>();
+  const pushCandidate = (host: string) => {
+    const h = host.replace(/\/.*$/, '').trim();
+    if (h) candidates.add(h);
+    const parts = h.split('.');
+    if (parts.length > 2) {
+      candidates.add(parts.slice(parts.length - 2).join('.'));
+    }
+  };
+
+  pushCandidate(stripPrefixes(cleaned));
+  pushCandidate(cleaned);
+
+  let hit: WhitelistItem | undefined;
+  for (const cand of candidates) {
+    hit = whitelist.find(w => cand.endsWith(w.domain));
+    if (hit) break;
+  }
   if (hit) return {slug: hit.slug, name: hit.slug.replace(/_/g, ' ')};
   return {slug: 'NEEDS_MAPPING', name: domain};
 }
