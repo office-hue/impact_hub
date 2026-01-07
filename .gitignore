@@ -1,0 +1,82 @@
+# Python workspace (non-invasive)
+.venv/
+__pycache__/
+*.py[cod]
+.codex/backups/
+.codex/wheels/
+.codex/reports/
+*.png
+*.svg
+*.ipynb_checkpoints/
+
+# Status snapshots
+/impactshop-status.md
+/status
+/status_snapshots
+
+# Local automation tree – track only specific guardrails
+/.codex/*
+!/.codex/scripts/
+/.codex/scripts/*
+!/.codex/scripts/tradetracker-scope-check.sh
+/.github/
+
+# External repos / vendor code (handled elsewhere)
+/impactshop-notes/
+/mu-plugins/
+/wp-content/
+/ads-bridge/
+/impact-bridge-local/
+/scripts/
+/docs/
+/bin/
+/impactshop-baseline-2025-10-15.md
+/impactshop-link-diagnostics.php
+/impactshop-netflix-shortcodes.php
+/impactshop-shortcode-pack.php
+/impactshop-snippet-loader.php
+/impactshop_restore_shortcode_pack.sh
+/percy.config.yml
+/requirements.txt
+/wp-cli.phar
+/z92-impactshop-go-forward.php
+/000-dognet-token-ttl.php
+/codex_parity_green.sh
+/Makefile
+/=
+/_repo_quarantine/
+/active_plugins_diff_testdiff.txt
+
+# Tooling configs
+/.vscode/
+.markdownlint.json
+.prettierignore
+
+# Old snippets
+impactshop_snippet_*.php
+shortcode_sample*.php
+
+# macOS
+.DS_Store
+
+# ai-agent repo (only track source + config)
+/ai-agent/node_modules/
+/ai-agent/dist/
+/ai-agent/tmp/
+/ai-agent/.codex/
+/ai-agent/secrets/
+/ai-agent/config/drive-service-account.json
+/ai-agent/.env
+/ai-agent/.env.*
+!/ai-agent/.env.example
+/ai-agent/Feladatok/
+/ai-agent/Google Ads/
+/ai-agent/Google*/
+/ai-agent/Impi Tudásbázis/
+/ai-agent/Impi*
+/ai-agent/services/graph-memory/neo4j/data/
+/ai-agent/services/graph-memory/neo4j/logs/
+/ai-agent/tools/out/
+/ai-agent/client_secret_*.json
+/ai-agent/durable-verve-*.json
+/ai-agent/dwd_clients.csv

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "allatvedelem",
+    "title": "Állatvédelem",
+    "summary": "Állatmentéshez és menhelyek megerősítéséhez keresel ügyet? Ezek a csapatok most aktív kampányokat futtatnak, és azonnal fel tudják használni a támogatást.",
+    "synonyms": ["allat", "állat", "allatvedo", "állatvédelem", "menhely", "kutyus", "cica"],
+    "ngos": [
+      {
+        "slug": "noe-allatotthon",
+        "name": "NOÉ Állatotthon Alapítvány",
+        "mission": "Több száz bajba jutott kutya és cica mentése, műtéti ellátása és örökbe adása.",
+        "impact_focus": "mentések finanszírozása és sürgős állatorvosi számlák rendezése",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=noe-allatotthon&d1=noe-allatotthon&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=noe-allatotthon"
+      },
+      {
+        "slug": "mancsos-angyalok",
+        "name": "Mancsos Angyalok Egyesület",
+        "mission": "Az ország egyik legaktívabb ideiglenes befogadó hálózata, amely vidéki telepekről hozza be a sérült állatokat.",
+        "impact_focus": "rehabilitáció és ivartalanítási kampány",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=mancsos-angyalok&d1=mancsos-angyalok&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=mancsos-angyalok"
+      }
+    ]
+  },
+  {
+    "id": "gyermekvedelem",
+    "title": "Gyermekvédelem",
+    "summary": "Gyerekek fejlesztését, terápiáját vagy élményprogramját támogatnád? Íme két biztos pont.",
+    "synonyms": ["gyerek", "gyermek", "camp", "tabor", "oktatás", "oktatas", "iskola"],
+    "ngos": [
+      {
+        "slug": "bator-tabor",
+        "name": "Bátor Tábor Alapítvány",
+        "mission": "Élményterápiás táborok krónikusan beteg gyerekeknek és családjaiknak.",
+        "impact_focus": "élményprogramok és pszichológusi csapat finanszírozása",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=bator-tabor&d1=bator-tabor&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=bator-tabor"
+      },
+      {
+        "slug": "adamremenye",
+        "name": "Ádám Reménye Alapítvány",
+        "mission": "Súlyosan beteg gyermekek otthoni terápiáját és fejlesztő eszközeit finanszírozza.",
+        "impact_focus": "egyéni fejlesztő csomagok és eszközök",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=adamremenye&d1=adamremenye&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=adamremenye"
+      }
+    ]
+  },
+  {
+    "id": "egeszsegugy",
+    "title": "Egészségügy és rehabilitáció",
+    "summary": "Ha gyógyítást vagy mozgásterápiát támogatnál, ez a két szervezet most is aktív.",
+    "synonyms": ["egeszseg", "egészség", "rehabilitacio", "rehabilitáció", "mozgas", "mozgasserult"],
+    "ngos": [
+      {
+        "slug": "magyar-gyermekmento",
+        "name": "Magyar Gyermekmentő Alapítvány",
+        "mission": "Mentőorvosi csapat, amely speciális rohamkocsikkal járja az országot.",
+        "impact_focus": "orvosi eszközök és terepjáró mentések",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=magyar-gyermekmento&d1=magyar-gyermekmento&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=magyar-gyermekmento"
+      },
+      {
+        "slug": "suhanj-alapitvany",
+        "name": "SUHANJ! Alapítvány",
+        "mission": "Fogyatékkal élők és épek közös sportolását támogatja edzőtermi és futóprogramokkal.",
+        "impact_focus": "akadálymentes eszközök és edzői órák",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=suhanj-alapitvany&d1=suhanj-alapitvany&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=suhanj-alapitvany"
+      }
+    ]
+  },
+  {
+    "id": "kornyezetvedelem",
+    "title": "Környezet- és klímavédelem",
+    "summary": "Zöld ügyet keresel? Ezek a helyi projektek most kézzelfogható eredményeket hoznak.",
+    "synonyms": ["kornyezet", "környezet", "zold", "víz", "erdő", "tisza", "klima"],
+    "ngos": [
+      {
+        "slug": "tiszaert",
+        "name": "A Tiszáért Egyesület",
+        "mission": "Gyalogos és vízi szemétszedéseket szervez a Tisza teljes szakaszán.",
+        "impact_focus": "parttisztító akciók és újrahasznosítás",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=tiszaert&d1=tiszaert&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=tiszaert"
+      },
+      {
+        "slug": "danyi-apro-patak-lse",
+        "name": "Dányi Apró Patak LSE",
+        "mission": "Önkéntes csapat, amely vízpartokat és túraútvonalakat tesz rendbe Pest megyében.",
+        "impact_focus": "faültetések és szemétmentesítési hétvégék",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=danyi-apro-patak-lse&d1=danyi-apro-patak-lse&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=danyi-apro-patak-lse"
+      }
+    ]
+  },
+  {
+    "id": "szocialis",
+    "title": "Szociális segítségnyújtás",
+    "summary": "Ha hátrányos helyzetű családokat, lakhatási vagy oktatási programokat erősítenél, ezek stabil partnerek.",
+    "synonyms": ["szocialis", "tarsadalmi", "csalad", "hajlektalan", "felzarkozas"],
+    "ngos": [
+      {
+        "slug": "united-way-magyarorszag",
+        "name": "United Way Magyarország",
+        "mission": "Oktatási és megélhetési programokat koordinál országszerte.",
+        "impact_focus": "mentorprogramok és digitális felzárkóztatás",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=united-way-magyarorszag&d1=united-way-magyarorszag&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=united-way-magyarorszag"
+      },
+      {
+        "slug": "uta-az-onallosaghoz",
+        "name": "Út a Önállósághoz Alapítvány",
+        "mission": "Lakhatási és munkaerőpiaci mentorálást ad fiatal felnőtteknek.",
+        "impact_focus": "szociális munkások terepmunkája és sürgősségi alap",
+        "cta_url": "https://app.sharity.hu/impactshop?ngo=uta-az-onallosaghoz&d1=uta-az-onallosaghoz&src=impi",
+        "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?ngo=uta-az-onallosaghoz"
+      }
+    ]
+  }
+]

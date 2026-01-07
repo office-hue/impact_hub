@@ -1,0 +1,582 @@
+[
+  {
+    "slug": "arukereso",
+    "name": "Arukereso",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=arukereso",
+    "go_url": "https://app.sharity.hu/go?shop=arukereso",
+    "arukereso_playwright": true,
+    "default_d1": "tiszaert"
+  },
+  {
+    "slug": "black-friday-mobiltelefonok",
+    "name": "Árukereső mobiltelefon akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/mobiltelefon-c3277/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-led-tv",
+    "name": "Árukereső TV akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/led-tv-lcd-tv-plazma-tv-c3164/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-laptopok",
+    "name": "Árukereső laptop akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/notebook-c3100/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-okosorak",
+    "name": "Árukereső okosóra akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://okosora-aktivitasmero.arukereso.hu/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-fulhallgatok",
+    "name": "Árukereső fej-/fülhallgató akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/fulhallgato-fejhallgato-c3109/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-jatekkonzolok",
+    "name": "Árukereső játékkonzol akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/jatekkonzol-c3154/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-okos-eszkozok",
+    "name": "Árukereső okos eszközök",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/szamitastechnika-c3067/",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "black-friday-fenykepezogepek",
+    "name": "Árukereső fényképező akciók",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/digitalis-fenykepezogep-c40/?sgst=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "karacsonyi-mobiltelefonok",
+    "name": "Árukereső karácsonyi mobil ajánlatok",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://www.arukereso.hu/mobiltelefon-c3277/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "karacsonyi-okosorak",
+    "name": "Árukereső karácsonyi okosóra",
+    "domain": "arukereso.hu",
+    "default_cta_url": "https://okosora-aktivitasmero.arukereso.hu/?orderby=13&pricedrop=1",
+    "arukereso_playwright": true
+  },
+  {
+    "slug": "decathlon",
+    "name": "Decathlon",
+    "domain": "decathlon.hu",
+    "default_cta_url": "https://www.decathlon.hu/specialis-ajanlatok",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=decathlon",
+    "go_url": "https://app.sharity.hu/go?shop=decathlon",
+    "arukereso_playwright": true,
+    "default_d1": "bator-tabor"
+  },
+  {
+    "slug": "notino",
+    "name": "Notino",
+    "domain": "notino.hu",
+    "default_cta_url": "https://www.notino.hu/akciok/",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=notino",
+    "go_url": "https://app.sharity.hu/go?shop=notino",
+    "arukereso_playwright": true,
+    "default_d1": "adamremenye"
+  },
+  {
+    "slug": "4home",
+    "name": "4home",
+    "domain": "4home.hu",
+    "default_cta_url": "https://www.4home.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=4home",
+    "go_url": "https://app.sharity.hu/go?shop=4home"
+  },
+  {
+    "slug": "allegro",
+    "name": "Allegro",
+    "domain": "allegro.hu",
+    "default_cta_url": "https://allegro.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=allegro",
+    "go_url": "https://app.sharity.hu/go?shop=allegro"
+  },
+  {
+    "slug": "visionexpress",
+    "name": "Vision Express",
+    "domain": "visionexpress.hu",
+    "default_cta_url": "https://www.visionexpress.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=visionexpress",
+    "go_url": "https://app.sharity.hu/go?shop=visionexpress"
+  },
+  {
+    "slug": "regiojatek",
+    "name": "REGIO Jatek",
+    "domain": "regiojatek.hu",
+    "default_cta_url": "https://www.regiojatek.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=regiojatek",
+    "go_url": "https://app.sharity.hu/go?shop=regiojatek",
+    "default_d1": "patronus-haz-kozhasznu-nonprofit-kft"
+  },
+  {
+    "slug": "sparkl",
+    "name": "Sparkl",
+    "domain": "sparkl.hu",
+    "default_cta_url": "https://www.sparkl.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=sparkl",
+    "go_url": "https://app.sharity.hu/go?shop=sparkl",
+    "default_d1": "csoda-emma-mosolyaert-alapitvany"
+  },
+  {
+    "slug": "billingo",
+    "name": "Billingo",
+    "domain": "billingo.com",
+    "default_cta_url": "https://www.billingo.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=billingo",
+    "go_url": "https://app.sharity.hu/go?shop=billingo",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "dockyard",
+    "name": "Dockyard",
+    "domain": "dockyard.hu",
+    "default_cta_url": "https://www.dockyard.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=dockyard",
+    "go_url": "https://app.sharity.hu/go?shop=dockyard",
+    "default_d1": "suhanj-alapitvany"
+  },
+  {
+    "slug": "drlumbar",
+    "name": "Dr. Lumbar",
+    "domain": "drlumbar.hu",
+    "default_cta_url": "https://www.drlumbar.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=drlumbar",
+    "go_url": "https://app.sharity.hu/go?shop=drlumbar",
+    "default_d1": "magyar-gyermekmento"
+  },
+  {
+    "slug": "pinkpanda",
+    "name": "Pink Panda",
+    "domain": "pinkpanda.hu",
+    "default_cta_url": "https://www.pinkpanda.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=pinkpanda",
+    "go_url": "https://app.sharity.hu/go?shop=pinkpanda",
+    "default_d1": "adamremenye"
+  },
+  {
+    "slug": "pcland",
+    "name": "PCLand",
+    "domain": "pcland.hu",
+    "default_cta_url": "https://www.pcland.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=pcland",
+    "go_url": "https://app.sharity.hu/go?shop=pcland",
+    "default_d1": "bator-tabor"
+  },
+  {
+    "slug": "mateking",
+    "name": "Mateking",
+    "domain": "mateking.hu",
+    "default_cta_url": "https://www.mateking.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=mateking",
+    "go_url": "https://app.sharity.hu/go?shop=mateking",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "talkpal",
+    "name": "TalkPal",
+    "domain": "talkpal.ai",
+    "default_cta_url": "https://talkpal.ai",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=talkpal",
+    "go_url": "https://app.sharity.hu/go?shop=talkpal",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "molmove",
+    "name": "MOL Move",
+    "domain": "molmove.com",
+    "default_cta_url": "https://molmove.com",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=molmove",
+    "go_url": "https://app.sharity.hu/go?shop=molmove",
+    "default_d1": "tiszaert"
+  },
+  {
+    "slug": "opten",
+    "name": "Opten",
+    "domain": "opten.hu",
+    "default_cta_url": "https://www.opten.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=opten",
+    "go_url": "https://app.sharity.hu/go?shop=opten",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "mobilfox",
+    "name": "Mobilfox",
+    "domain": "mobilfox.com",
+    "default_cta_url": "https://mobilfox.com",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=mobilfox",
+    "go_url": "https://app.sharity.hu/go?shop=mobilfox",
+    "default_d1": "bator-tabor"
+  },
+  {
+    "slug": "mvm-dome",
+    "name": "MVM Dome",
+    "domain": "mvm-dome.hu",
+    "default_cta_url": "https://www.mvm-dome.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=mvm-dome",
+    "go_url": "https://app.sharity.hu/go?shop=mvm-dome",
+    "default_d1": "adamremenye"
+  },
+  {
+    "slug": "logitech",
+    "name": "Logitech",
+    "domain": "logitech.com",
+    "default_cta_url": "https://www.logitech.com",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=logitech",
+    "go_url": "https://app.sharity.hu/go?shop=logitech",
+    "default_d1": "bator-tabor"
+  },
+  {
+    "slug": "lampak",
+    "name": "Lampak",
+    "domain": "lampak.hu",
+    "default_cta_url": "https://www.lampak.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=lampak",
+    "go_url": "https://app.sharity.hu/go?shop=lampak",
+    "default_d1": "tiszaert"
+  },
+  {
+    "slug": "griffconnect",
+    "name": "Griffconnect",
+    "domain": "griffconnect.com",
+    "default_cta_url": "https://griffconnect.com",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=griffconnect",
+    "go_url": "https://app.sharity.hu/go?shop=griffconnect",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "turboscribe",
+    "name": "Turboscribe",
+    "domain": "turboscribe.ai",
+    "default_cta_url": "https://turboscribe.ai",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=turboscribe",
+    "go_url": "https://app.sharity.hu/go?shop=turboscribe",
+    "default_d1": "united-way-magyarorszag"
+  },
+  {
+    "slug": "fizz",
+    "name": "FIZZ",
+    "domain": "fizz.hu",
+    "default_cta_url": "https://fizz.hu",
+    "fillout_url": "https://form.fillout.com/t/eM61RLkz6jus?shop=fizz",
+    "go_url": "https://app.sharity.hu/go?shop=fizz",
+    "default_d1": "tiszaert"
+  },
+  {
+    "slug": "cj-2709631",
+    "name": "Skytours US",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-2709631"
+  },
+  {
+    "slug": "cj-3387283",
+    "name": "GeekBuying",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-3387283"
+  },
+  {
+    "slug": "cj-3587693",
+    "name": "Jalbum",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-3587693"
+  },
+  {
+    "slug": "cj-4877395",
+    "name": "Answear.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-4877395"
+  },
+  {
+    "slug": "cj-4894447",
+    "name": "inSPORTline.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-4894447"
+  },
+  {
+    "slug": "cj-4967945",
+    "name": "CDRmarket.hu/ro",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-4967945"
+  },
+  {
+    "slug": "cj-4989665",
+    "name": "Nanushka",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-4989665"
+  },
+  {
+    "slug": "cj-5764183",
+    "name": "Akkuk.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5764183"
+  },
+  {
+    "slug": "cj-5765330",
+    "name": "Reflexshop.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5765330"
+  },
+  {
+    "slug": "cj-5801719",
+    "name": "NUTRACEUTICS RO/HU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5801719"
+  },
+  {
+    "slug": "cj-5807789",
+    "name": "Butlers.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5807789"
+  },
+  {
+    "slug": "cj-5824323",
+    "name": "UNice",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5824323"
+  },
+  {
+    "slug": "cj-5884820",
+    "name": "Scandishop cz/sk/hu/ro",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5884820"
+  },
+  {
+    "slug": "cj-5986419",
+    "name": "Jatekshop.eu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5986419"
+  },
+  {
+    "slug": "cj-6100840",
+    "name": "eSky INT",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6100840"
+  },
+  {
+    "slug": "cj-6169916",
+    "name": "Tescoma.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6169916"
+  },
+  {
+    "slug": "cj-6253448",
+    "name": "Monkeymum.com",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6253448"
+  },
+  {
+    "slug": "cj-6306264",
+    "name": "Yogabazaar.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6306264"
+  },
+  {
+    "slug": "cj-6322281",
+    "name": "Skechers",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6322281"
+  },
+  {
+    "slug": "cj-6505895",
+    "name": "Hotel Collection",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6505895"
+  },
+  {
+    "slug": "cj-6562598",
+    "name": "PinkPanda Europe",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6562598"
+  },
+  {
+    "slug": "cj-6575774",
+    "name": "Somnart RO/HU/BG",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6575774"
+  },
+  {
+    "slug": "cj-6575811",
+    "name": "Brendon.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6575811"
+  },
+  {
+    "slug": "cj-6595791",
+    "name": "Marionnaud HU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6595791"
+  },
+  {
+    "slug": "cj-6754592",
+    "name": "Dermo.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6754592"
+  },
+  {
+    "slug": "cj-6762329",
+    "name": "Namaximum.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6762329"
+  },
+  {
+    "slug": "cj-5230042",
+    "name": "AXA-ASSISTANCE SK/HU/RO",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5230042"
+  },
+  {
+    "slug": "cj-5243646",
+    "name": "Aboutyou.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5243646"
+  },
+  {
+    "slug": "cj-5306925",
+    "name": "Reedog Europe",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5306925"
+  },
+  {
+    "slug": "cj-5357176",
+    "name": "eOptika HU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5357176"
+  },
+  {
+    "slug": "cj-5393824",
+    "name": "Yves-rocher.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5393824"
+  },
+  {
+    "slug": "cj-5411803",
+    "name": "LK Baits EU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5411803"
+  },
+  {
+    "slug": "cj-5457740",
+    "name": "MIXIT.HU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5457740"
+  },
+  {
+    "slug": "cj-5578976",
+    "name": "Novakid INT",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5578976"
+  },
+  {
+    "slug": "cj-5619548",
+    "name": "JátékNet.hu",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5619548"
+  },
+  {
+    "slug": "cj-5620281",
+    "name": "KÄRCHER.HU",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-5620281"
+  },
+  {
+    "slug": "cj-6796197",
+    "name": "Warsawsneakerstore.com",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6796197"
+  },
+  {
+    "slug": "cj-6808248",
+    "name": "Karpex CZ/HU/Albumshop.sk",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-6808248"
+  },
+  {
+    "slug": "cj-7133039",
+    "name": "Byrokko World",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-7133039"
+  },
+  {
+    "slug": "cj-7138001",
+    "name": "Heliumking Europe",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-7138001"
+  },
+  {
+    "slug": "cj-7218186",
+    "name": "Lumary",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-7218186"
+  },
+  {
+    "slug": "cj-7249555",
+    "name": "Earplugs CZ/SK/HU/DE",
+    "domain": null,
+    "default_cta_url": null,
+    "go_url": "https://app.sharity.hu/go?shop=cj-7249555"
+  }
+]
