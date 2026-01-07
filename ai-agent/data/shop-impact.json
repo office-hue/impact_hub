@@ -1,0 +1,626 @@
+[
+  {
+    "shop_slug": "alza",
+    "shop_name": "Alza",
+    "ngo": "Csoda Emma Mosolyáért Alapítvány",
+    "ngo_slug": "csoda-emma-mosolyaert-alapitvany",
+    "donation_rate": 0.05,
+    "category": "elektronika"
+  },
+  {
+    "shop_slug": "regiojatek",
+    "shop_name": "REGIO Játék",
+    "ngo": "Patrónus Ház Közhasznú Nonprofit Kft",
+    "ngo_slug": "patronus-haz-kozhasznu-nonprofit-kft",
+    "donation_rate": 0.07,
+    "category": "játék"
+  },
+  {
+    "shop_slug": "about_you",
+    "shop_name": "About You",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.04,
+    "category": "divat"
+  },
+  {
+    "shop_slug": "yves_rocher",
+    "shop_name": "Yves Rocher",
+    "ngo": "Legyél Ádám Reménye Alapítvány",
+    "ngo_slug": "adamremenye",
+    "donation_rate": 0.05,
+    "category": "szépség"
+  },
+  {
+    "shop_slug": "regio",
+    "shop_name": "REGIO",
+    "ngo": "Csoda Emma Mosolyáért Alapítvány",
+    "ngo_slug": "csoda-emma-mosolyaert-alapitvany",
+    "donation_rate": 0.07,
+    "category": "játék"
+  },
+  {
+    "shop_slug": "allegro",
+    "shop_name": "Allegro",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.03,
+    "category": "marketplace"
+  },
+  {
+    "shop_slug": "vision-express",
+    "shop_name": "Vision Express",
+    "ngo": "Patrónus Ház Közhasznú Nonprofit Kft",
+    "ngo_slug": "patronus-haz-kozhasznu-nonprofit-kft",
+    "donation_rate": 0.05,
+    "category": "egészség"
+  },
+  {
+    "shop_slug": "sparkl",
+    "shop_name": "SPARKL",
+    "ngo": "Csoda Emma Mosolyáért Alapítvány",
+    "ngo_slug": "csoda-emma-mosolyaert-alapitvany",
+    "donation_rate": 0.05,
+    "category": "szépség"
+  },
+  {
+    "shop_slug": "bator-tabor",
+    "shop_name": "Bátor Tábor Shop",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.1,
+    "category": "ngo"
+  },
+  {
+    "shop_slug": "dedoles",
+    "shop_name": "Dedoles",
+    "ngo": "Legyél Ádám Reménye Alapítvány",
+    "ngo_slug": "adamremenye",
+    "donation_rate": 0.055,
+    "category": "divat"
+  },
+  {
+    "shop_slug": "zooplus",
+    "shop_name": "Zooplus",
+    "ngo": "Cocker Rocker Club Spániel Fajtamentő Egyesület",
+    "ngo_slug": "cocker",
+    "donation_rate": 0.05,
+    "category": "állat"
+  },
+  {
+    "shop_slug": "wolt",
+    "shop_name": "Wolt",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.025,
+    "category": "étel"
+  },
+  {
+    "shop_slug": "pepita",
+    "shop_name": "Pepita",
+    "ngo": "Patrónus Ház Közhasznú Nonprofit Kft",
+    "ngo_slug": "patronus-haz-kozhasznu-nonprofit-kft",
+    "donation_rate": 0.06,
+    "category": "család"
+  },
+  {
+    "shop_slug": "nike",
+    "shop_name": "Nike HU",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.035,
+    "category": "sport"
+  },
+  {
+    "shop_slug": "dyson",
+    "shop_name": "Dyson",
+    "ngo": "Csoda Emma Mosolyáért Alapítvány",
+    "ngo_slug": "csoda-emma-mosolyaert-alapitvany",
+    "donation_rate": 0.04,
+    "category": "elektronika"
+  },
+  {
+    "shop_slug": "gymbeam",
+    "shop_name": "GymBeam",
+    "ngo": "Mozgássérültek Budapesti Egyesülete",
+    "ngo_slug": "mbe",
+    "donation_rate": 0.05,
+    "category": "egészség"
+  },
+  {
+    "shop_slug": "alensa",
+    "shop_name": "Alensa",
+    "ngo": "Látássérültekért Alapítvány",
+    "ngo_slug": "latasserultekert-alapitvany",
+    "donation_rate": 0.045,
+    "category": "egészség"
+  },
+  {
+    "shop_slug": "herbatica",
+    "shop_name": "Herbatica",
+    "ngo": "Csoda Emma Mosolyáért Alapítvány",
+    "ngo_slug": "csoda-emma-mosolyaert-alapitvany",
+    "donation_rate": 0.055,
+    "category": "egészség"
+  },
+  {
+    "shop_slug": "tokshop",
+    "shop_name": "TokShop",
+    "ngo": "Legyél Ádám Reménye Alapítvány",
+    "ngo_slug": "adamremenye",
+    "donation_rate": 0.05,
+    "category": "mobil"
+  },
+  {
+    "shop_slug": "travelking",
+    "shop_name": "Travelking",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.06,
+    "category": "utazás"
+  },
+  {
+    "shop_slug": "klarstein",
+    "shop_name": "Klarstein",
+    "ngo": "Patrónus Ház Közhasznú Nonprofit Kft",
+    "ngo_slug": "patronus-haz-kozhasznu-nonprofit-kft",
+    "donation_rate": 0.045,
+    "category": "otthon"
+  },
+  {
+    "shop_slug": "wow_kupon",
+    "shop_name": "WoW! Apartmanházak",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.05,
+    "category": "utazás"
+  },
+  {
+    "shop_slug": "billingo",
+    "shop_name": "Billingo",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.05,
+    "category": "szoftver"
+  },
+  {
+    "shop_slug": "dockyard",
+    "shop_name": "Dockyard",
+    "ngo": "SUHANJ! Alapítvány",
+    "ngo_slug": "suhanj-alapitvany",
+    "donation_rate": 0.05,
+    "category": "sport"
+  },
+  {
+    "shop_slug": "drlumbar",
+    "shop_name": "Dr. Lumbar",
+    "ngo": "Magyar Gyermekmentő Alapítvány",
+    "ngo_slug": "magyar-gyermekmento",
+    "donation_rate": 0.05,
+    "category": "egészség"
+  },
+  {
+    "shop_slug": "pinkpanda",
+    "shop_name": "Pink Panda",
+    "ngo": "Legyél Ádám Reménye Alapítvány",
+    "ngo_slug": "adamremenye",
+    "donation_rate": 0.05,
+    "category": "szépség"
+  },
+  {
+    "shop_slug": "pcland",
+    "shop_name": "PCLand",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.05,
+    "category": "elektronika"
+  },
+  {
+    "shop_slug": "mateking",
+    "shop_name": "Mateking",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.05,
+    "category": "oktatás"
+  },
+  {
+    "shop_slug": "talkpal",
+    "shop_name": "TalkPal",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.05,
+    "category": "oktatás"
+  },
+  {
+    "shop_slug": "molmove",
+    "shop_name": "MOL Move",
+    "ngo": "A Tiszáért Egyesület",
+    "ngo_slug": "tiszaert",
+    "donation_rate": 0.04,
+    "category": "mobilitás"
+  },
+  {
+    "shop_slug": "opten",
+    "shop_name": "Opten",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.04,
+    "category": "b2b"
+  },
+  {
+    "shop_slug": "mobilfox",
+    "shop_name": "Mobilfox",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.05,
+    "category": "mobil"
+  },
+  {
+    "shop_slug": "mvm-dome",
+    "shop_name": "MVM Dome",
+    "ngo": "Legyél Ádám Reménye Alapítvány",
+    "ngo_slug": "adamremenye",
+    "donation_rate": 0.05,
+    "category": "élmény"
+  },
+  {
+    "shop_slug": "logitech",
+    "shop_name": "Logitech",
+    "ngo": "Bátor Tábor Alapítvány",
+    "ngo_slug": "bator-tabor",
+    "donation_rate": 0.04,
+    "category": "elektronika"
+  },
+  {
+    "shop_slug": "lampak",
+    "shop_name": "Lámpák.hu",
+    "ngo": "A Tiszáért Egyesület",
+    "ngo_slug": "tiszaert",
+    "donation_rate": 0.05,
+    "category": "otthon"
+  },
+  {
+    "shop_slug": "griffconnect",
+    "shop_name": "Griffconnect",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.04,
+    "category": "b2b"
+  },
+  {
+    "shop_slug": "turboscribe",
+    "shop_name": "Turboscribe",
+    "ngo": "United Way Magyarország",
+    "ngo_slug": "united-way-magyarorszag",
+    "donation_rate": 0.04,
+    "category": "szoftver"
+  },
+  {
+    "shop_slug": "fizz",
+    "shop_name": "FIZZ",
+    "ngo": "A Tiszáért Egyesület",
+    "ngo_slug": "tiszaert",
+    "donation_rate": 0.04,
+    "category": "energia"
+  },
+  {
+    "shop_slug": "cj-5243646",
+    "shop_name": "Aboutyou.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.02,
+    "category": "Malls"
+  },
+  {
+    "shop_slug": "cj-5764183",
+    "shop_name": "Akkuk.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.15,
+    "category": "Computer HW"
+  },
+  {
+    "shop_slug": "cj-4877395",
+    "shop_name": "Answear.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.08,
+    "category": "Malls"
+  },
+  {
+    "shop_slug": "cj-5230042",
+    "shop_name": "AXA-ASSISTANCE SK/HU/RO",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.18,
+    "category": "Personal Insurance"
+  },
+  {
+    "shop_slug": "cj-6575811",
+    "shop_name": "Brendon.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.06,
+    "category": "Babies"
+  },
+  {
+    "shop_slug": "cj-5807789",
+    "shop_name": "Butlers.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.1,
+    "category": "Home Appliances"
+  },
+  {
+    "shop_slug": "cj-7133039",
+    "shop_name": "Byrokko World",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.11,
+    "category": "Bath & Body"
+  },
+  {
+    "shop_slug": "cj-4967945",
+    "shop_name": "CDRmarket.hu/ro",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.03,
+    "category": "Peripherals"
+  },
+  {
+    "shop_slug": "cj-6754592",
+    "shop_name": "Dermo.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Cosmetics"
+  },
+  {
+    "shop_slug": "cj-7249555",
+    "shop_name": "Earplugs CZ/SK/HU/DE",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.077,
+    "category": "Equipment"
+  },
+  {
+    "shop_slug": "cj-5357176",
+    "shop_name": "eOptika HU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.07,
+    "category": "Vision Care"
+  },
+  {
+    "shop_slug": "cj-6100840",
+    "shop_name": "eSky INT",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.035,
+    "category": "Air"
+  },
+  {
+    "shop_slug": "cj-3387283",
+    "shop_name": "GeekBuying",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Consumer Electronics"
+  },
+  {
+    "shop_slug": "cj-7138001",
+    "shop_name": "Heliumking Europe",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.1,
+    "category": "Party Goods"
+  },
+  {
+    "shop_slug": "cj-6505895",
+    "shop_name": "Hotel Collection",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.15,
+    "category": "Furniture"
+  },
+  {
+    "shop_slug": "cj-4894447",
+    "shop_name": "inSPORTline.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Exercise & Health"
+  },
+  {
+    "shop_slug": "cj-3587693",
+    "shop_name": "Jalbum",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.1,
+    "category": "Photo"
+  },
+  {
+    "shop_slug": "cj-5986419",
+    "shop_name": "Jatekshop.eu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Toys"
+  },
+  {
+    "shop_slug": "cj-5619548",
+    "shop_name": "JátékNet.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Children"
+  },
+  {
+    "shop_slug": "cj-6808248",
+    "shop_name": "Karpex CZ/HU/Albumshop.sk",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.15,
+    "category": "Photo"
+  },
+  {
+    "shop_slug": "cj-5620281",
+    "shop_name": "KÄRCHER.HU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Home Appliances"
+  },
+  {
+    "shop_slug": "cj-5411803",
+    "shop_name": "LK Baits EU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.0923,
+    "category": "Outdoors"
+  },
+  {
+    "shop_slug": "cj-7218186",
+    "shop_name": "Lumary",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.12,
+    "category": "Home Appliances"
+  },
+  {
+    "shop_slug": "cj-6595791",
+    "shop_name": "Marionnaud HU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Fragrance"
+  },
+  {
+    "shop_slug": "cj-5457740",
+    "shop_name": "MIXIT.HU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.03,
+    "category": "Groceries"
+  },
+  {
+    "shop_slug": "cj-6253448",
+    "shop_name": "Monkeymum.com",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.08,
+    "category": "Green"
+  },
+  {
+    "shop_slug": "cj-6762329",
+    "shop_name": "Namaximum.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Nutritional Supplements"
+  },
+  {
+    "shop_slug": "cj-4989665",
+    "shop_name": "Nanushka",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.08,
+    "category": "Womens"
+  },
+  {
+    "shop_slug": "cj-5801719",
+    "shop_name": "NUTRACEUTICS RO/HU",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.25,
+    "category": "Nutritional Supplements"
+  },
+  {
+    "shop_slug": "cj-6562598",
+    "shop_name": "PinkPanda Europe",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.09,
+    "category": "Cosmetics"
+  },
+  {
+    "shop_slug": "cj-5306925",
+    "shop_name": "Reedog Europe",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.08,
+    "category": "Pets"
+  },
+  {
+    "shop_slug": "cj-5765330",
+    "shop_name": "Reflexshop.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.07,
+    "category": "Games"
+  },
+  {
+    "shop_slug": "cj-5884820",
+    "shop_name": "Scandishop cz/sk/hu/ro",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.07,
+    "category": "Furniture"
+  },
+  {
+    "shop_slug": "cj-6322281",
+    "shop_name": "Skechers",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.06,
+    "category": "Shoes"
+  },
+  {
+    "shop_slug": "cj-6575774",
+    "shop_name": "Somnart RO/HU/BG",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.12,
+    "category": "Bed & Bath"
+  },
+  {
+    "shop_slug": "cj-6169916",
+    "shop_name": "Tescoma.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.07,
+    "category": "Kitchen"
+  },
+  {
+    "shop_slug": "cj-5824323",
+    "shop_name": "UNice",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Bath & Body"
+  },
+  {
+    "shop_slug": "cj-6796197",
+    "shop_name": "Warsawsneakerstore.com",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.07,
+    "category": "Malls"
+  },
+  {
+    "shop_slug": "cj-6306264",
+    "shop_name": "Yogabazaar.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Equipment"
+  },
+  {
+    "shop_slug": "cj-5393824",
+    "shop_name": "Yves-rocher.hu",
+    "ngo": "ImpactShop",
+    "ngo_slug": "impactshop",
+    "donation_rate": 0.05,
+    "category": "Cosmetics"
+  }
+]
