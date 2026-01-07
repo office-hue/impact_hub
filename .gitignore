@@ -88,3 +88,26 @@ shortcode_sample*.php
 
 # macOS
 .DS_Store
+
+# ai-agent repo (only track source + config)
+/ai-agent/node_modules/
+/ai-agent/dist/
+/ai-agent/tmp/
+/ai-agent/.codex/
+/ai-agent/secrets/
+/ai-agent/config/drive-service-account.json
+/ai-agent/.env
+/ai-agent/.env.*
+!/ai-agent/.env.example
+/ai-agent/Feladatok/
+/ai-agent/Google Ads/
+/ai-agent/Google*/
+/ai-agent/Impi Tudásbázis/
+/ai-agent/Impi*
+/ai-agent/services/graph-memory/neo4j/data/
+/ai-agent/services/graph-memory/neo4j/logs/
+/ai-agent/tools/out/
+/ai-agent/client_secret_*.json
+/ai-agent/durable-verve-*.json
+/ai-agent/dwd_clients.csv
+/ai-agent/ngo_codes.csv

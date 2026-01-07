@@ -1,0 +1,20 @@
+version: 1
+server:
+  port: 8083
+  logLevel: info
+datasource:
+  type: neo4j
+  uri: bolt://neo4j:7687
+  username: ${GRAPHITI_NEO4J_USER}
+  password: ${GRAPHITI_NEO4J_PASSWORD}
+  database: neo4j
+schemas:
+  - name: impactshop_memory
+    ttl: null
+    indexes:
+      - label: ConversationTurn
+        properties: [conversation_id, turn_index]
+      - label: Promotion
+        properties: [promotion_id]
+      - label: NGO
+        properties: [slug]

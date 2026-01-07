@@ -1,0 +1,10 @@
+{
+  "futo": ["futás", "futó", "running", "run"],
+  "sportcipo": ["sportcipő", "futocipo", "futócipő", "sneaker", "sneakers", "running-shoe"],
+  "cipo": ["cipő", "shoes", "shoe"],
+  "edzes": ["edzés", "edzes", "training", "workout", "fitnesz", "fitness"],
+  "parfum": ["parfüm", "illat", "fragrance", "perfume"],
+  "laptop": ["notebook", "számítógép", "szamitogep", "computer"],
+  "telefon": ["mobil", "phone", "smartphone", "mobile"],
+  "szupermarket": ["grocery", "bevásárlás", "bevasarlas", "bolt", "aruhaz", "áruház"]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "graphiti-memory-api",
+  "version": "0.1.0",
+  "description": "Minimal Graphiti-compatible API for local Neo4j graph memory",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "neo4j",
+    "graph",
+    "impactshop"
+  ],
+  "author": "ImpactShop Ops",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "neo4j-driver": "^6.0.1"
+  }
+}
