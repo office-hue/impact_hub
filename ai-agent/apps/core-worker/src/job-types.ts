@@ -1,4 +1,4 @@
-export type CoreJobType = 'generic' | 'document_ingest' | 'memory_sync';
+export type CoreJobType = 'generic' | 'document_ingest' | 'memory_sync' | 'billingo_sync' | 'nav_online_invoice_sync';
 
 export interface CoreJobPayload {
   taskId: string;
@@ -10,7 +10,7 @@ export interface CoreJobPayload {
   params?: Record<string, unknown> | null;
 }
 
-const SUPPORTED: CoreJobType[] = ['generic', 'document_ingest', 'memory_sync'];
+const SUPPORTED: CoreJobType[] = ['generic', 'document_ingest', 'memory_sync', 'billingo_sync', 'nav_online_invoice_sync'];
 
 export function normalizeJobType(value?: string | CoreJobType | null): CoreJobType {
   if (typeof value !== 'string') {
