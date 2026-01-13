@@ -21,6 +21,7 @@ import type { CoreWorkspace } from './services/core-workspaces.js';
 import { createCoreTask, listCoreTasks, type AttachmentRef } from './services/core-tasks.js';
 import { enqueueCoreTask } from './services/core-queue.js';
 import { normalizeJobType, type CoreJobType } from '@apps/core-worker/src/job-types.js';
+import { runBillingoCron } from '@apps/core-worker/src/billingo-cron.js';
 import { detectDocumentKind, ingestExcelFile, ingestPdfFile } from '@apps/document-ingest/src/index.js';
 import { runCoreAgentPrototype } from '@apps/core-agent-graph/src/index.js';
 import { getCapabilityMetrics, getCapabilityMetricsWithDerived, renderMetricsPrometheus } from '@apps/core-agent-graph/src/utils/metrics.js';
@@ -58,6 +59,9 @@ const PORT = Number(process.env.PORT || 4000);
 const API_KEY = process.env.AI_AGENT_API_KEY;
 const LOG_PATH = process.env.IMPI_CHAT_LOG || path.join(process.cwd(), 'tmp', 'logs', 'impi-chat.log');
 const OPENAI_ENABLED = Boolean(process.env.OPENAI_API_KEY);
+const BILLINGO_CRON_ENABLED = process.env.CORE_BILLINGO_CRON_ENABLED === '1';
+const BILLINGO_CRON_INTERVAL_MS = Number(process.env.CORE_BILLINGO_CRON_INTERVAL_MS || 24 * 60 * 60 * 1000);
+const BILLINGO_CRON_INITIAL_DELAY_MS = Number(process.env.CORE_BILLINGO_CRON_INITIAL_DELAY_MS || 5 * 60 * 1000);
 const DEFAULT_FILLOUT_URL = process.env.IMPACTSHOP_IMPI_FILLOUT_URL || 'https://form.fillout.com/t/eM61RLkz6jus';
 const DOCUMENT_OUTPUT_DIR = process.env.CORE_DOCUMENT_OUTPUT_DIR
   ? path.resolve(process.env.CORE_DOCUMENT_OUTPUT_DIR)
@@ -121,16 +125,11 @@ const EMPATHY_KEYWORDS = [
   'stresszes vagyok'
 ];
 
-const LOW_EFFORT_TEMPLATE = [
-  '',
-  '🔸 **Alacsony energiájú opciók:**',
-  '1. **Videós támogatás** – nézz meg egy rövid kampányvideót (1-2 perc), a reklámbevételből automatikusan adomány lesz.',
-  '2. **Gyors minishop** – válassz egy kis összegű vásárlást a kedvenc shopodból, így pár kattintással jut pénz az ügyhöz.',
-  '3. **NGO választás** – írd meg, melyik ügy fontos, és ajánlok hozzá szervezetet/linket.',
-  'Ha más irányt próbálnál ki, csak jelezd, és igazítom a javaslatokat. 🙌',
-].join('\n');
+const LOW_EFFORT_TEMPLATE =
+  'Ha most kevesebb energiád van: videós támogatás (1–2 perc), egy kis összegű vásárlás, vagy egy gyors NGO‑választás is sokat számít. Ha írsz pár szót, igazítom a javaslatot. 🙌';
 
-const CONFIDENCE_TEMPLATE = '\n\nℹ️ Ha nem pont erre gondoltál, jelezd bátran a fókuszt (pl. konkrét termék, összeg vagy kampány), és pontosítok a következő körben.';
+const CONFIDENCE_TEMPLATE =
+  'ℹ️ Ha nem pont erre gondoltál, jelezd bátran a fókuszt (pl. konkrét termék, összeg vagy kampány), és pontosítok a következő körben.';
 
 const SHOPPING_FOLLOWUP_KEYWORDS = [
   'webshop',
@@ -336,6 +335,7 @@ function normalizeTaskAttachments(raw: unknown): AttachmentRef[] {
 const DOCUMENT_EXTENSIONS = ['.pdf', '.xls', '.xlsx', '.xlsm'];
 const DOCUMENT_MIME_KEYWORDS = ['pdf', 'excel', 'sheet'];
 const DOCUMENT_TEMPLATE_TAGS = new Set(['ocr', 'document']);
+const BILLINGO_TEMPLATE_TAGS = new Set(['billingo']);
 const MEMORY_TEMPLATE_TAGS = new Set(['email', 'assistant']);
 
 type JobDescriptor = {
@@ -402,6 +402,11 @@ function determineJobDescriptor(options: DetermineJobOptions): JobDescriptor {
     || templateHasCategory(template, DOCUMENT_TEMPLATE_TAGS);
   if (requiresDocumentJob && attachments.length) {
     return { jobType: 'document_ingest', params: { attachments } };
+  }
+
+  const requiresBillingo = templateHasCategory(template, BILLINGO_TEMPLATE_TAGS);
+  if (requiresBillingo) {
+    return { jobType: 'billingo_sync' };
   }
 
   const normalizedMemory = normalizeMemoryInput(options.memoryInput);
@@ -1402,10 +1407,10 @@ function detectEmpathyCue(message: string): string | null {
 }
 
 function appendLowEffortGuidance(summary: string): string {
-  if (summary.includes('Alacsony energiájú opciók')) {
+  if (summary.includes('kevesebb energiád')) {
     return summary;
   }
-  return `${summary}${LOW_EFFORT_TEMPLATE}`;
+  return `${summary} ${LOW_EFFORT_TEMPLATE}`.trim();
 }
 
 function shouldAddConfidenceDisclaimer(recommendation: RecommendationResponse): boolean {
@@ -1425,12 +1430,11 @@ function appendConfidenceDisclaimer(summary: string): string {
   if (summary.includes('ℹ️ Ha nem pont erre gondoltál')) {
     return summary;
   }
-  return `${summary}${CONFIDENCE_TEMPLATE}`;
+  return `${summary} ${CONFIDENCE_TEMPLATE}`.trim();
 }
 
 function autolinkText(text: string): string {
-  if (!text) return text;
-  return text.replace(/https?:\/\/[^\s<>()]+/g, '<$&>');
+  return text;
 }
 
 function ensurePerThousandText(text: string, offers: RecommendationOffer[] = []): string {
@@ -1460,10 +1464,10 @@ function ensurePerThousandText(text: string, offers: RecommendationOffer[] = [])
 
   if (uniqueValues.length === 1) {
     const rounded = Math.round(uniqueValues[0].value);
-    return `Minden 1 000 Ft költés után kb. ${rounded.toLocaleString('hu-HU')} Ft adomány rögzül.\n${text}`;
+    return `${text} Minden 1 000 Ft költés után kb. ${rounded.toLocaleString('hu-HU')} Ft adomány rögzül.`.trim();
   }
 
-  return `Minden 1 000 Ft költés után az adott ajánlatnál megadott összeg rögzül.\n${text}`;
+  return `${text} Minden 1 000 Ft költés után az adott ajánlatnál megadott összeg rögzül.`.trim();
 }
 
 function computeStoryEvent(prev: string | undefined, opts: { transparencyOnly: boolean; recommendationIntent?: string; shoppingFollowUp: boolean }): string | undefined {
@@ -2309,6 +2313,28 @@ app.post('/api/v1/chat/impi', async (req, res) => {
 app.get('/', (_req, res) => {
   res.json({ status: 'ok', message: 'AI Agent API ready', timestamp: new Date().toISOString() });
 });
+
+if (BILLINGO_CRON_ENABLED) {
+  let billingoRunning = false;
+  const runOnce = async () => {
+    if (billingoRunning) {
+      console.warn('[billingo-cron] skip: már fut');
+      return;
+    }
+    billingoRunning = true;
+    try {
+      await runBillingoCron();
+      console.log('[billingo-cron] done');
+    } catch (error) {
+      console.error('[billingo-cron] error', error);
+    } finally {
+      billingoRunning = false;
+    }
+  };
+  setTimeout(runOnce, BILLINGO_CRON_INITIAL_DELAY_MS);
+  setInterval(runOnce, BILLINGO_CRON_INTERVAL_MS);
+  console.log(`[billingo-cron] enabled interval=${BILLINGO_CRON_INTERVAL_MS}ms`);
+}
 
 app.listen(PORT, () => {
   console.log(`AI Agent API listening on http://127.0.0.1:${PORT}`);
