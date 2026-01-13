@@ -251,11 +251,20 @@ async function handleBillingoSyncJob(payload: CoreJobPayload): Promise<void> {
   await recordBillingoGraphiti(payload.taskId, payload.createdBy, summaryText);
 }
 
+async function handleNavOnlineInvoiceSyncJob(payload: CoreJobPayload): Promise<void> {
+  await updateCoreTaskStatus(
+    payload.taskId,
+    'error',
+    'NAV Online sync: jelenleg manualis futtatas (digest + invoiceData) tartja karban.',
+  );
+}
+
 const handlers: Record<CoreJobType, (payload: CoreJobPayload) => Promise<void>> = {
   generic: runGenericTask,
   document_ingest: handleDocumentIngestJob,
   memory_sync: handleMemorySyncJob,
   billingo_sync: handleBillingoSyncJob,
+  nav_online_invoice_sync: handleNavOnlineInvoiceSyncJob,
 };
 
 const worker = new Worker(queueName, async job => {
