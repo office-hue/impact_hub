@@ -27,13 +27,17 @@ const ENABLE_WEB_FALLBACK = process.env.ENABLE_WEB_FALLBACK === '1';
 const DECISION_PROMPT_KEYWORDS = ['hogyan döntesz', 'hogyan dontod', 'döntési mechanizmus', 'dontesi mechanizmus', 'melyik ngo-t ajánlod', 'melyik ngo-t ajanlod'];
 const DEFAULT_FILLOUT_URL = process.env.IMPACTSHOP_IMPI_FILLOUT_URL || '';
 const IMPACT_REPORT_URL = process.env.IMPACTSHOP_IMPI_IMPACT_URL || 'https://app.sharity.hu/impactshop/leaderboard';
-const VIDEO_SUPPORT_URL = process.env.IMPACTSHOP_VIDEO_SUPPORT_URL || 'https://adomany.sharity.hu/about-us?utm_source=impi';
 const VIDEO_SUPPORT_NGO_SLUG = process.env.IMPACTSHOP_VIDEO_NGO_SLUG || 'bator-tabor';
 const FRIENDLY_SUPPORT_FORM_LABEL = 'támogatási űrlap';
 const FRIENDLY_SUPPORT_FORM_CTA = DEFAULT_FILLOUT_URL
   ? `${FRIENDLY_SUPPORT_FORM_LABEL}: ${DEFAULT_FILLOUT_URL}`
   : FRIENDLY_SUPPORT_FORM_LABEL;
-const VIDEO_SUPPORT_CTA = `${VIDEO_SUPPORT_URL}${VIDEO_SUPPORT_URL.includes('?') ? '&' : '?'}ngo=${VIDEO_SUPPORT_NGO_SLUG}`;
+function buildVideoSupportCta(ngoSlug: string): string {
+  const safeSlug = ngoSlug || 'impactshop';
+  return `https://app.sharity.hu/impactshop?ngo=${safeSlug}&d1=${safeSlug}&src=impi`;
+}
+
+const VIDEO_SUPPORT_CTA = buildVideoSupportCta(VIDEO_SUPPORT_NGO_SLUG);
 
 function getTemperatureForIntent(intent?: string): number {
   const creativeIntents = new Set(['feedback', 'transparency', 'wrong_expectation', 'no_shop']);
@@ -95,7 +99,7 @@ interface GenerateOptions {
 function buildFallbackHierarchy(): string[] {
   return [
     'Most nincs aktív kupon – kérj pontosítást (termék/összeg/ügy), vagy válassz ezek közül:',
-    `1. Videós támogatás: ${VIDEO_SUPPORT_URL}`,
+    `1. Videós támogatás: ${VIDEO_SUPPORT_CTA}`,
     '2. Írd meg, melyik ügy fontos, és ajánlok NGO-t/linket.',
     `3. Impact riport / toplista: ${IMPACT_REPORT_URL}`,
   ];
@@ -422,7 +426,7 @@ export async function generateImpiSummary(
     );
   } else {
     userPromptSections.push(
-      `Nincs releváns kupon. Adj rövid magyar összefoglalót (2–4 mondat), egy bekezdésben. Emeld ki ezt a sorrendet: ImpactShop kampány, videós támogatás (${VIDEO_SUPPORT_URL}), ${FRIENDLY_SUPPORT_FORM_LABEL} (${DEFAULT_FILLOUT_URL}), Impact riport (${IMPACT_REPORT_URL}). A linkeket teljes URL-lel, plain textben írd.`
+      `Nincs releváns kupon. Adj rövid magyar összefoglalót (2–4 mondat), egy bekezdésben. Emeld ki ezt a sorrendet: ImpactShop kampány, videós támogatás (${VIDEO_SUPPORT_CTA}), ${FRIENDLY_SUPPORT_FORM_LABEL} (${DEFAULT_FILLOUT_URL}), Impact riport (${IMPACT_REPORT_URL}). A linkeket teljes URL-lel, plain textben írd.`
     );
   }
 
@@ -510,7 +514,7 @@ export async function generateImpiSummary(
   }
   if (recommendation.intent === 'video_support') {
     userPromptSections.push(
-      `KÖTELEZŐ: röviden írd le a videós támogatást és adj konkrét videós CTA-t: ${VIDEO_SUPPORT_URL}. Adj legalább egy NGO slugot (pl. ${VIDEO_SUPPORT_NGO_SLUG}) és ImpactShop linket slug paraméterrel, hogy hova könyvelődik az adomány. Egy bekezdés, technikai kifejezések nélkül.`,
+      `KÖTELEZŐ: röviden írd le a videós támogatást és adj konkrét videós CTA-t: ${VIDEO_SUPPORT_CTA}. Adj legalább egy NGO slugot (pl. ${VIDEO_SUPPORT_NGO_SLUG}) és ImpactShop linket slug paraméterrel, hogy hova könyvelődik az adomány. Egy bekezdés, technikai kifejezések nélkül.`,
     );
   }
   if (recommendation.intent === 'leaderboard') {
@@ -540,7 +544,7 @@ export async function generateImpiSummary(
   }
   if (empathyCue) {
     userPromptSections.push(
-      `Empatikus nyitás szükséges: ${empathyCue}. Adj bíztató mondatot, és említs legalább 3 low-effort opciót egy rövid bekezdésben (videós támogatás: ${VIDEO_SUPPORT_URL}, kis összegű vásárlás konkrét példával, ${FRIENDLY_SUPPORT_FORM_LABEL} inspiráció: ${DEFAULT_FILLOUT_URL}). Minden opcióhoz legyen CTA/link, bullet nélkül.`,
+      `Empatikus nyitás szükséges: ${empathyCue}. Adj bíztató mondatot, és említs legalább 3 low-effort opciót egy rövid bekezdésben (videós támogatás: ${VIDEO_SUPPORT_CTA}, kis összegű vásárlás konkrét példával, ${FRIENDLY_SUPPORT_FORM_LABEL} inspiráció: ${DEFAULT_FILLOUT_URL}). Minden opcióhoz legyen CTA/link, bullet nélkül.`,
     );
   }
 

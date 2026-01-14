@@ -1196,11 +1196,11 @@ function detectHighLevelIntent(query: string): IntentDetectionResult {
 function summarizeSuppressedIntent(intent: HighLevelIntent): string {
   switch (intent) {
     case 'video_support':
-      return `Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek. Link: ${VIDEO_SUPPORT_URL}`;
+      return `Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek. Link: ${buildNgoCtaUrl(VIDEO_SUPPORT_NGO_SLUG)}`;
     case 'transparency':
       return `Az átláthatósági riport itt érhető el: https://app.sharity.hu/impactshop/leaderboard. Ha részletes adat kell, a REST JSON: https://app.sharity.hu/wp-json/impactshop/v1/leaderboard. Visszajelzéshez űrlap: ${DEFAULT_FILLOUT_URL}.`;
     case 'no_shop':
-      return `Ha most nem vásárolnál, támogass videóval vagy válassz ügyet űrlapon. Link: ${VIDEO_SUPPORT_URL}. Ha kérsz, adok űrlapot is: ${DEFAULT_FILLOUT_URL}.`;
+      return `Ha most nem vásárolnál, támogass videóval vagy válassz ügyet űrlapon. Link: ${buildNgoCtaUrl(VIDEO_SUPPORT_NGO_SLUG)}. Ha kérsz, adok űrlapot is: ${DEFAULT_FILLOUT_URL}.`;
     case 'leaderboard':
       return 'A ranglista itt van: https://app.sharity.hu/impactshop/leaderboard. Ha a linkről indulsz, rögzül az adományod a toplistán is.';
     case 'feedback':
@@ -1271,7 +1271,7 @@ function summarizeHighImpactOffers(): string {
 
 function buildVideoSupportOffer(preferredNgoSlug?: string): RecommendationOffer {
   const ngoSlug = preferredNgoSlug || VIDEO_SUPPORT_NGO_SLUG;
-  const ctaUrl = `${VIDEO_SUPPORT_URL}${VIDEO_SUPPORT_URL.includes('?') ? '&' : '?'}ngo=${ngoSlug}`;
+  const ctaUrl = buildNgoCtaUrl(ngoSlug);
   const donationPerView = Number.isFinite(VIDEO_SUPPORT_DONATION_HUF) ? VIDEO_SUPPORT_DONATION_HUF : 150;
   return {
     source: 'video_support',
@@ -1305,7 +1305,7 @@ function buildVideoSupportOffer(preferredNgoSlug?: string): RecommendationOffer 
 
 function summarizeVideoSupport(offer: RecommendationOffer): string {
   const ngo = offer.preferred_ngo_slug || VIDEO_SUPPORT_NGO_SLUG;
-  const link = offer.cta_url || offer.fillout_url || VIDEO_SUPPORT_URL;
+  const link = offer.cta_url || offer.fillout_url || buildNgoCtaUrl(ngo);
   return `Videós támogatás: indítsd el a kampányvideót, és a jutalék automatikusan a(z) ${ngo} ügyéhez kerül. Link: ${link}`;
 }
 
