@@ -2152,7 +2152,7 @@ app.post('/api/v1/chat/impi', async (req, res) => {
       narrative = [
         'Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek.',
         `Link: ${cta}`,
-        `A támogatás a(z) ${ngoSlug} javára könyvelődik, amint elindítod a videót. Nincs kuponkód és nincs fix összeg feltüntetve; csak kattints a linkre és indítsd a lejátszást.`
+        `A támogatás a(z) ${ngoSlug} javára könyvelődik, amint elindítod a videót.`
       ].join('\n');
       modelUsed = 'fixed-video-support';
     } else if (!recommendation.intent || !SUMMARY_LOCKED_INTENTS.has(recommendation.intent)) {
