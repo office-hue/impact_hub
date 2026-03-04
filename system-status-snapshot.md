@@ -3646,3 +3646,12 @@ production: HTTP 200 (980 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Manual update: 2026-03-03 09:55:29_
+
+### Baseline pivot
+
+- Új etalon baseline aktiválva: impactshop-baseline-2026-03-03.md
+
+**Baseline referencia:** impactshop-baseline-2026-03-03.md

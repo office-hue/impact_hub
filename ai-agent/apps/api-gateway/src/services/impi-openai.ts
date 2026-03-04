@@ -27,13 +27,17 @@ const ENABLE_WEB_FALLBACK = process.env.ENABLE_WEB_FALLBACK === '1';
 const DECISION_PROMPT_KEYWORDS = ['hogyan döntesz', 'hogyan dontod', 'döntési mechanizmus', 'dontesi mechanizmus', 'melyik ngo-t ajánlod', 'melyik ngo-t ajanlod'];
 const DEFAULT_FILLOUT_URL = process.env.IMPACTSHOP_IMPI_FILLOUT_URL || '';
 const IMPACT_REPORT_URL = process.env.IMPACTSHOP_IMPI_IMPACT_URL || 'https://app.sharity.hu/impactshop/leaderboard';
-const VIDEO_SUPPORT_URL = process.env.IMPACTSHOP_VIDEO_SUPPORT_URL || 'https://adomany.sharity.hu/about-us?utm_source=impi';
 const VIDEO_SUPPORT_NGO_SLUG = process.env.IMPACTSHOP_VIDEO_NGO_SLUG || 'bator-tabor';
 const FRIENDLY_SUPPORT_FORM_LABEL = 'támogatási űrlap';
 const FRIENDLY_SUPPORT_FORM_CTA = DEFAULT_FILLOUT_URL
   ? `${FRIENDLY_SUPPORT_FORM_LABEL}: ${DEFAULT_FILLOUT_URL}`
   : FRIENDLY_SUPPORT_FORM_LABEL;
-const VIDEO_SUPPORT_CTA = `${VIDEO_SUPPORT_URL}${VIDEO_SUPPORT_URL.includes('?') ? '&' : '?'}ngo=${VIDEO_SUPPORT_NGO_SLUG}`;
+function buildVideoSupportCta(ngoSlug: string): string {
+  const safeSlug = ngoSlug || 'impactshop';
+  return `https://app.sharity.hu/impactshop?ngo=${safeSlug}&d1=${safeSlug}&src=impi`;
+}
+
+const VIDEO_SUPPORT_CTA = buildVideoSupportCta(VIDEO_SUPPORT_NGO_SLUG);
 
 function getTemperatureForIntent(intent?: string): number {
   const creativeIntents = new Set(['feedback', 'transparency', 'wrong_expectation', 'no_shop']);
@@ -95,7 +99,7 @@ interface GenerateOptions {
 function buildFallbackHierarchy(): string[] {
   return [
     'Most nincs aktív kupon – kérj pontosítást (termék/összeg/ügy), vagy válassz ezek közül:',
-    `1. Videós támogatás: ${VIDEO_SUPPORT_URL}`,
+    `1. Videós támogatás: ${VIDEO_SUPPORT_CTA}`,
     '2. Írd meg, melyik ügy fontos, és ajánlok NGO-t/linket.',
     `3. Impact riport / toplista: ${IMPACT_REPORT_URL}`,
   ];
@@ -364,7 +368,7 @@ export async function generateImpiSummary(
     'ADAT-SZABÁLYOK (szigorú):',
     '- Ha kapsz "Elérhető ajánlatok" JSON-t, kizárólag ebből dolgozz; ne találj ki kupont, shopot, linket vagy összeget.',
     '- Graphiti / toplista / memóriakontextus csak inspiráció: CTA, link vagy kupon kizárólag az "Elérhető ajánlatok" JSON `cta_url`/`coupon_code` mezőiből jöhet.',
-    '- Linket kizárólag a `cta_url` mezőből adj meg (pontos másolással). Ne használj markdown link szintaxist (`[szöveg](link)`); írd ki a teljes URL-t "Link: https://..." formában. A válasz legyen 2–4 mondat, ne táblázatos/bullet mezőlista.',
+    '- Linket kizárólag a `cta_url` mezőből adj meg (pontos másolással). Ne használj markdown link szintaxist (`[szöveg](link)`); írd ki a teljes URL-t "Link: https://..." formában. A válasz legyen rövid bekezdés (2–4 mondat), bullet nélkül.',
     '- Kuponkódot kizárólag a `coupon_code` mezőből adj meg; ha null, akkor írd: "kód nélkül".',
     '- Tilos leírni a "Fillout" szót bármilyen formában; az űrlapot csak "űrlap"-ként említsd.',
     '',
@@ -418,11 +422,11 @@ export async function generateImpiSummary(
     );
   } else if (hasOffers) {
     userPromptSections.push(
-      'Írj rövid választ (<120 szó), bulletpontok nélkül vagy max. 2 bulletben. Minden ajánlatnál szerepeljen: shop + ajánlat neve, kuponkód (vagy "kód nélkül"), adomány (ha ismert), NGO neve/slug és a CTA link teljes URL-lel ("Link: https://...").'
+      'Írj rövid választ (2–4 mondat), egy bekezdésben, bullet nélkül. Minden ajánlatnál szerepeljen: shop + ajánlat neve, kuponkód (vagy "kód nélkül"), adomány (ha ismert), NGO neve/slug és a CTA link teljes URL-lel ("Link: https://...").'
     );
   } else {
     userPromptSections.push(
-      `Nincs releváns kupon. Adj magyar összefoglalót (≤120 szó) és sorold fel a sorrendet: 1) ImpactShop kampány link, 2) videós támogatás: ${VIDEO_SUPPORT_URL}, 3) ${FRIENDLY_SUPPORT_FORM_LABEL}: ${DEFAULT_FILLOUT_URL}, 4) Impact riport: ${IMPACT_REPORT_URL}. A linkeket teljes URL-lel, plain textben írd.`
+      `Nincs releváns kupon. Adj rövid magyar összefoglalót (2–4 mondat), egy bekezdésben. Emeld ki ezt a sorrendet: ImpactShop kampány, videós támogatás (${VIDEO_SUPPORT_CTA}), ${FRIENDLY_SUPPORT_FORM_LABEL} (${DEFAULT_FILLOUT_URL}), Impact riport (${IMPACT_REPORT_URL}). A linkeket teljes URL-lel, plain textben írd.`
     );
   }
 
@@ -491,7 +495,7 @@ export async function generateImpiSummary(
   }
 
   userPromptSections.push(
-    'Nyelv: magyar. Kerüld a technikai szavakat (pl. "fallback"). Tilos leírni: "Fillout". Használj barátságos kifejezéseket: "űrlap", "link", "lépés". Legyen rövid, 4-5 bullet maximum.',
+    'Nyelv: magyar. Kerüld a technikai szavakat (pl. "fallback"). Tilos leírni: "Fillout". Használj barátságos kifejezéseket: "űrlap", "link", "lépés". Legyen rövid bekezdés (2–4 mondat), bullet nélkül.',
   );
 
   if (userMessage && DECISION_PROMPT_KEYWORDS.some(keyword => userMessage.toLowerCase().includes(keyword))) {
@@ -500,21 +504,21 @@ export async function generateImpiSummary(
 
   if (recommendation.intent === 'category') {
     userPromptSections.push(
-      `KÖTELEZŐ: legalább két konkrét NGO-t (slug + név) említs bulletpontban, írd le röviden, miért fontosak, és a CTA mindig slug alapú ImpactShop vagy ${FRIENDLY_SUPPORT_FORM_LABEL} link legyen.`,
+      `KÖTELEZŐ: legalább két konkrét NGO-t (slug + név) említs röviden, és jelezd, miért fontosak. A CTA mindig slug alapú ImpactShop vagy ${FRIENDLY_SUPPORT_FORM_LABEL} link legyen, egy bekezdésben.`,
     );
   }
   if (recommendation.intent === 'transparency' || recommendation.intent === 'no_shop') {
     userPromptSections.push(
-      `KÖTELEZŐ: Ne ajánlj webshopot! Mutasd az ImpactShop toplistát (${IMPACT_REPORT_URL}) és a REST endpointot (/wp-json/impactshop/v1/leaderboard), valamint adj egy barátságos ${FRIENDLY_SUPPORT_FORM_LABEL} linket (${DEFAULT_FILLOUT_URL}) a visszajelzéshez. Max. 3 bullet, mind CTA-val, technikai szavak nélkül.`,
+      `KÖTELEZŐ: Ne ajánlj webshopot! Röviden mutasd az ImpactShop toplistát (${IMPACT_REPORT_URL}) és a REST endpointot (/wp-json/impactshop/v1/leaderboard), majd adj ${FRIENDLY_SUPPORT_FORM_LABEL} linket (${DEFAULT_FILLOUT_URL}) a visszajelzéshez. Egy bekezdés, technikai szavak nélkül.`,
     );
   }
   if (recommendation.intent === 'video_support') {
     userPromptSections.push(
-      `KÖTELEZŐ: részletezd a videós támogatás lépéseit és adj konkrét videós CTA-t: ${VIDEO_SUPPORT_URL}. Adj legalább egy NGO slugot (pl. ${VIDEO_SUPPORT_NGO_SLUG}) és ImpactShop linket slug paraméterrel, hogy hova könyvelődik az adomány. Ne használj technikai kifejezéseket.`,
+      `KÖTELEZŐ: röviden írd le a videós támogatást és adj konkrét videós CTA-t: ${VIDEO_SUPPORT_CTA}. Adj legalább egy NGO slugot (pl. ${VIDEO_SUPPORT_NGO_SLUG}) és ImpactShop linket slug paraméterrel, hogy hova könyvelődik az adomány. Egy bekezdés, technikai kifejezések nélkül.`,
     );
   }
   if (recommendation.intent === 'leaderboard') {
-    userPromptSections.push('KÖTELEZŐ: említsd a ranglista URL-t (`/wp-json/impactshop/v1/leaderboard` + ImpactShop toplista) és motiváld a felhasználót a következő lépésre.');
+    userPromptSections.push('KÖTELEZŐ: említsd a ranglista URL-t (`/wp-json/impactshop/v1/leaderboard` + ImpactShop toplista) és motiváld a felhasználót a következő lépésre, rövid bekezdésben.');
   }
   if (recommendation.intent === 'feedback') {
     userPromptSections.push(
@@ -528,7 +532,7 @@ export async function generateImpiSummary(
     userPromptSections.push('KÖTELEZŐ: írd le, hogyan osztható meg az NGO kártya/link (`https://app.sharity.hu/impactshop?ngo=<slug>&d1=<slug>`), és hogyan rögzül a ranglistán.');
   }
   if (recommendation.intent === 'high_impact') {
-    userPromptSections.push('KÖTELEZŐ: emeld ki, mely shopok adják most a legnagyobb jutalékot, és minden pontnál legyen slugos CTA + adomány mérték.');
+    userPromptSections.push('KÖTELEZŐ: emeld ki, mely shopok adják most a legnagyobb jutalékot, és adj slugos CTA-t + adomány mértéket rövid bekezdésben.');
   }
   if (recommendation.intent === 'coupon_only') {
     userPromptSections.push('KÖTELEZŐ: kizárólag a kupon/kedvezmény részleteit írd le (kód, feltételek, hivatkozás). Tilos NGO-t vagy adományt említeni – fókusz a kuponinformáción.');
@@ -540,7 +544,7 @@ export async function generateImpiSummary(
   }
   if (empathyCue) {
     userPromptSections.push(
-      `Empatikus nyitás szükséges: ${empathyCue}. Adj bíztató mondatot és sorolj fel legalább 3 low-effort opciót (videós támogatás: ${VIDEO_SUPPORT_URL}, kis összegű vásárlás konkrét példával, ${FRIENDLY_SUPPORT_FORM_LABEL} inspiráció: ${DEFAULT_FILLOUT_URL}). Minden pontnál legyen CTA/link.`,
+      `Empatikus nyitás szükséges: ${empathyCue}. Adj bíztató mondatot, és említs legalább 3 low-effort opciót egy rövid bekezdésben (videós támogatás: ${VIDEO_SUPPORT_CTA}, kis összegű vásárlás konkrét példával, ${FRIENDLY_SUPPORT_FORM_LABEL} inspiráció: ${DEFAULT_FILLOUT_URL}). Minden opcióhoz legyen CTA/link, bullet nélkül.`,
     );
   }
 
