@@ -3646,3 +3646,12 @@ production: HTTP 200 (980 ms, ok) – https://app.sharity.hu/wp-json/
 ```
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Manual update: 2026-03-05 15:41:50 CET_
+
+### Daily checkpoint (clean worktree)
+
+- `impactall` futás rögzítve a monorepo gyökérből (`IMPACTALL_SKIP_SAFE_AUDIT=1 IMPACTALL_AUTO_NOTES=0 ./impactall`, 2026-03-05 15:40:35 CET).
+- Clean strict audit PASS: `scripts/safe-repo-audit.sh --repo /private/tmp/impact_hub-checkpoint-20260305 --strict` -> `OK: no local changes detected.`
+- Queue tisztítás kész: `office-hue/ai-agent` PR #8 lezárva 2026-03-05-én (conflicting queue cleanup).
