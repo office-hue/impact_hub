@@ -3685,3 +3685,15 @@ _Manual update: 2026-03-08 14:24:00_
 - Cél: a három aktív repo pre-push guard policy-jének egységesítése (`--strict --mode push`).
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Manual update: 2026-03-08 22:15:00 CET_
+
+### One-path enforcement applied
+
+- Enforced workflow gates updated: `pre-commit` blocks `main/master` commit, `pre-push` blocks direct `main/master` push.
+- Push audit standardized to `safe-repo-audit.sh --strict --mode push`.
+- `scripts/install-hooks-all.sh` hardening: worktree-safe hook path resolution (`git rev-parse --git-path hooks`).
+- `scripts/git-health-check.sh` now validates required policy files and hook markers.
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
