@@ -6,15 +6,19 @@ set -euo pipefail
 
 STRICT=0
 TARGET_PATH="."
+MODE="local"
+PUSH_BASE=""
+PUSH_RANGE=""
 
 usage() {
   cat <<'EOF'
 Usage:
-  safe-repo-audit.sh [--repo <path>] [--strict]
+  safe-repo-audit.sh [--repo <path>] [--strict] [--mode local|push]
 
 Options:
   --repo <path>   Target git repository path (default: current directory)
   --strict        Exit non-zero when warnings are found
+  --mode <mode>   Scan mode: local (working tree) or push (committed range to upstream)
   -h, --help      Show this help
 
 Examples:
@@ -33,6 +37,10 @@ while [[ $# -gt 0 ]]; do
       STRICT=1
       shift
       ;;
+    --mode)
+      MODE="${2:-}"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -47,6 +55,11 @@ done
 
 if ! REPO_ROOT="$(git -C "$TARGET_PATH" rev-parse --show-toplevel 2>/dev/null)"; then
   echo "ERROR: not a git repository: $TARGET_PATH" >&2
+  exit 1
+fi
+
+if [[ "$MODE" != "local" && "$MODE" != "push" ]]; then
+  echo "ERROR: --mode must be 'local' or 'push' (got: $MODE)" >&2
   exit 1
 fi
 
@@ -67,11 +80,31 @@ ENV_KEY_WARN_HITS="$TMP_DIR/env-key-warn-hits.txt"
 ENV_KEY_INFO_HITS="$TMP_DIR/env-key-info-hits.txt"
 CONTENT_HITS="$TMP_DIR/content-hits.txt"
 TRACKED_SENSITIVE="$TMP_DIR/tracked-sensitive.txt"
+MODULE_CHANGE_HITS="$TMP_DIR/module-change-hits.txt"
+DOCS_MD_HITS="$TMP_DIR/docs-md-hits.txt"
+SNAPSHOT_HITS="$TMP_DIR/snapshot-hits.txt"
+NOTES_OR_CONV_HITS="$TMP_DIR/notes-or-conv-hits.txt"
+NEW_MODULE_FILES="$TMP_DIR/new-module-files.txt"
+BASTION_GUARD_HITS="$TMP_DIR/bastion-guard-hits.txt"
+
+if [[ "$MODE" == "push" ]]; then
+  upstream_ref="${SAFE_REPO_AUDIT_UPSTREAM:-@{upstream}}"
+  if git rev-parse --verify "$upstream_ref" >/dev/null 2>&1; then
+    PUSH_BASE="$(git merge-base HEAD "$upstream_ref")"
+  else
+    PUSH_BASE="$(git hash-object -t tree /dev/null)"
+  fi
+  PUSH_RANGE="${PUSH_BASE}..HEAD"
+fi
 
 {
-  git diff --name-only
-  git diff --cached --name-only
-  git ls-files --others --exclude-standard
+  if [[ "$MODE" == "push" ]]; then
+    git diff --name-only "$PUSH_RANGE"
+  else
+    git diff --name-only
+    git diff --cached --name-only
+    git ls-files --others --exclude-standard
+  fi
 } | sed '/^$/d' | sort -u > "$CHANGED_LIST"
 
 # Filter out noisy dependency/artifact paths for path-based checks.
@@ -80,24 +113,46 @@ grep -Eiv \
   "$CHANGED_LIST" > "$FILTERED_CHANGED_LIST" || true
 
 {
-  git diff -U0 --no-color
-  git diff --cached -U0 --no-color
+  if [[ "$MODE" == "push" ]]; then
+    git diff -U0 --no-color "$PUSH_RANGE"
+  else
+    git diff -U0 --no-color
+    git diff --cached -U0 --no-color
+  fi
 } | awk '/^\+[^+]/ {print substr($0,2)}' > "$ADDED_LINES"
 
 echo "== Safe Repo Audit =="
 echo "Repo:    $REPO_ROOT"
 echo "Branch:  $BRANCH"
 echo "HEAD:    $HEAD_SHA"
+echo "Mode:    $MODE"
+if [[ "$MODE" == "push" ]]; then
+  echo "Range:   ${PUSH_RANGE}"
+fi
 echo "Changed: $(wc -l < "$CHANGED_LIST" | tr -d ' ') files"
 echo "Scan set (noise-filtered): $(wc -l < "$FILTERED_CHANGED_LIST" | tr -d ' ') files"
 echo
 
 WARNINGS=0
+DOC_GUARD_BYPASS="${SAFE_REPO_AUDIT_ALLOW_DOC_GAP:-0}"
 
 if [[ ! -s "$CHANGED_LIST" ]]; then
   echo "OK: no local changes detected."
   exit 0
 fi
+
+register_warning() {
+  local message="$1"
+  if [[ "$DOC_GUARD_BYPASS" == "1" ]]; then
+    echo "BYPASS: $message"
+    echo "BYPASS: SAFE_REPO_AUDIT_ALLOW_DOC_GAP=1 miatt dokumentációs gate nem blokkol."
+    echo
+    return 0
+  fi
+  WARNINGS=$((WARNINGS + 1))
+  echo "WARN: $message"
+  echo
+}
 
 # 1) Risky file name patterns in changed/untracked files.
 grep -Ein -- \
@@ -180,7 +235,73 @@ if [[ -s "$ENV_KEY_INFO_HITS" ]]; then
   echo
 fi
 
-# 4) Informational: tracked sensitive files already inside repository.
+# 4) Documentation continuity checks for module-level changes.
+grep -E -- \
+  '^(apps/|src/|wp-content/mu-plugins/|wp-content/plugins/|mu-plugins/|scripts/|bin/|services/|config/|types/|packages/|lib/|tools/)' \
+  "$FILTERED_CHANGED_LIST" \
+  | grep -Eiv -- \
+    '(^|/)(docs/|conversation-summaries/|chatgpt-history/|\.codex/|vendor/|node_modules/|status_snapshots/)' \
+  > "$MODULE_CHANGE_HITS" || true
+
+if [[ -s "$MODULE_CHANGE_HITS" ]]; then
+  echo "INFO: module-level changes detected:"
+  sed -n '1,60p' "$MODULE_CHANGE_HITS"
+  echo
+
+  grep -E -- '^docs/[^[:space:]]+\.(md|mdx)$' "$FILTERED_CHANGED_LIST" > "$DOCS_MD_HITS" || true
+  grep -E -- '^system-status-snapshot\.md$' "$FILTERED_CHANGED_LIST" > "$SNAPSHOT_HITS" || true
+
+  if [[ -f "$REPO_ROOT/notes.md" || -d "$REPO_ROOT/conversation-summaries" ]]; then
+    grep -E -- '^(notes\.md|conversation-summaries/[^[:space:]]+\.md)$' "$FILTERED_CHANGED_LIST" > "$NOTES_OR_CONV_HITS" || true
+  fi
+
+  if [[ ! -s "$DOCS_MD_HITS" ]]; then
+    register_warning "module change without docs/*.md update (minimum 1 docs markdown frissítés kötelező)."
+  fi
+
+  if [[ ! -s "$SNAPSHOT_HITS" ]]; then
+    register_warning "module change without system-status-snapshot.md update (impactall/snapshot folytonosság sérül)."
+  fi
+
+  if [[ -f "$REPO_ROOT/notes.md" || -d "$REPO_ROOT/conversation-summaries" ]]; then
+    if [[ ! -s "$NOTES_OR_CONV_HITS" ]]; then
+      register_warning "module change without notes.md vagy conversation-summaries/* frissítés."
+    fi
+  fi
+fi
+
+# 5) New module files must extend bastion/guard documentation.
+{
+  if [[ "$MODE" == "push" ]]; then
+    git diff --name-only --diff-filter=A "$PUSH_RANGE"
+  else
+    git diff --name-only --diff-filter=A
+    git diff --cached --name-only --diff-filter=A
+    git ls-files --others --exclude-standard
+  fi
+} | sed '/^$/d' | sort -u > "$NEW_MODULE_FILES"
+
+grep -E -- \
+  '^(apps/|src/|wp-content/mu-plugins/|wp-content/plugins/|mu-plugins/|services/|types/|packages/|lib/)' \
+  "$NEW_MODULE_FILES" \
+  | grep -Eiv -- \
+    '(^|/)(docs/|conversation-summaries/|chatgpt-history/|\.codex/|vendor/|node_modules/|__tests__/|tests?/)' \
+  > "$NEW_MODULE_FILES.filtered" || true
+
+if [[ -s "$NEW_MODULE_FILES.filtered" ]]; then
+  grep -E -- \
+    '(^|/)(docs/bastion-guard-status\.md|docs/.*(bastion|guard).*\.(md|mdx|json|ya?ml)|scripts/.*guard.*\.(sh|ts|js|mjs|py)|\.codex/guards/)' \
+    "$FILTERED_CHANGED_LIST" > "$BASTION_GUARD_HITS" || true
+
+  if [[ ! -s "$BASTION_GUARD_HITS" ]]; then
+    echo "INFO: new module files detected (first 40):"
+    sed -n '1,40p' "$NEW_MODULE_FILES.filtered"
+    echo
+    register_warning "new module without bastion/guard extension update (pl. docs/bastion-guard-status.md)."
+  fi
+fi
+
+# 6) Informational: tracked sensitive files already inside repository.
 git ls-files | grep -Ei -- \
   '(^|/)\.env($|\.|/)|\.pem$|\.p12$|\.pfx$|\.key$|(^|/)id_rsa($|\.|/)|(^|/)(secrets?|credentials?)(/|$)|master\.key$|credentials\.yml\.enc$' \
   > "$TRACKED_SENSITIVE" || true
