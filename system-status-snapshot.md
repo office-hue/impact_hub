@@ -3657,6 +3657,16 @@ _Manual update: 2026-03-05 15:41:50 CET_
 - Queue tisztítás kész: `office-hue/ai-agent` PR #8 lezárva 2026-03-05-én (conflicting queue cleanup).
 
 ---
+_Manual update: 2026-03-08 18:58:00_
+
+### Team rule codified
+
+- A PR template explicit Team Rule blokkot kapott: kötelező `PR Exit Checklist (Required)` rész.
+- A `scripts/install-hooks-all.sh` script most explicit policy emlékeztetőt ír ki minden futás végén (új klón/worktree bootstrap).
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
 _Manual update: 2026-03-08 14:12:00_
 
 ### Pre-push policy update
