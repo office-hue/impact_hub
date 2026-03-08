@@ -326,3 +326,5 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Documented VSCode extension lock + Copilot restore steps; `bin/preflight-check.sh` now fails fast if Codex CLI/TUI drifts from `.codex/codex-version.lock`; launchd template + `vscode-prelaunch-snapshot` script hozzáadva.
 
 Maintaining this handbook + automated backups ensures that a fresh macOS host with the repo + secrets can re-create the entire ImpactShop stack “down to the last screw” within hours. Store an exported copy of this Markdown file with the backup bundles so the recovery map is always accessible.
+
+- 2026-03-08: Közös hook telepítő bekerült (`scripts/install-hooks-all.sh`) a három aktív repo (`impactshop-notes`, `impact_hub`, `ai-agent`) pre-push policy egységesítéséhez.

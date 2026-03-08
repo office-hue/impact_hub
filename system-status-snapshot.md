@@ -3665,3 +3665,13 @@ _Manual update: 2026-03-08 14:12:00_
 - Cél: a strict audit csak a pusholt commit-range-et vizsgálja, így a dirty worktree miatti false-block megszűnik.
 
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Manual update: 2026-03-08 14:24:00_
+
+### Shared hook installer
+
+- Új közös telepítő: `scripts/install-hooks-all.sh`.
+- Cél: a három aktív repo pre-push guard policy-jének egységesítése (`--strict --mode push`).
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
