@@ -3655,3 +3655,13 @@ _Manual update: 2026-03-03 09:55:29_
 - Új etalon baseline aktiválva: impactshop-baseline-2026-03-03.md
 
 **Baseline referencia:** impactshop-baseline-2026-03-03.md
+
+---
+_Manual update: 2026-03-08 14:02:00_
+
+### Pre-push policy update
+
+- `scripts/safe-repo-audit.sh` támogatja a `--mode push` üzemmódot.
+- Cél: a strict audit csak a pusholt commit-range-et vizsgálja, így a dirty worktree miatti false-block megszűnik.
+
+**Baseline referencia:** impactshop-baseline-2026-03-03.md
