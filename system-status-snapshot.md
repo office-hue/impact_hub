@@ -3655,3 +3655,23 @@ _Manual update: 2026-03-05 15:41:50 CET_
 - `impactall` futás rögzítve a monorepo gyökérből (`IMPACTALL_SKIP_SAFE_AUDIT=1 IMPACTALL_AUTO_NOTES=0 ./impactall`, 2026-03-05 15:40:35 CET).
 - Clean strict audit PASS: `scripts/safe-repo-audit.sh --repo /private/tmp/impact_hub-checkpoint-20260305 --strict` -> `OK: no local changes detected.`
 - Queue tisztítás kész: `office-hue/ai-agent` PR #8 lezárva 2026-03-05-én (conflicting queue cleanup).
+
+---
+_Manual update: 2026-03-08 14:12:00_
+
+### Pre-push policy update
+
+- `scripts/safe-repo-audit.sh` támogatja a `--mode push` üzemmódot.
+- Cél: a strict audit csak a pusholt commit-range-et vizsgálja, így a dirty worktree miatti false-block megszűnik.
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md
+
+---
+_Manual update: 2026-03-08 14:24:00_
+
+### Shared hook installer
+
+- Új közös telepítő: `scripts/install-hooks-all.sh`.
+- Cél: a három aktív repo pre-push guard policy-jének egységesítése (`--strict --mode push`).
+
+**Baseline referencia:** impactshop-baseline-2025-11-02.md

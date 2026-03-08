@@ -317,6 +317,7 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Schedule monthly verification of Discord webhook connectivity by running `bash .codex/cron/red-flag-alert.sh --dry-run`.
 
 ## 9. Change Log (2025-11-08)
+- 2026-03-08: Pre-push standard policy egységesítve `--mode push` használatra, így a strict audit a ténylegesen pusholt commit tartományt ellenőrzi, nem a teljes dirty worktree-t (false-block csökkentés).
 - Added weekly restore validation cron (`scripts/backup-restore-test.sh`), production health check (`.codex/cron/production-health-check.sh`), and daily Codex CLI/TUI guard run (`.codex/guards/codex-version-guard.sh`), storing artifacts under `status_snapshots/restore-test-*.md`, `~/.codex/logs/production-health.cron.log`, and `~/.codex/logs/codex-cli.cron.log`.
 - Introduced cron heartbeat guard (`.codex/guards/cron-heartbeat-guard.sh`) so missing guard executions azonnal látszanak.
 - Added `.github/workflows/force-push-alert.yml` to ping Discord when GitHub jelzi, hogy `main` force push történt.
@@ -325,3 +326,5 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Documented VSCode extension lock + Copilot restore steps; `bin/preflight-check.sh` now fails fast if Codex CLI/TUI drifts from `.codex/codex-version.lock`; launchd template + `vscode-prelaunch-snapshot` script hozzáadva.
 
 Maintaining this handbook + automated backups ensures that a fresh macOS host with the repo + secrets can re-create the entire ImpactShop stack “down to the last screw” within hours. Store an exported copy of this Markdown file with the backup bundles so the recovery map is always accessible.
+
+- 2026-03-08: Közös hook telepítő bekerült (`scripts/install-hooks-all.sh`) a három aktív repo (`impactshop-notes`, `impact_hub`, `ai-agent`) pre-push policy egységesítéséhez.
