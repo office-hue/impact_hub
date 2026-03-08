@@ -1,0 +1,57 @@
+name: PR Checklist Guard
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  checklist:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.draft == false }}
+    steps:
+      - name: Validate required checklist in PR body
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import sys
+
+          body = os.getenv("PR_BODY", "") or ""
+
+          if "PR Exit Checklist (Required)" not in body:
+              print("Missing section: PR Exit Checklist (Required)", file=sys.stderr)
+              sys.exit(1)
+
+          required = [
+              "1. Work was done on dedicated branch/worktree (not `main`)",
+              "2. Relevant build/tests ran and are green",
+              "3. `safe-repo-audit.sh --strict --mode push` is green",
+              "4. `system-status-snapshot.md` updated for module change",
+              "5. At least one `docs/*.md` updated for module change",
+              "6. `notes.md` or `conversation-summaries/*` updated (notes-context repos)",
+              "7. `docs/bastion-guard-status.md` updated when new module file was added",
+              "8. Deploy guard + smoke checks are logged (if deploy happened)",
+              "9. Backup/rollback path is recorded",
+              "10. PR description includes scope, risk, validation, deploy/rollback notes",
+          ]
+
+          missing = []
+          for item in required:
+              pattern = re.compile(r"- \[(?: |x|X)\] " + re.escape(item))
+              if not pattern.search(body):
+                  missing.append(item)
+
+          if missing:
+              print("Missing checklist items:", file=sys.stderr)
+              for m in missing:
+                  print(f"- {m}", file=sys.stderr)
+              sys.exit(1)
+
+          print("Checklist guard PASS")
+          PY
