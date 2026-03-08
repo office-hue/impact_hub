@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Team policy:
+# - Every new clone/worktree bootstrap must run this installer once.
+# - Command: bash scripts/install-hooks-all.sh
+
 WORKSPACE_ROOT="${IMPACT_WORKSPACE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 
 install_hook() {
@@ -72,3 +76,4 @@ install_hook "${WORKSPACE_ROOT}/impact_hub" "IMPACT_HUB_EXPECTED_ORIGIN" "https:
 install_hook "${WORKSPACE_ROOT}/ai-agent" "AI_AGENT_EXPECTED_ORIGIN" "" "optional"
 
 echo "[install-hooks-all] kész."
+echo "[install-hooks-all] policy: új klón/worktree után kötelezően futtasd újra."

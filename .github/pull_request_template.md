@@ -1,3 +1,9 @@
+## Team Rule (Mandatory)
+
+- Every PR must include the `PR Exit Checklist (Required)` block in the PR body.
+- PR is not merge-ready without this block (`PR Checklist Guard` CI enforces it).
+- New clone/worktree bootstrap: run `bash scripts/install-hooks-all.sh` from workspace root.
+
 ## Summary
 
 - Scope:
