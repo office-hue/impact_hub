@@ -317,6 +317,7 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Schedule monthly verification of Discord webhook connectivity by running `bash .codex/cron/red-flag-alert.sh --dry-run`.
 
 ## 9. Change Log (2025-11-08)
+- 2026-03-08: Pre-push standard policy egységesítve `--mode push` használatra, így a strict audit a ténylegesen pusholt commit tartományt ellenőrzi, nem a teljes dirty worktree-t (false-block csökkentés).
 - Added weekly restore validation cron (`scripts/backup-restore-test.sh`), production health check (`.codex/cron/production-health-check.sh`), and daily Codex CLI/TUI guard run (`.codex/guards/codex-version-guard.sh`), storing artifacts under `status_snapshots/restore-test-*.md`, `~/.codex/logs/production-health.cron.log`, and `~/.codex/logs/codex-cli.cron.log`.
 - Introduced cron heartbeat guard (`.codex/guards/cron-heartbeat-guard.sh`) so missing guard executions azonnal látszanak.
 - Added `.github/workflows/force-push-alert.yml` to ping Discord when GitHub jelzi, hogy `main` force push történt.
