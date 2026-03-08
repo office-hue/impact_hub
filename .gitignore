@@ -56,9 +56,12 @@ wp-content/mu-plugins/*
 /impact-bridge-local/
 /scripts/*
 !/scripts/impactshop-ngo-card-restore.sh
+!/scripts/start-feature-worktree.sh
+!/scripts/git-health-check.sh
 /docs/*
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md
+!/docs/pr-policy.md
 /bin/
 /impactshop-baseline-2025-10-15.md
 /impactshop-link-diagnostics.php
