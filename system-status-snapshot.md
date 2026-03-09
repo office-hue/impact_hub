@@ -3648,52 +3648,24 @@ production: HTTP 200 (980 ms, ok) – https://app.sharity.hu/wp-json/
 **Baseline referencia:** impactshop-baseline-2025-11-02.md
 
 ---
-_Manual update: 2026-03-05 15:41:50 CET_
+_Manual update: 2026-03-03 09:55:29_
 
-### Daily checkpoint (clean worktree)
+### Baseline pivot
 
-- `impactall` futás rögzítve a monorepo gyökérből (`IMPACTALL_SKIP_SAFE_AUDIT=1 IMPACTALL_AUTO_NOTES=0 ./impactall`, 2026-03-05 15:40:35 CET).
-- Clean strict audit PASS: `scripts/safe-repo-audit.sh --repo /private/tmp/impact_hub-checkpoint-20260305 --strict` -> `OK: no local changes detected.`
-- Queue tisztítás kész: `office-hue/ai-agent` PR #8 lezárva 2026-03-05-én (conflicting queue cleanup).
+- Új etalon baseline aktiválva: impactshop-baseline-2026-03-03.md
 
----
-_Manual update: 2026-03-08 18:58:00_
-
-### Team rule codified
-
-- A PR template explicit Team Rule blokkot kapott: kötelező `PR Exit Checklist (Required)` rész.
-- A `scripts/install-hooks-all.sh` script most explicit policy emlékeztetőt ír ki minden futás végén (új klón/worktree bootstrap).
-
-**Baseline referencia:** impactshop-baseline-2025-11-02.md
+**Baseline referencia:** impactshop-baseline-2026-03-03.md
 
 ---
-_Manual update: 2026-03-08 14:12:00_
+_Manual update: 2026-03-08 14:02:00_
 
 ### Pre-push policy update
 
 - `scripts/safe-repo-audit.sh` támogatja a `--mode push` üzemmódot.
 - Cél: a strict audit csak a pusholt commit-range-et vizsgálja, így a dirty worktree miatti false-block megszűnik.
 
-**Baseline referencia:** impactshop-baseline-2025-11-02.md
+**Baseline referencia:** impactshop-baseline-2026-03-03.md
 
----
-_Manual update: 2026-03-08 14:24:00_
-
-### Shared hook installer
-
-- Új közös telepítő: `scripts/install-hooks-all.sh`.
-- Cél: a három aktív repo pre-push guard policy-jének egységesítése (`--strict --mode push`).
-
-**Baseline referencia:** impactshop-baseline-2025-11-02.md
-
----
-_Manual update: 2026-03-08 22:15:00 CET_
-
-### One-path enforcement applied
-
-- Enforced workflow gates updated: `pre-commit` blocks `main/master` commit, `pre-push` blocks direct `main/master` push.
-- Push audit standardized to `safe-repo-audit.sh --strict --mode push`.
-- `scripts/install-hooks-all.sh` hardening: worktree-safe hook path resolution (`git rev-parse --git-path hooks`).
-- `scripts/git-health-check.sh` now validates required policy files and hook markers.
-
-**Baseline referencia:** impactshop-baseline-2025-11-02.md
+## 2026-03-09 Workflow Infra Update
+- Dev-memory workflow 1-8 aktiválva (pre-task, context-pack, memory gate, PR auto-memory, commit template/hook, incident, digest, Copilot MCP guard).
+- Hookok újratelepítve; napi digest cron aktív.

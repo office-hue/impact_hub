@@ -1,24 +1,41 @@
-## Team Rule (Mandatory)
-
-- Every PR must include the `PR Exit Checklist (Required)` block in the PR body.
-- PR is not merge-ready without this block (`PR Checklist Guard` CI enforces it).
-- New clone/worktree bootstrap: run `bash scripts/install-hooks-all.sh` from workspace root.
-
 ## Summary
+- What changed?
+- Why was it needed?
 
-- Scope:
-- Why:
-- Risk:
+## Scope Boundaries
+- In scope:
+- Explicitly out of scope:
 
-## Validation
+## Risk Level
+- [ ] Low
+- [ ] Medium
+- [ ] High
+- Risk notes:
 
-- [ ] Relevant build/test commands passed
-- [ ] `safe-repo-audit.sh --strict --mode push` passed
-- [ ] Deploy/smoke verification documented (if applicable)
-- [ ] Rollback path documented
+## Test Evidence
+- Commands run:
+  - `npm run lint`
+  - `npm run test:smoke`
+- Result summary:
+
+## Guard Evidence
+- [ ] Safe audit strict passed (`scripts/safe-repo-audit.sh --repo <repo> --strict --mode push`)
+- [ ] Branch protection checks considered (`lint-smoke`)
+- Additional guard notes:
+
+## Rollback Plan
+- Revert strategy:
+- Data/ops impact during rollback:
+
+## Docs
+- [ ] Docs updated
+- [ ] Docs not needed (reason):
+
+## Docs-only Exception
+- [ ] This is docs-only (no runtime/code path changes)
+- If checked: list touched paths and why tests/guards were minimized.
 
 ## PR Exit Checklist (Required)
-
 - [ ] 1. Work was done on dedicated branch/worktree (not `main`)
 - [ ] 2. Relevant build/tests ran and are green
 - [ ] 3. `safe-repo-audit.sh --strict --mode push` is green
