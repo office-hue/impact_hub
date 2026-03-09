@@ -1,6 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+resolve_ai_agent_repo() {
+  local repo_root="$1"
+  local search="$repo_root"
+  local parent=""
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    if [[ "$(basename "$search")" == "ai-agent" && -f "$search/scripts/dev-memory.ts" ]]; then
+      echo "$search"
+      return 0
+    fi
+    if [[ -d "$search/ai-agent" && -f "$search/ai-agent/scripts/dev-memory.ts" ]]; then
+      echo "$search/ai-agent"
+      return 0
+    fi
+    for wt in "$search"/.worktrees/ai-agent*; do
+      if [[ -d "$wt" && -f "$wt/scripts/dev-memory.ts" ]]; then
+        echo "$wt"
+        return 0
+      fi
+    done
+    parent="$(cd "$search/.." && pwd)"
+    [[ "$parent" == "$search" ]] && break
+    search="$parent"
+  done
+  return 1
+}
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -58,3 +84,22 @@ echo "[start-feature-worktree] kész"
 echo "repo:   $REPO_NAME"
 echo "branch: $FEATURE_BRANCH"
 echo "path:   $WT_DIR"
+
+AI_AGENT_REPO="$(resolve_ai_agent_repo "$REPO_ROOT" 2>/dev/null || true)"
+if [[ -n "${AI_AGENT_REPO}" ]] && command -v npm >/dev/null 2>&1; then
+  TASK_SEED="start-feature:${REPO_NAME}/${FEATURE_BRANCH}"
+  npm --prefix "${AI_AGENT_REPO}" run -s memory:pre-task -- \
+    --task "${TASK_SEED}" \
+    --out "tmp/state/dev-memory/last-brief.json" \
+    --limit 8 \
+    --file-limit 6 >/dev/null 2>&1 || true
+
+  npm --prefix "${AI_AGENT_REPO}" run -s memory:context-pack -- \
+    --repo "${WT_DIR}" \
+    --branch "${FEATURE_BRANCH}" \
+    --task "${TASK_SEED}" \
+    --limit 8 \
+    --file-limit 6 >/dev/null 2>&1 || true
+
+  echo "[start-feature-worktree] memory pre-task + context-pack: kész (fail-open)"
+fi

@@ -46,9 +46,36 @@ if [[ -x "$HOOK_PATH" ]]; then
     echo "[git-health-check] FAIL: pre-push hookból hiányzik a --strict --mode push"
     FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
+
+  if rg -q -- 'memory:gate' "$HOOK_PATH"; then
+    echo "[git-health-check] OK: pre-push memory gate bekötve"
+  else
+    echo "[git-health-check] FAIL: pre-push hookból hiányzik a memory:gate"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  fi
+
+  if rg -q -- 'memory:sync-pr' "$HOOK_PATH"; then
+    echo "[git-health-check] OK: pre-push PR auto-memory sync bekötve"
+  else
+    echo "[git-health-check] WARN: pre-push hookból hiányzik a memory:sync-pr"
+    WARN_COUNT=$((WARN_COUNT + 1))
+  fi
 else
   echo "[git-health-check] FAIL: hiányzó vagy nem futtatható pre-push hook: $HOOK_PATH"
   FAIL_COUNT=$((FAIL_COUNT + 1))
+fi
+
+COMMIT_MSG_HOOK="$(git rev-parse --git-path hooks/commit-msg)"
+if [[ -x "$COMMIT_MSG_HOOK" ]]; then
+  if rg -q -- 'Memory-ID:' "$COMMIT_MSG_HOOK"; then
+    echo "[git-health-check] OK: commit-msg Memory-ID biztosítás aktív"
+  else
+    echo "[git-health-check] WARN: commit-msg hook megvan, de Memory-ID sor nincs benne"
+    WARN_COUNT=$((WARN_COUNT + 1))
+  fi
+else
+  echo "[git-health-check] WARN: hiányzó commit-msg hook: $COMMIT_MSG_HOOK"
+  WARN_COUNT=$((WARN_COUNT + 1))
 fi
 
 if [[ ! -x "$REPO_ROOT/scripts/safe-repo-audit.sh" ]]; then

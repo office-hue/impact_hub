@@ -3665,3 +3665,7 @@ _Manual update: 2026-03-08 14:02:00_
 - Cél: a strict audit csak a pusholt commit-range-et vizsgálja, így a dirty worktree miatti false-block megszűnik.
 
 **Baseline referencia:** impactshop-baseline-2026-03-03.md
+
+## 2026-03-09 Workflow Infra Update
+- Dev-memory workflow 1-8 aktiválva (pre-task, context-pack, memory gate, PR auto-memory, commit template/hook, incident, digest, Copilot MCP guard).
+- Hookok újratelepítve; napi digest cron aktív.
