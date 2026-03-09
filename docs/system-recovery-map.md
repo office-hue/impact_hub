@@ -1,14 +1,15 @@
 # ImpactShop System Recovery & Backup Handbook
 
-> Updated: 2025-11-08 12:29 CET – source of truth for rebuilding the full ImpactShop WordPress stack after any data loss.
+> Updated: 2026-02-25 09:30 CET – source of truth for rebuilding the full ImpactShop WordPress stack after any data loss.
 
 ## 1. Snapshot & Health
-- **Repo path:** `/Users/bujdosoarnold/Documents/GitHub`
-- **Git:** `main @ 3443089` (40 modified files in working tree)
+- **Repo path:** `/Users/bujdosoarnold/Developer/GitHub/impact_hub`
+- **Git:** `main @ 9fa19e3` (working tree state varies; check `git status`)
 - **Baselines:** `impactshop-baseline-2025-11-02.md` (primary), `system-status-snapshot.md` (rolling log)
 - **Guards:** `~/bin/impactall` (13/13 PASS) with alerts flowing to Discord webhook defined in `.codex/.env.guard`
 - **WP REST:** `https://www.sharity.hu/impactshop-staging/wp-json/` → HTTP 200 (redirects to prod host intentionally); Production `https://app.sharity.hu/wp-json/` → HTTP 200
 - **Secrets:** `.codex/.env` exports `GITHUB_TOKEN` (classic PAT – renewal required before manual expiry) and alert recipients
+- **System map:** `docs/impactshop-system-map.md` (cross-repo map)
 
 ## 2. Environment Map
 
@@ -317,7 +318,6 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Schedule monthly verification of Discord webhook connectivity by running `bash .codex/cron/red-flag-alert.sh --dry-run`.
 
 ## 9. Change Log (2025-11-08)
-- 2026-03-08: Team policy explicit rögzítése — PR template tetején kötelező checklist blokk szabály, valamint a `scripts/install-hooks-all.sh` script kiemelt bootstrap emlékeztetővel jelzi, hogy új klón/worktree után kötelező futtatni.
 - 2026-03-08: Pre-push standard policy egységesítve `--mode push` használatra, így a strict audit a ténylegesen pusholt commit tartományt ellenőrzi, nem a teljes dirty worktree-t (false-block csökkentés).
 - Added weekly restore validation cron (`scripts/backup-restore-test.sh`), production health check (`.codex/cron/production-health-check.sh`), and daily Codex CLI/TUI guard run (`.codex/guards/codex-version-guard.sh`), storing artifacts under `status_snapshots/restore-test-*.md`, `~/.codex/logs/production-health.cron.log`, and `~/.codex/logs/codex-cli.cron.log`.
 - Introduced cron heartbeat guard (`.codex/guards/cron-heartbeat-guard.sh`) so missing guard executions azonnal látszanak.
@@ -327,5 +327,3 @@ bash scripts/shortcode_sync/shortcode_sync_run_REAL.sh --env=production --dry-ru
 - Documented VSCode extension lock + Copilot restore steps; `bin/preflight-check.sh` now fails fast if Codex CLI/TUI drifts from `.codex/codex-version.lock`; launchd template + `vscode-prelaunch-snapshot` script hozzáadva.
 
 Maintaining this handbook + automated backups ensures that a fresh macOS host with the repo + secrets can re-create the entire ImpactShop stack “down to the last screw” within hours. Store an exported copy of this Markdown file with the backup bundles so the recovery map is always accessible.
-
-- 2026-03-08: Közös hook telepítő bekerült (`scripts/install-hooks-all.sh`) a három aktív repo (`impactshop-notes`, `impact_hub`, `ai-agent`) pre-push policy egységesítéséhez.
