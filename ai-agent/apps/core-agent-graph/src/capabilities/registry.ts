@@ -42,6 +42,22 @@ export function discoverCapabilities(query: string, context: CoreAgentState): Ca
   const wantsMerge =
     q.includes('excel') || q.includes('xlsx') || q.includes('csv') || q.includes('táblázat') || q.includes('merge');
   const wantsCoupon = q.includes('kupon') || q.includes('coupon') || q.includes('shop') || q.includes('bolt');
+  const wantsFinancialChart =
+    q.includes('chart') || q.includes('grafikon') || q.includes('diagram') || q.includes('kimutatás') ||
+    q.includes('trend') || q.includes('bevétel') || q.includes('bevetel') || q.includes('költség') ||
+    q.includes('koltseg') || q.includes('forgalom') || q.includes('profit') || q.includes('pénzügyi') ||
+    q.includes('penzugyi') || q.includes('cashflow');
+  const wantsLegal =
+    q.includes('jogszabály') || q.includes('jogszabaly') || q.includes('törvény') || q.includes('torveny') ||
+    q.includes('rendelet') || q.includes('hatályos') || q.includes('hatalyos') || q.includes('ptk') ||
+    q.includes('btk') || q.includes('jogi') || q.includes('szerződés') || q.includes('szerzodes') ||
+    q.includes('§') || q.includes('njt') || q.includes('jogtar') || q.includes('fellebbez') || q.includes('jogorvoslat');
+  const wantsTax =
+    q.includes('adó') || q.includes('ado') || q.includes('áfa') || q.includes('afa') ||
+    q.includes('szja') || q.includes('tao') || q.includes('kata') || q.includes('kiva') ||
+    q.includes('szocho') || q.includes('járulék') || q.includes('jarulek') ||
+    q.includes('bevallás') || q.includes('bevallas') || q.includes('illeték') || q.includes('illetek') ||
+    q.includes('könyvelés') || q.includes('konyveles') || q.includes('számvitel') || q.includes('szamvitel');
 
   if (wantsMerge) {
     const mergeCaps = all.filter(cap => cap.id === 'merge-tables' || cap.tags?.includes('merge'));
@@ -50,6 +66,22 @@ export function discoverCapabilities(query: string, context: CoreAgentState): Ca
   if (wantsCoupon) {
     const couponCaps = all.filter(cap => cap.id.startsWith('impi-') || cap.tags?.includes('coupons'));
     if (couponCaps.length) return couponCaps;
+  }
+  if (wantsFinancialChart) {
+    const chartCaps = all.filter(cap => cap.id === 'financial-chart-builder' || cap.tags?.includes('chart'));
+    if (chartCaps.length) return chartCaps;
+  }
+
+  if (wantsTax) {
+    const taxCaps = all.filter(cap => cap.tags?.includes('tax') || cap.id === 'tax-checklist-hu');
+    const legalCaps = all.filter(cap => cap.tags?.includes('legal') || cap.id === 'legal-legislation-lookup');
+    const combined = [...taxCaps, ...legalCaps.filter(c => !taxCaps.some(t => t.id === c.id))];
+    if (combined.length) return combined;
+  }
+
+  if (wantsLegal) {
+    const legalCaps = all.filter(cap => cap.tags?.includes('legal') || cap.tags?.includes('legislation') || cap.id === 'legal-legislation-lookup');
+    if (legalCaps.length) return legalCaps;
   }
 
   // Attachment-based filtering: ha van strukturált doksi, prefer merge/document tag.

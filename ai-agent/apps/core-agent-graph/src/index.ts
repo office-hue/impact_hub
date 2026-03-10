@@ -45,6 +45,7 @@ const CoreAgentAnnotation = Annotation.Root({
   }),
   capabilityChain: Annotation<CoreAgentState['capabilityChain']>(),
   chainIndex: Annotation<CoreAgentState['chainIndex']>(),
+  legalResponse: Annotation<CoreAgentState['legalResponse']>(),
   artifacts: Annotation<CoreAgentState['artifacts']>({
     value: (prev, next) => [...(prev ?? []), ...(next ?? [])],
     default: () => [],

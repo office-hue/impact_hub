@@ -38,6 +38,15 @@ export async function capabilityExecutionNode(state: CoreAgentState): Promise<Pa
         ...(prevOutput as Record<string, unknown>),
       };
     }
+    // Jogi / adó capability chain: előző kimenet forrásait átadjuk, query marad az eredeti
+    if ((nextCapId.startsWith('legal-') || nextCapId.startsWith('tax-')) && prevOutput && typeof prevOutput === 'object') {
+      const prev = prevOutput as Record<string, unknown>;
+      return {
+        id: nextCapId,
+        query: originalState.userMessage,
+        reference_date: (prev as any).response?.reference_date,
+      };
+    }
     if (prevOutput && typeof prevOutput === 'object' && (prevOutput as any).id) {
       return prevOutput;
     }

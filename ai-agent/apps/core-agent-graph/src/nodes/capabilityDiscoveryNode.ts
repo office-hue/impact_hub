@@ -29,9 +29,19 @@ export async function capabilityDiscoveryNode(state: CoreAgentState): Promise<Pa
   const capabilityInput =
     selected.id === 'merge-tables'
       ? { id: selected.id, documents: state.structuredDocuments }
+      : selected.id === 'legal-legislation-lookup' || selected.id === 'tax-checklist-hu'
+      ? { id: selected.id, query: state.userMessage, reference_date: undefined }
+      : selected.id === 'financial-chart-builder'
+      ? { id: selected.id, query: state.userMessage, documents: state.structuredDocuments }
       : { id: selected.id, query: state.userMessage };
 
-  const heuristic = capabilityInput.id === 'merge-tables' ? 'merge' : 'default';
+  const heuristic = capabilityInput.id === 'merge-tables'
+    ? 'merge'
+    : capabilityInput.id.startsWith('legal-') || capabilityInput.id.startsWith('tax-')
+    ? 'legal'
+    : capabilityInput.id === 'financial-chart-builder'
+    ? 'financial-chart'
+    : 'default';
   logs.push(
     `capabilityDiscovery: ${selected.id} kiválasztva (heuristic: ${heuristic}${chain ? ', chain' : ''})`,
   );
@@ -100,6 +110,21 @@ async function pickCapability(
     lower.includes('facebook') ||
     lower.includes('tiktok') ||
     lower.includes('youtube');
+  const wantsFinancialChart =
+    lower.includes('chart') ||
+    lower.includes('grafikon') ||
+    lower.includes('diagram') ||
+    lower.includes('kimutatás') ||
+    lower.includes('trend') ||
+    lower.includes('bevétel') ||
+    lower.includes('bevetel') ||
+    lower.includes('költség') ||
+    lower.includes('koltseg') ||
+    lower.includes('forgalom') ||
+    lower.includes('profit') ||
+    lower.includes('pénzügyi') ||
+    lower.includes('penzugyi') ||
+    lower.includes('cashflow');
 
   if ((wantsMerge || hasStructured) && wantsCoupon) {
     const mergeCap = candidates.find(c => c.id === 'merge-tables');
@@ -125,6 +150,69 @@ async function pickCapability(
     }
     if (decisionCap) return { selected: decisionCap };
     if (executeCap) return { selected: executeCap };
+  }
+  if (wantsFinancialChart) {
+    const chartCap = candidates.find(c => c.id === 'financial-chart-builder');
+    if (chartCap) return { selected: chartCap };
+  }
+
+  // Jogi / jogszabály jellegű kérések
+  const wantsLegal =
+    lower.includes('jogszabály') ||
+    lower.includes('jogszabaly') ||
+    lower.includes('törvény') ||
+    lower.includes('torveny') ||
+    lower.includes('rendelet') ||
+    lower.includes('hatályos') ||
+    lower.includes('hatalyos') ||
+    lower.includes('ptk') ||
+    lower.includes('btk') ||
+    lower.includes('jogi') ||
+    lower.includes('szerződés') ||
+    lower.includes('szerzodes') ||
+    lower.includes('felelősség') ||
+    lower.includes('fellebbez') ||
+    lower.includes('jogorvoslat') ||
+    lower.includes('§') ||
+    lower.includes('njt') ||
+    lower.includes('jogtar');
+
+  const wantsTax =
+    lower.includes('adó') ||
+    lower.includes('ado') ||
+    lower.includes('áfa') ||
+    lower.includes('afa') ||
+    lower.includes('szja') ||
+    lower.includes('tao') ||
+    lower.includes('kata') ||
+    lower.includes('kiva') ||
+    lower.includes('szocho') ||
+    lower.includes('járulék') ||
+    lower.includes('jarulek') ||
+    lower.includes('bevallás') ||
+    lower.includes('bevallas') ||
+    lower.includes('illeték') ||
+    lower.includes('illetek') ||
+    lower.includes('helyi adó') ||
+    lower.includes('helyi ado') ||
+    lower.includes('számvitel') ||
+    lower.includes('szamvitel') ||
+    lower.includes('könyvelés') ||
+    lower.includes('konyveles');
+
+  if (wantsTax) {
+    const taxCap = candidates.find(c => c.id === 'tax-checklist-hu');
+    const legalCap = candidates.find(c => c.id === 'legal-legislation-lookup');
+    // Ha adó + jogi is kell → chain: tax → legal (jogszabályellenőrzés)
+    if (taxCap && legalCap && wantsLegal) {
+      return { selected: taxCap, chain: [taxCap.id, legalCap.id] };
+    }
+    if (taxCap) return { selected: taxCap };
+  }
+
+  if (wantsLegal) {
+    const legalCap = candidates.find(c => c.id === 'legal-legislation-lookup');
+    if (legalCap) return { selected: legalCap };
   }
   const impiCap = candidates.find(c => c.id.startsWith('impi-'));
   const heuristicPick = impiCap ?? candidates[0];

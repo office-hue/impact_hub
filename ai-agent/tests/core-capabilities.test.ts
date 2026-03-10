@@ -11,6 +11,7 @@ async function run() {
   assert.ok(caps.length >= 2, 'registry should contain default capabilities');
   assert.ok(getCapability('impi-coupon-search'), 'impi capability registered');
   assert.ok(getCapability('merge-tables'), 'merge-tables capability registered');
+  assert.ok(getCapability('financial-chart-builder'), 'financial-chart-builder capability registered');
 
   const baseState = { userMessage: 'teszt', logs: [] as string[] };
   const discovery = await capabilityDiscoveryNode(baseState as any);
@@ -45,6 +46,12 @@ async function run() {
   // Heurisztika: merge kulcsszóra a merge-tables legyen az elsődleges választás
   const mergePick = await capabilityDiscoveryNode({ userMessage: 'hrsz excel merge', logs: [] } as any);
   assert.ok(mergePick.capabilityInput?.id === 'merge-tables', `merge heuristic should select merge-tables, got: ${mergePick.capabilityInput?.id}`);
+
+  const chartPick = await capabilityDiscoveryNode({ userMessage: 'Készíts pénzügyi chartot havi bevétel trendről', logs: [] } as any);
+  assert.ok(
+    chartPick.capabilityInput?.id === 'financial-chart-builder',
+    `financial chart heuristic should select financial-chart-builder, got: ${chartPick.capabilityInput?.id}`,
+  );
 
   console.log('core-capabilities.test.ts: OK');
 }

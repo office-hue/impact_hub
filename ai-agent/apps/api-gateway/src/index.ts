@@ -9,7 +9,7 @@ import { getReliabilityFeatureStatus } from '../../ai-agent-core/src/services/re
 import type { SourceSnapshot } from '../../ai-agent-core/src/sources/types.js';
 import type { RecommendationOffer, RecommendationResponse } from '../../ai-agent-core/src/impi/recommend.js';
 import multer from 'multer';
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import { generateImpiSummary } from './services/impi-openai.js';
 import { runCriticReview, type CriticReport } from './services/impi-critic.js';
 import { fetchMemoryContext, type MemoryContextRequest } from './services/memory-context.js';
@@ -33,8 +33,9 @@ import { createCoreTask, listCoreTasks, type AttachmentRef } from './services/co
 import { enqueueCoreTask } from './services/core-queue.js';
 import { normalizeJobType, type CoreJobType } from '@apps/core-worker/src/job-types.js';
 import { runBillingoCron } from '@apps/core-worker/src/billingo-cron.js';
-import { detectDocumentKind, ingestExcelFile, ingestPdfFile } from '@apps/document-ingest/src/index.js';
-import { runCoreAgentPrototype } from '@apps/core-agent-graph/src/index.js';
+import { detectDocumentKind, ingestExcelFile, ingestPdfFile, resolveLocalPathFromAttachment } from '@apps/document-ingest/src/index.js';
+import '@apps/core-agent-graph/src/capabilities/index.js';
+import { getCapability } from '@apps/core-agent-graph/src/capabilities/registry.js';
 import { getCapabilityMetrics, getCapabilityMetricsWithDerived, renderMetricsPrometheus } from '@apps/core-agent-graph/src/utils/metrics.js';
 import { getCapabilityStats } from '@apps/core-agent-graph/src/utils/capabilityStats.js';
 import type { CoreAgentState, DocumentAttachment, StructuredDocument } from '@apps/core-agent-graph/src/state.js';
@@ -43,12 +44,49 @@ import { structuredLog } from './utils/logger.js';
 import rateLimit from 'express-rate-limit';
 import { cleanupOldStatsInit } from '@apps/core-agent-graph/src/utils/capabilityStats.js';
 
+const EXTRA_SECRET_ENV_FILE =
+  process.env.CAPI_SECRET_ENV_FILE || '/Users/bujdosoarnold/.impact-secrets/env.d/capi.env';
+
+function loadExtraEnvFile(filePath: string): void {
+  try {
+    if (!filePath || !fsSync.existsSync(filePath)) return;
+    const raw = fsSync.readFileSync(filePath, 'utf8');
+    raw
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#'))
+      .forEach(line => {
+        const idx = line.indexOf('=');
+        if (idx <= 0) return;
+        const key = line.slice(0, idx).trim();
+        if (!key || process.env[key]) return;
+        let value = line.slice(idx + 1).trim();
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
+          value = value.slice(1, -1);
+        }
+        process.env[key] = value;
+      });
+  } catch (error) {
+    console.warn('extra secret env load failed', error);
+  }
+}
+
+loadExtraEnvFile(EXTRA_SECRET_ENV_FILE);
+
 async function fetchMemoryContextWithTimeout(
   request: MemoryContextRequest,
   timeoutMs = 2000,
 ): Promise<Awaited<ReturnType<typeof fetchMemoryContext>> | null> {
   const timeoutPromise = new Promise<null>(resolve => setTimeout(() => resolve(null), timeoutMs));
   return Promise.race([fetchMemoryContext(request), timeoutPromise]);
+}
+
+async function runCoreAgentPrototypeLazy(initialState: CoreAgentState, options?: { threadId?: string }): Promise<void> {
+  const mod = await import('@apps/core-agent-graph/src/index.js');
+  await mod.runCoreAgentPrototype(initialState, options);
 }
 
 function getCriticThreshold(intent?: string): number {
@@ -105,6 +143,25 @@ const PREVIOUS_REQUEST_KEYWORDS = [
   'folytassuk az előzőt',
   'folytathatjuk',
 ];
+const PPT_EXTENSIONS = new Set(['.ppt', '.pptx']);
+const OFFICE_CONVERTERS = ['soffice', 'libreoffice'] as const;
+
+function detectAvailableOfficeConverters(): string[] {
+  const available: string[] = [];
+  for (const bin of OFFICE_CONVERTERS) {
+    try {
+      const probe = spawnSync(bin, ['--version'], { encoding: 'utf8' });
+      if (probe.status === 0) {
+        available.push(bin);
+      }
+    } catch {
+      // ignore and continue
+    }
+  }
+  return available;
+}
+
+const AVAILABLE_OFFICE_CONVERTERS = detectAvailableOfficeConverters();
 
 const MERGE_DOWNLOAD_ROOTS = [
   DOCUMENT_OUTPUT_DIR,
@@ -349,7 +406,7 @@ function normalizeTaskAttachments(raw: unknown): AttachmentRef[] {
     .filter(Boolean) as AttachmentRef[];
 }
 
-const DOCUMENT_EXTENSIONS = ['.pdf', '.xls', '.xlsx', '.xlsm'];
+const DOCUMENT_EXTENSIONS = ['.pdf', '.xls', '.xlsx', '.xlsm', '.ppt', '.pptx'];
 const DOCUMENT_MIME_KEYWORDS = ['pdf', 'excel', 'sheet'];
 const DOCUMENT_TEMPLATE_TAGS = new Set(['ocr', 'document']);
 const BILLINGO_TEMPLATE_TAGS = new Set(['billingo']);
@@ -731,11 +788,11 @@ function renderBannerAnalysisPage(pageKey?: string): string {
         </form>
         <pre id="analysisOutput">Kimenet itt jelenik meg...</pre>
         <h2>Dokumentum OCR</h2>
-        <p class="hint">Excel vagy PDF feltöltésével táblázatokat és kulcsértékeket nyerhetsz ki.</p>
+        <p class="hint">Excel, PDF vagy PPT/PPTX feltöltésével táblázatokat és kulcsértékeket nyerhetsz ki.</p>
         <form id="documentForm">
           <label>
             Válassz dokumentumot
-            <input id="documentInput" type="file" name="document" accept=".xlsx,.xls,.xlsm,.pdf" />
+            <input id="documentInput" type="file" name="document" accept=".xlsx,.xls,.xlsm,.pdf,.ppt,.pptx" />
           </label>
           <button type="submit">Dokumentum elemzése</button>
         </form>
@@ -1249,6 +1306,140 @@ async function persistUploadedDocument(file: Express.Multer.File): Promise<strin
   return storedPath;
 }
 
+function isPptLikeAttachment(attachment: DocumentAttachment): boolean {
+  const source = `${attachment.name || ''} ${attachment.url || ''} ${attachment.mimeType || ''}`.toLowerCase();
+  if (source.includes('presentation') || source.includes('powerpoint')) {
+    return true;
+  }
+  const ext = path.extname(attachment.name || attachment.url || '').toLowerCase();
+  return PPT_EXTENSIONS.has(ext);
+}
+
+function extractGoogleSlidesId(urlValue: string): string | undefined {
+  const match = urlValue.match(/docs\.google\.com\/presentation\/d\/([a-zA-Z0-9_-]+)/);
+  return match?.[1];
+}
+
+function buildGoogleSlidesExportUrl(slidesId: string): string {
+  return `https://docs.google.com/presentation/d/${slidesId}/export/pdf`;
+}
+
+async function runSpawnForConversion(command: string, args: string[]): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(command, args, { env: process.env });
+    let stderr = '';
+    child.stderr.on('data', chunk => {
+      stderr += chunk.toString();
+    });
+    child.on('error', reject);
+    child.on('close', code => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} exit ${code}: ${stderr.trim()}`));
+      }
+    });
+  });
+}
+
+async function convertPptToPdf(localPath: string): Promise<string> {
+  await fs.mkdir(DOCUMENT_UPLOAD_DIR, { recursive: true });
+  const outputBase = `${path.basename(localPath, path.extname(localPath))}-${Date.now()}-${randomUUID().slice(0, 8)}`;
+  const expectedPdf = path.join(DOCUMENT_UPLOAD_DIR, `${outputBase}.pdf`);
+  const tempPptPath = path.join(DOCUMENT_UPLOAD_DIR, `${outputBase}${path.extname(localPath).toLowerCase() || '.pptx'}`);
+  await fs.copyFile(localPath, tempPptPath);
+
+  const commands: Array<{ bin: string; args: string[] }> = AVAILABLE_OFFICE_CONVERTERS.map(bin => ({
+    bin,
+    args: ['--headless', '--convert-to', 'pdf', '--outdir', DOCUMENT_UPLOAD_DIR, tempPptPath],
+  }));
+  if (!commands.length) {
+    throw new Error('Nincs elérhető PPT konverter (soffice/libreoffice).');
+  }
+  let lastError: unknown;
+  for (const cmd of commands) {
+    try {
+      await runSpawnForConversion(cmd.bin, cmd.args);
+      const produced = path.join(
+        DOCUMENT_UPLOAD_DIR,
+        `${path.basename(tempPptPath, path.extname(tempPptPath))}.pdf`,
+      );
+      await fs.access(produced);
+      await fs.rename(produced, expectedPdf);
+      return expectedPdf;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new Error(
+    `PPT->PDF konverzió nem sikerült (soffice/libreoffice). ${
+      lastError instanceof Error ? lastError.message : String(lastError)
+    }`,
+  );
+}
+
+async function downloadGoogleSlidesPdf(urlValue: string): Promise<string> {
+  const slidesId = extractGoogleSlidesId(urlValue);
+  if (!slidesId) {
+    throw new Error('Érvénytelen Google Slides URL.');
+  }
+  const exportUrl = buildGoogleSlidesExportUrl(slidesId);
+  const headers: Record<string, string> = {};
+  const token =
+    process.env.GOOGLE_API_ACCESS_TOKEN ||
+    process.env.GOOGLE_OAUTH_ACCESS_TOKEN ||
+    process.env.GOOGLE_SLIDES_EXPORT_TOKEN;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const response = await fetch(exportUrl, { headers });
+  if (!response.ok) {
+    throw new Error(`Google Slides export hiba: HTTP ${response.status}`);
+  }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await fs.mkdir(DOCUMENT_UPLOAD_DIR, { recursive: true });
+  const outPath = path.join(DOCUMENT_UPLOAD_DIR, `slides-${Date.now()}-${randomUUID().slice(0, 8)}.pdf`);
+  await fs.writeFile(outPath, buffer);
+  return outPath;
+}
+
+function detectGoogleSlidesTokenSource(): 'GOOGLE_API_ACCESS_TOKEN' | 'GOOGLE_OAUTH_ACCESS_TOKEN' | 'GOOGLE_SLIDES_EXPORT_TOKEN' | null {
+  if (process.env.GOOGLE_API_ACCESS_TOKEN) return 'GOOGLE_API_ACCESS_TOKEN';
+  if (process.env.GOOGLE_OAUTH_ACCESS_TOKEN) return 'GOOGLE_OAUTH_ACCESS_TOKEN';
+  if (process.env.GOOGLE_SLIDES_EXPORT_TOKEN) return 'GOOGLE_SLIDES_EXPORT_TOKEN';
+  return null;
+}
+
+async function preprocessAttachmentForDocumentIngest(attachment: DocumentAttachment): Promise<DocumentAttachment> {
+  if (attachment.url?.includes('docs.google.com/presentation/')) {
+    const pdfPath = await downloadGoogleSlidesPdf(attachment.url);
+    return {
+      ...attachment,
+      url: pdfPath,
+      name: `${path.basename(attachment.name || 'slides', path.extname(attachment.name || '')) || 'slides'}.pdf`,
+      mimeType: 'application/pdf',
+      kind: 'pdf',
+    };
+  }
+
+  if (isPptLikeAttachment(attachment)) {
+    const localPath = resolveLocalPathFromAttachment(attachment);
+    if (!localPath) {
+      throw new Error(`PPT feldolgozáshoz lokális path kell: ${attachment.name ?? attachment.url ?? 'ismeretlen'}`);
+    }
+    const pdfPath = await convertPptToPdf(localPath);
+    return {
+      ...attachment,
+      url: pdfPath,
+      name: `${path.basename(attachment.name || localPath, path.extname(attachment.name || localPath))}.pdf`,
+      mimeType: 'application/pdf',
+      kind: 'pdf',
+    };
+  }
+
+  return attachment;
+}
+
 async function loadDocumentIngestStatus(): Promise<GuardStatus | null> {
   try {
     const content = await fs.readFile(DOCUMENT_INGEST_LOG_PATH, 'utf8');
@@ -1409,6 +1600,56 @@ function normalizeAttachmentsPayload(input: unknown): DocumentAttachment[] | und
     });
   }
   return attachments.length ? attachments : undefined;
+}
+
+async function loadStructuredDocumentsFromAttachments(
+  attachments: DocumentAttachment[] | undefined,
+): Promise<{ structuredDocuments?: StructuredDocument[]; warnings?: string[] }> {
+  if (!attachments?.length) {
+    return {};
+  }
+  const warnings: string[] = [];
+  const structuredDocuments: StructuredDocument[] = [];
+
+  for (const attachment of attachments) {
+    let preprocessed: DocumentAttachment;
+    try {
+      preprocessed = await preprocessAttachmentForDocumentIngest(attachment);
+    } catch (error) {
+      warnings.push(
+        `csatolmány előfeldolgozási hiba (${attachment.name ?? attachment.url ?? 'ismeretlen'}): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      continue;
+    }
+    const localPath = resolveLocalPathFromAttachment(preprocessed);
+    if (!localPath) {
+      warnings.push(`attachment path nem feloldható: ${preprocessed.name ?? preprocessed.url ?? 'ismeretlen'}`);
+      continue;
+    }
+    const kind = detectDocumentKind(preprocessed);
+    try {
+      if (kind === 'excel') {
+        structuredDocuments.push(await ingestExcelFile(localPath, preprocessed));
+      } else if (kind === 'pdf') {
+        structuredDocuments.push(await ingestPdfFile(localPath, preprocessed));
+      } else {
+        warnings.push(`nem támogatott csatolmány a chart endpointhoz: ${preprocessed.name ?? localPath}`);
+      }
+    } catch (error) {
+      warnings.push(
+        `csatolmány feldolgozási hiba (${preprocessed.name ?? localPath}): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+
+  return {
+    structuredDocuments: structuredDocuments.length ? structuredDocuments : undefined,
+    warnings: warnings.length ? warnings : undefined,
+  };
 }
 
 function normaliseText(text?: string): string {
@@ -1901,25 +2142,27 @@ app.post('/api/v1/vision/document-ocr', upload.single('document'), async (req, r
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   if (!req.file) {
-    return res.status(400).json({ status: 'error', message: 'Tölts fel egy Excel vagy PDF fájlt.' });
+    return res.status(400).json({ status: 'error', message: 'Tölts fel egy Excel, PDF vagy PPT/PPTX fájlt.' });
   }
   let storedPath: string | null = null;
   try {
     storedPath = await persistUploadedDocument(req.file);
-    const attachment = {
+    const rawAttachment = {
       url: storedPath,
       name: req.file.originalname,
       mimeType: req.file.mimetype,
       size: req.file.size,
     } satisfies DocumentAttachment;
+    const attachment = await preprocessAttachmentForDocumentIngest(rawAttachment);
+    const localPath = resolveLocalPathFromAttachment(attachment) || storedPath;
     const kind = detectDocumentKind(attachment);
     let structured;
     if (kind === 'pdf') {
-      structured = await ingestPdfFile(storedPath, { ...attachment, kind });
+      structured = await ingestPdfFile(localPath, { ...attachment, kind });
     } else if (kind === 'excel') {
-      structured = await ingestExcelFile(storedPath, { ...attachment, kind });
+      structured = await ingestExcelFile(localPath, { ...attachment, kind });
     } else {
-      return res.status(400).json({ status: 'error', message: 'Csak Excel vagy PDF dokumentum támogatott.' });
+      return res.status(400).json({ status: 'error', message: 'Csak Excel, PDF vagy PPT/PPTX dokumentum támogatott.' });
     }
     res.json({ status: 'ok', data: structured, attachment });
   } catch (error) {
@@ -2325,6 +2568,84 @@ app.get('/api/v1/memory/pilot-metrics', async (req, res) => {
   }
 });
 
+app.get('/api/v1/financial/chart/capabilities', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  const tokenSource = detectGoogleSlidesTokenSource();
+  return res.json({
+    status: 'ok',
+    capabilities: {
+      chart_builder_available: Boolean(getCapability('financial-chart-builder')),
+      ppt_to_pdf: {
+        available: AVAILABLE_OFFICE_CONVERTERS.length > 0,
+        converters: AVAILABLE_OFFICE_CONVERTERS,
+      },
+      google_slides_export: {
+        token_available: Boolean(tokenSource),
+        token_source: tokenSource,
+        secret_env_file: EXTRA_SECRET_ENV_FILE,
+      },
+    },
+  });
+});
+
+app.post('/api/v1/financial/chart', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+
+  const chartCapability = getCapability('financial-chart-builder');
+  if (!chartCapability) {
+    return res.status(503).json({ status: 'error', message: 'financial_chart_capability_unavailable' });
+  }
+
+  const message = String(req.body?.message ?? req.body?.query ?? '').trim();
+  const title = typeof req.body?.title === 'string' ? req.body.title : undefined;
+  const chartType =
+    typeof req.body?.chart_type === 'string'
+      ? req.body.chart_type
+      : typeof req.body?.chartType === 'string'
+      ? req.body.chartType
+      : undefined;
+  const labels = Array.isArray(req.body?.labels) ? req.body.labels : undefined;
+  const values = Array.isArray(req.body?.values) ? req.body.values : undefined;
+  const attachments = normalizeAttachmentsPayload(req.body?.attachments);
+
+  const { structuredDocuments, warnings } = await loadStructuredDocumentsFromAttachments(attachments);
+  const context: CoreAgentState = {
+    userMessage: message || 'financial chart request',
+    attachments,
+    structuredDocuments,
+    logs: ['financial-chart-endpoint'],
+  };
+
+  try {
+    const result = await chartCapability.invoke(
+      {
+        query: message,
+        title,
+        chartType,
+        labels,
+        values,
+      },
+      context,
+    );
+    const output = result as Record<string, unknown>;
+    return res.json({
+      status: output.status || 'ok',
+      financial_chart: result,
+      warnings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error instanceof Error ? error.message : 'financial_chart_error',
+      warnings,
+    });
+  }
+});
+
 app.post('/api/v1/chat/impi', async (req, res) => {
   if (!hasValidApiKey(req)) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
@@ -2534,7 +2855,7 @@ app.post('/api/v1/chat/impi', async (req, res) => {
         },
       },
     };
-    void runCoreAgentPrototype(graphRunSeed, { threadId: sessionKey }).catch((error: unknown) => {
+    void runCoreAgentPrototypeLazy(graphRunSeed, { threadId: sessionKey }).catch((error: unknown) => {
       console.warn('LangGraph observability error', error);
     });
     const detailedOffers = recommendation.offers.slice(0, 3).map(offer => ({

@@ -75,6 +75,7 @@ CHANGED_LIST="$TMP_DIR/changed-files.txt"
 FILTERED_CHANGED_LIST="$TMP_DIR/changed-files.filtered.txt"
 ADDED_LINES="$TMP_DIR/added-lines.txt"
 RISKY_NAME_HITS="$TMP_DIR/risky-name-hits.txt"
+RISKY_NAME_HITS_FILTERED="$TMP_DIR/risky-name-hits.filtered.txt"
 ENV_KEY_HITS="$TMP_DIR/env-key-hits.txt"
 ENV_KEY_WARN_HITS="$TMP_DIR/env-key-warn-hits.txt"
 ENV_KEY_INFO_HITS="$TMP_DIR/env-key-info-hits.txt"
@@ -159,10 +160,12 @@ grep -Ein -- \
   '(^|/)\.env($|\.|/)|\.pem$|\.p12$|\.pfx$|\.key$|(^|/)id_rsa($|\.|/)|(^|/)(secrets?|credentials?)(/|$)|password|passwd' \
   "$FILTERED_CHANGED_LIST" > "$RISKY_NAME_HITS" || true
 
-if [[ -s "$RISKY_NAME_HITS" ]]; then
+grep -Eiv -- '(^|/)\.env\.(example|sample|template|dist)$' "$RISKY_NAME_HITS" > "$RISKY_NAME_HITS_FILTERED" || true
+
+if [[ -s "$RISKY_NAME_HITS_FILTERED" ]]; then
   WARNINGS=$((WARNINGS + 1))
   echo "WARN: potentially sensitive changed file paths:"
-  sed -E 's/^[0-9]+://' "$RISKY_NAME_HITS" | sed -n '1,80p'
+  sed -E 's/^[0-9]+://' "$RISKY_NAME_HITS_FILTERED" | sed -n '1,80p'
   echo
 fi
 

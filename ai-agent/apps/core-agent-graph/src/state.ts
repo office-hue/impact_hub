@@ -1,6 +1,7 @@
 import type { MemoryContextResponse } from '@apps/api-gateway/src/services/memory-context.js';
 import type { VisionInsights } from '@apps/api-gateway/src/services/vision-client.js';
 import type { OfferContextMetadata, RecommendationResponse } from '@apps/ai-agent-core/src/impi/recommend.js';
+import type { LegalResponse } from './legal/types.js';
 
 export interface DocumentAttachment {
   url?: string;
@@ -80,6 +81,8 @@ export interface CoreAgentState {
   capabilityChain?: string[];
   chainIndex?: number;
   artifacts?: Artifact[];
+  /** Jogi / adó válasz metaadatok (ha legal capability futott) */
+  legalResponse?: LegalResponse | null;
   observability?: {
     source?: string;
     startedAt?: number;

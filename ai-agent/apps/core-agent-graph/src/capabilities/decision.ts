@@ -89,6 +89,134 @@ export function scoreCapabilitiesByMessage(message: string): Record<string, numb
     inc('ads-event-ingest', 3);
   }
 
+  // Pénzügyi chart / grafikon jellegű kérések
+  if (
+    hasAny([
+      'chart',
+      'grafikon',
+      'diagram',
+      'kimutatás',
+      'idősor',
+      'idosor',
+      'trend',
+      'bevétel',
+      'bevetel',
+      'költség',
+      'koltseg',
+      'cashflow',
+      'forgalom',
+      'profit',
+      'árbevétel',
+      'arbevetel',
+      'pénzügyi',
+      'penzugyi',
+    ])
+  ) {
+    inc('financial-chart-builder', 8);
+  }
+
+  // Jogi / jogszabály jellegű kérések
+  if (
+    hasAny([
+      'jogszabály',
+      'jogszabaly',
+      'törvény',
+      'torveny',
+      'rendelet',
+      'hatályos',
+      'hatalyos',
+      'hatály',
+      'hataly',
+      'ptk',
+      'btk',
+      'jogi',
+      'jog',
+      'bíróság',
+      'birosag',
+      'ítélet',
+      'itelet',
+      'szerződés',
+      'szerzodes',
+      'felelősség',
+      'felelosseg',
+      'kártérítés',
+      'karterites',
+      'peres',
+      'fellebbez',
+      'jogorvoslat',
+      'njt',
+      'jogtar',
+      'paragrafus',
+      '§',
+      'bekezdés',
+      'bekezdes',
+      'civil tv',
+      'ákr',
+      'akr',
+      'infotv',
+      'gdpr',
+      'adatvédel',
+      'adatvedel',
+    ])
+  ) {
+    inc('legal-legislation-lookup', 9);
+  }
+
+  // Adó jellegű kérések
+  if (
+    hasAny([
+      'adó',
+      'ado',
+      'áfa',
+      'afa',
+      'szja',
+      'tao',
+      'kata',
+      'kiva',
+      'szocho',
+      'társasági adó',
+      'tarsasagi ado',
+      'személyi jövedelemadó',
+      'szemelyi jovedelemado',
+      'iparűzési',
+      'iparuzesi',
+      'helyi adó',
+      'helyi ado',
+      'illeték',
+      'illetek',
+      'tb',
+      'járulék',
+      'jarulek',
+      'bevallás',
+      'bevallas',
+      'nav ',
+      'adóhivatal',
+      'adohivatal',
+      'számla',
+      'szamla',
+      'adószám',
+      'adoszam',
+      'adóalany',
+      'adoalany',
+      'fordított adózás',
+      'forditott adozas',
+      'áfamentess',
+      'afamentess',
+      'adómérték',
+      'adomertek',
+      'számvitel',
+      'szamvitel',
+      'könyvelés',
+      'konyveles',
+    ])
+  ) {
+    inc('tax-checklist-hu', 8);
+    // Ha jogi is triggerelt, a tax legyen erősebb (specifikusabb)
+    if (counts['legal-legislation-lookup']) {
+      inc('tax-checklist-hu', 2);
+    }
+  }
+
   // Ha semmi sem talált, adunk egy alap szintet, hogy legyen fallback
   if (Object.keys(counts).length === 0) {
     inc('impi-coupon-search', 1);

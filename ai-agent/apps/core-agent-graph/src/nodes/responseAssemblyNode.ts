@@ -1,5 +1,7 @@
 import path from 'node:path';
 import type { CoreAgentState } from '../state.js';
+import { formatDisclaimer } from '../legal/disclaimer.js';
+import type { LegalResponse, LegalSource } from '../legal/types.js';
 
 export async function responseAssemblyNode(state: CoreAgentState): Promise<Partial<CoreAgentState>> {
   const logs = [...(state.logs ?? [])];
@@ -43,6 +45,106 @@ export async function responseAssemblyNode(state: CoreAgentState): Promise<Parti
 
   if (output?.kind === 'ads' && typeof output.summary === 'string') {
     return { logs, finalResponse: state.finalResponse ?? output.summary };
+  }
+
+  if (output?.kind === 'financial-chart' && typeof output.summary === 'string') {
+    const artifacts =
+      includeArtifacts && output.chart
+        ? [
+            {
+              type: 'link' as const,
+              url: output.chart.quickChartUrl,
+              label: 'Chart preview',
+              metadata: {
+                source: 'financial-chart-builder',
+                engine: output.chart.engine,
+              },
+            },
+            {
+              type: 'structured' as const,
+              label: 'Chart spec',
+              content: output.chart.spec,
+              metadata: {
+                source: 'financial-chart-builder',
+              },
+            },
+          ]
+        : [];
+    return {
+      logs,
+      finalResponse: state.finalResponse ?? output.summary,
+      artifacts: includeArtifacts ? artifacts : undefined,
+    };
+  }
+
+  // -----------------------------------------------------------------------
+  // Jogi / adó capability válasz — citation-first formátum
+  // -----------------------------------------------------------------------
+  if (output?.kind === 'legal' && output.response) {
+    const legalResp = output.response as LegalResponse;
+    const parts: string[] = [];
+
+    // Válasz szöveg
+    parts.push(legalResp.answer);
+
+    // Források (citation-first)
+    if (legalResp.sources?.length) {
+      parts.push('\n\n---\n📚 **Hivatkozott források:**');
+      for (const src of legalResp.sources) {
+        const statusEmoji =
+          src.validity_status === 'hatályos' ? '✅' :
+          src.validity_status === 'módosított' ? '⚠️' :
+          src.validity_status === 'hatályon_kívül' ? '❌' : '❓';
+        const link = src.url ? ` — [Njt link](${src.url})` : '';
+        parts.push(`${statusEmoji} **${src.identifier}** (${src.title}) — ${src.validity_status} (${src.validity_date})${link}`);
+        if (src.excerpt) {
+          parts.push(`  > ${src.excerpt}`);
+        }
+      }
+    }
+
+    // Átmeneti rendelkezések
+    if (legalResp.transitional_provisions) {
+      parts.push(`\n\n⏳ **Átmeneti rendelkezések:** ${legalResp.transitional_provisions}`);
+    }
+
+    // Confidence + risk
+    const confEmoji = legalResp.confidence === 'high' ? '🟢' : legalResp.confidence === 'medium' ? '🟡' : '🔴';
+    parts.push(`\n\n${confEmoji} Megalapozottság: **${legalResp.confidence}** | Kockázat: **${legalResp.risk_level}**`);
+
+    // Disclaimer
+    const disclaimer = formatDisclaimer({
+      risk_level: legalResp.risk_level,
+      reference_date: legalResp.reference_date,
+      requires_human_review: legalResp.requires_human_review,
+    });
+    parts.push(`\n\n---\n${disclaimer}`);
+
+    const responseText = parts.join('\n');
+
+    // Artifacts: források linkként
+    const artifacts = includeArtifacts && legalResp.sources?.length
+      ? legalResp.sources
+          .filter((s: LegalSource) => s.url)
+          .map((s: LegalSource) => ({
+            type: 'link' as const,
+            url: s.url!,
+            label: `${s.identifier} — ${s.title}`,
+            metadata: {
+              source_type: s.type,
+              validity_status: s.validity_status,
+              validity_date: s.validity_date,
+              identifier: s.identifier,
+            },
+          }))
+      : [];
+
+    logs.push(`responseAssembly: legal response (${legalResp.sources?.length ?? 0} forrás, confidence=${legalResp.confidence}, risk=${legalResp.risk_level})`);
+    return {
+      logs,
+      finalResponse: state.finalResponse ?? responseText,
+      artifacts: includeArtifacts ? artifacts : undefined,
+    };
   }
 
   let responseText: string | undefined;
