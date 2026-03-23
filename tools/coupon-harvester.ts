@@ -436,5 +436,7 @@ if (require.main === module) {
   main().catch(err => {
     console.error('Futáshiba:', err);
     process.exit(1);
+  }).then(() => {
+    process.exit(0);
   });
 }
