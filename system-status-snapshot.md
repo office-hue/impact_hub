@@ -1,5 +1,8 @@
 
 ---
+2026-03-23T12:25:00Z | fix(harvester): bound coupon harvester runtime in CI — GitHub Actions harvest job timeout set to 45 minutes, `timeout 40m` wraps the runtime command, and CLI entrypoint now exits explicitly on success to reduce hung scheduled runs
+
+---
 
 ## 🏁 Final Infrastructure Evaluation - ImpactShop Project
 
