@@ -62,6 +62,8 @@ wp-content/mu-plugins/*
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md
 !/docs/pr-policy.md
+!/docs/ai-assistant-canonical-policy.md
+!/docs/impact-hub-governance-system-plan-2026-06-16.md
 /bin/
 /impactshop-baseline-2025-10-15.md
 /impactshop-link-diagnostics.php

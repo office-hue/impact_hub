@@ -6,6 +6,7 @@
 - **Repo path:** `/Users/bujdosoarnold/Developer/GitHub/impact_hub`
 - **Git:** `main @ 9fa19e3` (working tree state varies; check `git status`)
 - **Baselines:** `impactshop-baseline-2025-11-02.md` (primary), `system-status-snapshot.md` (rolling log)
+- **Local governance entrypoint:** `docs/impact-hub-governance-system-plan-2026-06-16.md`
 - **Guards:** `~/bin/impactall` (13/13 PASS) with alerts flowing to Discord webhook defined in `.codex/.env.guard`
 - **WP REST:** `https://www.sharity.hu/impactshop-staging/wp-json/` → HTTP 200 (redirects to prod host intentionally); Production `https://app.sharity.hu/wp-json/` → HTTP 200
 - **Secrets:** `.codex/.env` exports `GITHUB_TOKEN` (classic PAT – renewal required before manual expiry) and alert recipients
