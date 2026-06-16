@@ -14,6 +14,7 @@ If any local assistant configuration conflicts with these files, treat the above
 - Direct `main/master` commit and push are forbidden.
 - New work starts from a feature/worktree branch.
 - Deploy may only happen from merged mainline state through guarded workflow.
+- Governance lane hardening: guard, policy vagy governance-hub lane valtozas nem tolható fel a local governance system plan syncje nelkul: `docs/impact-hub-governance-system-plan-2026-06-16.md`
 
 ## Session Workflow
 - Session start: run `memory:pre-task` from the `ai-agent` repo.
