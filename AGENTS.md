@@ -4,6 +4,7 @@
 - Workspace global policy: `/Users/bujdosoarnold/AGENTS.md`
 - Shared assistant policy: `/Users/bujdosoarnold/Developer/GitHub/ai-agent/docs/ai-assistant-canonical-policy.md`
 - Local assistant policy: `docs/ai-assistant-canonical-policy.md`
+- Local governance hub / system plan: `docs/impact-hub-governance-system-plan-2026-06-16.md`
 - PR / merge / deploy policy: `docs/pr-policy.md`
 
 If any local assistant configuration conflicts with these files, treat the above list as canonical in that order.

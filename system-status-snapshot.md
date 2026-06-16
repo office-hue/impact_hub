@@ -1,4 +1,9 @@
 
+## 2026-06-16T10:45:00+0200 - local governance hub and policy anchor added
+- Uj rovid, repo-helyi governance entrypoint keszult: `docs/impact-hub-governance-system-plan-2026-06-16.md`.
+- A korabbi canonical hivatkozasi rest is lezarja ez a kor: a hianyzo `docs/ai-assistant-canonical-policy.md` most mar explicit helyi policy-anchor.
+- Bekotes megtortent az `AGENTS.md`, `README.md` es `docs/system-recovery-map.md` felol, igy a helyi governance lanc mar feloldhato egyetlen repo-beli belepesi pontrol.
+
 ---
 2026-03-23T12:25:00Z | fix(harvester): bound coupon harvester runtime in CI — GitHub Actions harvest job timeout set to 45 minutes, `timeout 40m` wraps the runtime command, and CLI entrypoint now exits explicitly on success to reduce hung scheduled runs
 
