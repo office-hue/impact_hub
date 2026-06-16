@@ -3677,3 +3677,4 @@ _Manual update: 2026-03-08 14:02:00_
 ## 2026-03-09 Workflow Infra Update
 - Dev-memory workflow 1-8 aktiválva (pre-task, context-pack, memory gate, PR auto-memory, commit template/hook, incident, digest, Copilot MCP guard).
 - Hookok újratelepítve; napi digest cron aktív.
+2026-06-16T18:20:00Z | feat(dev-guard/local-governance-sync-enforcement): a local pre-push audit most mar fail-closed modon megkoveteli, hogy a guard/governance/policy lane valtozasai a helyi governance system plan frissitesevel egyutt menjenek ki. Erintett fajlok: `scripts/safe-repo-audit.sh`, `scripts/git-health-check.sh`, `AGENTS.md`, `docs/impact-hub-governance-system-plan-2026-06-16.md`.

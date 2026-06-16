@@ -60,6 +60,13 @@ if [[ -x "$HOOK_PATH" ]]; then
     echo "[git-health-check] WARN: pre-push hookból hiányzik a memory:sync-pr"
     WARN_COUNT=$((WARN_COUNT + 1))
   fi
+
+  if rg -q -- 'safe-repo-audit\.sh' "$HOOK_PATH"; then
+    echo "[git-health-check] OK: pre-push safe-repo-audit bekötve"
+  else
+    echo "[git-health-check] FAIL: pre-push hookból hiányzik a safe-repo-audit futtatás"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  fi
 else
   echo "[git-health-check] FAIL: hiányzó vagy nem futtatható pre-push hook: $HOOK_PATH"
   FAIL_COUNT=$((FAIL_COUNT + 1))

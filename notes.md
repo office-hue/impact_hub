@@ -1,4 +1,1 @@
-## 2026-06-16 10:45 CEST - local governance hub/system-plan
-- Docs-only governance szeletkent letrejott a helyi belepesi pont: `docs/impact-hub-governance-system-plan-2026-06-16.md`.
-- A szelet egy valos koherenciarest is lezart: a korabban hivatkozott, de hianyzo `docs/ai-assistant-canonical-policy.md` most mar minimalis helyi policy-anchor formaban repo-tracked.
-- Bekotes megtortent az `AGENTS.md`, `README.md`, `docs/system-recovery-map.md` es `system-status-snapshot.md` iranyabol.
+[2026-06-16T18:20:00Z] | feat(dev-guard/local-governance-sync-enforcement): a local governance/guard lane-re bekerult a fail-closed masterplan-sync enforcement. A `scripts/safe-repo-audit.sh` most mar elbukik, ha guard/policy/governance-hub valtozas tortenik a helyi `docs/impact-hub-governance-system-plan-2026-06-16.md` syncje nelkul. A `scripts/git-health-check.sh` mar ellenorzi a safe-audit bekoteset, az `AGENTS.md` es a local system plan pedig explicit policykent is kimondja ugyanezt.
