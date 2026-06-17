@@ -24,6 +24,8 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
    - a repo aktualis allapot- es valtozasnaploja
 7. `notes.md`
    - session-szintu dontes-, kockazat- es handover naplo
+8. `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`
+   - a local env/auth/runtime guard adapter konkret helyi szerzodese
 
 ## Recommended Reading Order
 
@@ -45,11 +47,14 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
    - guard, recovery vagy deploy-lane valtozasnal mindig rollback/recovery tisztasag kell
 4. Continuity by default
    - valos allapotvaltozas eseten a docs + `system-status-snapshot.md` + `notes.md` egyutt frissul
+5. Env/auth/runtime adapter discipline
+   - recovery, deploy es operatori auth lane csak a helyi adapter-szerzodes szerint tekintheto `allowed` allapotunak
 
 ## Push Gate
 
 1. a governance, guard es policy lane valtozasai push elott fail-closed local system-plan sync gate alatt allnak;
 2. ez azt jelenti, hogy a `docs/impact-hub-governance-system-plan-2026-06-16.md` frissitese a helyi DEV folyamat resze.
+3. env/auth/runtime lane valtozasnal a `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md` is kotelezo continuity anchor.
 
 ## Decision Rules
 
@@ -87,3 +92,4 @@ Ez a dokumentum arra valo, hogy a kovetkezo helyi munkaknal legyen egy rovid, bi
 - PR/review elott
 - guard vagy deploy-lane erintese elott
 - handover es continuity ellenorzeshez
+- env/auth/runtime vagy recovery drift vizsgalatakor
