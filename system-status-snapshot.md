@@ -1,4 +1,9 @@
 
+## 2026-06-17T12:30:00+0200 - env/auth/runtime local adapter added
+- Uj helyi adapter anchor keszult: `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`.
+- A dokumentum a recovery/deploy/guard lane-ek env/auth/runtime minimumat a helyi `docs/system-recovery-map.md`, `docs/pr-policy.md` es `scripts/git-health-check.sh` truthra koti.
+- A local governance system plan mar erre is hivatkozik, igy a recovery vagy auth drift kulon repo-helyi entrypointot kapott.
+
 ## 2026-06-16T10:45:00+0200 - local governance hub and policy anchor added
 - Uj rovid, repo-helyi governance entrypoint keszult: `docs/impact-hub-governance-system-plan-2026-06-16.md`.
 - A korabbi canonical hivatkozasi rest is lezarja ez a kor: a hianyzo `docs/ai-assistant-canonical-policy.md` most mar explicit helyi policy-anchor.
