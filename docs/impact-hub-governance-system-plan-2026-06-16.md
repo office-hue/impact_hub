@@ -10,6 +10,7 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
 
 ## Canonical Anchors
 
+1. `docs/impact-hub-doc-sync-map-2026-06-23.md`
 1. `AGENTS.md`
    - repo-szintu policy-sorrend, worktree discipline, nyelv es session workflow minimum
 2. `docs/pr-policy.md`
@@ -30,11 +31,12 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
 ## Recommended Reading Order
 
 1. `AGENTS.md`
-2. `docs/pr-policy.md`
-3. `PR-EXIT-CHECKLIST.md`
-4. `docs/system-recovery-map.md`
-5. `system-status-snapshot.md`
-6. `notes.md`
+2. `docs/impact-hub-doc-sync-map-2026-06-23.md`
+3. `docs/pr-policy.md`
+4. `PR-EXIT-CHECKLIST.md`
+5. `docs/system-recovery-map.md`
+6. `system-status-snapshot.md`
+7. `notes.md`
 
 ## Operating Model
 
