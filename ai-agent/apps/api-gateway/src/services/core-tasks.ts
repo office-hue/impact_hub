@@ -118,17 +118,20 @@ export async function createCoreTask(input: CreateCoreTaskInput): Promise<CoreTa
   const now = new Date().toISOString();
   let driveFileId: string | undefined;
   let driveFileLink: string | undefined;
-  try {
-    const template = input.workspace.templates.find(template => template.id === input.templateId);
-    const provision = await ensureDrivePath(suggestion.path);
-    const file = await createDriveFile(provision, resolveMimeType(template));
-    driveFileId = file.fileId;
-    driveFileLink = file.webViewLink;
-    if (driveFileId) {
-      await applyDrivePermissions(driveFileId, DRIVE_READER_LIST, DRIVE_WRITER_LIST);
+  const skipDrivePlaceholder = input.templateId === 'billingo-sync';
+  if (!skipDrivePlaceholder) {
+    try {
+      const template = input.workspace.templates.find(template => template.id === input.templateId);
+      const provision = await ensureDrivePath(suggestion.path);
+      const file = await createDriveFile(provision, resolveMimeType(template));
+      driveFileId = file.fileId;
+      driveFileLink = file.webViewLink;
+      if (driveFileId) {
+        await applyDrivePermissions(driveFileId, DRIVE_READER_LIST, DRIVE_WRITER_LIST);
+      }
+    } catch (error) {
+      console.warn('Drive provisioning skipped / failed', error);
     }
-  } catch (error) {
-    console.warn('Drive provisioning skipped / failed', error);
   }
   const record: CoreTaskRecord = {
     id: randomUUID(),
@@ -148,7 +151,9 @@ export async function createCoreTask(input: CreateCoreTaskInput): Promise<CoreTa
     updatedAt: now,
     logs: [
       'Task létrehozva, Drive placeholder lefoglalva.',
-      driveFileId ? `Drive file: ${driveFileId}` : 'Drive művelet kihagyva vagy sikertelen',
+      skipDrivePlaceholder
+        ? 'Drive placeholder kihagyva (billingo-sync).'
+        : (driveFileId ? `Drive file: ${driveFileId}` : 'Drive művelet kihagyva vagy sikertelen'),
     ],
   };
   records.push(record);

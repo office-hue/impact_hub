@@ -58,6 +58,37 @@ export function scoreCapabilitiesByMessage(message: string): Record<string, numb
     inc('impi-coupon-search', 5);
   }
 
+  // Hirdetés / ads / kampány jellegű kérések
+  if (
+    hasAny([
+      'hirdetés',
+      'hirdetes',
+      'ads',
+      'kampány',
+      'kampany',
+      'reklám',
+      'reklam',
+      'target',
+      'targetál',
+      'targetal',
+      'targeting',
+      'remarketing',
+      'konverzió',
+      'konverzio',
+      'conversion',
+      'capi',
+      'meta',
+      'facebook',
+      'tiktok',
+      'google ads',
+      'youtube',
+    ])
+  ) {
+    inc('ads-decision', 6);
+    inc('ads-execute', 4);
+    inc('ads-event-ingest', 3);
+  }
+
   // Ha semmi sem talált, adunk egy alap szintet, hogy legyen fallback
   if (Object.keys(counts).length === 0) {
     inc('impi-coupon-search', 1);
