@@ -3684,3 +3684,7 @@ _Manual update: 2026-03-08 14:02:00_
 - Hookok újratelepítve; napi digest cron aktív.
 2026-06-16T18:20:00Z | feat(dev-guard/local-governance-sync-enforcement): a local pre-push audit most mar fail-closed modon megkoveteli, hogy a guard/governance/policy lane valtozasai a helyi governance system plan frissitesevel egyutt menjenek ki. Erintett fajlok: `scripts/safe-repo-audit.sh`, `scripts/git-health-check.sh`, `AGENTS.md`, `docs/impact-hub-governance-system-plan-2026-06-16.md`.
 [2026-06-23T15:55:00Z] | docs(doc-sync/local-canonical-map): az `impact_hub` repo megkapta a sajat contract-kompatibilis local canonical doc-sync mapjet (`docs/impact-hub-doc-sync-map-2026-06-23.md`). A helyi map most mar egy helyen oldja fel a governance, recovery/deploy/guard, env/auth/runtime es coupon workflow doku-truthokat, es a `README.md` valamint a helyi governance hub felol is elerheto.
+## 2026-06-24T15:15:00+0200 - local worktree runtime starter minimum added
+- Uj helyi runtime starter minimum kerult be a repo-ba: `scripts/worktree-task-start.sh` es `scripts/worktree-readiness-check.sh`.
+- A lane a mar meglevo `scripts/start-feature-worktree.sh` belepore epul, es ehhez ad marker + readiness szerzodest a helyi governance/doc-sync/recovery truth korul.
+- A helyi canonical doc-sync map (`docs/impact-hub-doc-sync-map-2026-06-23.md`) `RegistryStatus: partial` allapotra valtott, mert a runtime minimum mar bent van, de a magasabb szintu drift/coordination/reporting retegek meg nem.

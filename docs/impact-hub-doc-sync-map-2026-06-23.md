@@ -6,8 +6,8 @@ RepoId: `impact_hub`
 CanonicalMapPath: `docs/impact-hub-doc-sync-map-2026-06-23.md`
 RootHubPath: `../ai-agent/DOC-SYNC-HUB.md`
 OwnerRepo: `ai-agent`
-LastVerifiedAt: `2026-06-23T15:55:00Z`
-RegistryStatus: `docs-only`
+LastVerifiedAt: `2026-06-24T15:15:00Z`
+RegistryStatus: `partial`
 
 ## Cel
 
@@ -47,7 +47,7 @@ Ez a helyi map a kozos minimum statuszokat hasznalja:
 
 | Topic | Master doc | Implementation truth | QA / audit truth | Runtime / guard evidence | Continuity target | Status | Notes |
 |---|---|---|---|---|---|---|---|
-| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan | `scripts/git-health-check.sh`, helyi pre-push path | `notes.md`, `system-status-snapshot.md` | `merged` | A helyi governance minimum mar rendezett, de most kap egyhelyes local map truthot. |
+| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md`, `scripts/worktree-task-start.sh`, `scripts/worktree-readiness-check.sh` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan | `scripts/git-health-check.sh`, helyi pre-push path, `bash scripts/worktree-readiness-check.sh --json` | `notes.md`, `system-status-snapshot.md` | `partial` | A helyi governance minimum mar rendezett, most mar minimalis repo-helyi runtime starter lane is tartozik hozza. |
 | Recovery / deploy / guard lane | `docs/system-recovery-map.md` | recovery/deploy operativ workflowk, `scripts/git-health-check.sh` | a recovery mapben hivatkozott verify lepesek | `~/bin/impactall`, `scripts/git-health-check.sh` | `notes.md`, `system-status-snapshot.md` | `partial` | A runtime truth itt erosen operatori es recovery-kozpontu, ezert drift-riskesebb mint a tiszta docs lane-ek. |
 | Env / auth / runtime adapter | `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md` | local operatori shell/env, guard auth lane, `docs/system-recovery-map.md` | adapter sajat focused validation blokkja | `scripts/git-health-check.sh`, `~/bin/impactall` | `notes.md`, `system-status-snapshot.md` | `merged` | A helyi adapter mar megvan, most canonical mapben is feloldhato. |
 | Coupon harvester workflow lane | `docs/coupon-harvester-workflow.md` | kapcsolodo workflow scriptjei es CI lane-jei | `docs/coupon-harvester-timeout-2026-03-23.md` | CI timeout / runtime bounded lane evidence | `system-status-snapshot.md` | `partial` | Ez a lane a repo egyik konkret workflow-truthja, es runtime bound jellegu. |
@@ -71,6 +71,6 @@ Helyi continuity truthok:
 
 Innen a kovetkezo legkisebb hasznos szelet:
 
-1. az `impact_hub` bekerulese a kozponti registry `merged` statuszaba az `ai-agent` oldalon;
-2. ha a recovery/deploy lane tovabb no, kulon child map a `docs/system-recovery-map.md` ala;
-3. kesobb gepi drift-guard-ready ellenorzes a local map metadataira.
+1. a local runtime starter lane kovetkezo szuk bovitese: doc-sync/path presetek vagy recovery-lane topic filterek;
+2. a task-start evidence bekotese magasabb szintu drift/coordination riportba;
+3. ha a recovery/deploy lane tovabb no, kulon child map a `docs/system-recovery-map.md` ala.
