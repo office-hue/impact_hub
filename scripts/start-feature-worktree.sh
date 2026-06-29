@@ -51,6 +51,12 @@ fi
 cd "$REPO_ROOT"
 FEATURE_BRANCH="$1"
 
+COMMON_GIT_DIR="$(git rev-parse --git-common-dir)"
+if [[ "$COMMON_GIT_DIR" != /* ]]; then
+  COMMON_GIT_DIR="$(cd "$REPO_ROOT/$COMMON_GIT_DIR" && pwd -P)"
+fi
+PRIMARY_REPO_ROOT="$(cd "$COMMON_GIT_DIR/.." && pwd -P)"
+
 if git show-ref --verify --quiet "refs/heads/${FEATURE_BRANCH}"; then
   echo "ERROR: local branch már létezik: ${FEATURE_BRANCH}" >&2
   exit 1
@@ -61,8 +67,8 @@ if git ls-remote --exit-code --heads origin "$FEATURE_BRANCH" >/dev/null 2>&1; t
   exit 1
 fi
 
-REPO_NAME="$(basename "$REPO_ROOT")"
-WORKSPACE_DIR="$(cd "${REPO_ROOT}/.." && pwd)"
+REPO_NAME="$(basename "$PRIMARY_REPO_ROOT")"
+WORKSPACE_DIR="$(cd "${PRIMARY_REPO_ROOT}/.." && pwd -P)"
 WT_BASE="${WORKSPACE_DIR}/.worktrees"
 mkdir -p "$WT_BASE"
 
