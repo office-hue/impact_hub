@@ -60,6 +60,7 @@ wp-content/mu-plugins/*
 !/scripts/git-health-check.sh
 !/scripts/worktree-readiness-check.sh
 !/scripts/worktree-task-start.sh
+!/scripts/worktree-task-start-guard.sh
 !/scripts/worktree-coordination-sync.sh
 /docs/*
 !/docs/system-recovery-map.md

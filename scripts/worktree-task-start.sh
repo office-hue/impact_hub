@@ -227,5 +227,11 @@ fi
 echo "[worktree-task-start] readiness:"
 bash "$REPO_ROOT/scripts/worktree-readiness-check.sh"
 
+echo "[worktree-task-start] task-start guard:"
+bash "$REPO_ROOT/scripts/worktree-task-start-guard.sh" \
+  ${DOC_SYNC_LABEL:+--doc-sync-label "$DOC_SYNC_LABEL"} \
+  ${DOC_SYNC_REPO_ID:+--doc-sync-repo-id "$DOC_SYNC_REPO_ID"} \
+  ${DOC_SYNC_PATH_PREFIX:+--doc-sync-path-prefix "$DOC_SYNC_PATH_PREFIX"}
+
 echo "[worktree-task-start] next:"
 echo "  cd \"$WT_DIR\""
