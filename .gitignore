@@ -60,12 +60,14 @@ wp-content/mu-plugins/*
 !/scripts/git-health-check.sh
 !/scripts/worktree-readiness-check.sh
 !/scripts/worktree-task-start.sh
+!/scripts/worktree-coordination-sync.sh
 /docs/*
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md
 !/docs/pr-policy.md
 !/docs/ai-assistant-canonical-policy.md
 !/docs/impact-hub-governance-system-plan-2026-06-16.md
+!/docs/worktree-coordination-sync.md
 /bin/
 /impactshop-baseline-2025-10-15.md
 /impactshop-link-diagnostics.php

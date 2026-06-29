@@ -214,6 +214,16 @@ echo "[worktree-task-start] branch: $FEATURE_BRANCH"
 echo "[worktree-task-start] path:   $WT_DIR"
 echo "[worktree-task-start] marker: ${MARKER_FILE:-unavailable}"
 
+COORD_SCRIPT="$REPO_ROOT/scripts/worktree-coordination-sync.sh"
+if [[ -x "$COORD_SCRIPT" || -f "$COORD_SCRIPT" ]]; then
+  if bash "$COORD_SCRIPT" --repo-root "$REPO_ROOT" --active "$WT_DIR" >/dev/null 2>&1; then
+    echo "[worktree-task-start] coordination snapshot frissitve"
+  else
+    echo "[worktree-task-start] ERROR: coordination snapshot failed" >&2
+    exit 1
+  fi
+fi
+
 echo "[worktree-task-start] readiness:"
 bash "$REPO_ROOT/scripts/worktree-readiness-check.sh"
 
