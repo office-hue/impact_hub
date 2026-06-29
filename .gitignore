@@ -58,6 +58,8 @@ wp-content/mu-plugins/*
 !/scripts/impactshop-ngo-card-restore.sh
 !/scripts/start-feature-worktree.sh
 !/scripts/git-health-check.sh
+!/scripts/worktree-readiness-check.sh
+!/scripts/worktree-task-start.sh
 /docs/*
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md

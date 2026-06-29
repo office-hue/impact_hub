@@ -8,6 +8,12 @@ Scope: rovid, repo-helyi belepesi pont az `impact_hub` governance, review, conti
 
 Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendszertervi/guidance pontban osszefogja azokat a mar ervenyes anchorokat, amelyek alapjan az `impact_hub` repo-ban a munka, review, continuity, guard es recovery rendje kovetheto.
 
+## 2026-06-24 Runtime starter note
+
+- A repo megkapta a helyi runtime starter minimumot is: `scripts/worktree-task-start.sh` es `scripts/worktree-readiness-check.sh`.
+- Ez tudatosan N1 szelet: marker + readiness + local starter reuse, de meg nem teljes drift/coordination enforcement.
+- A helyi governance truth innentol nem csak docs entrypointot, hanem egy rovid, repo-helyi worktree-start belepot is tartalmaz.
+
 ## Canonical Anchors
 
 1. `docs/impact-hub-doc-sync-map-2026-06-23.md`
