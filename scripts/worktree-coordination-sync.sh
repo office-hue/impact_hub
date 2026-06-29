@@ -110,6 +110,54 @@ emit("task_start_marker_path", marker)
 PY
 }
 
+emit_task_start_decision_evidence() {
+  local cwd="$1"
+  local artifact
+  artifact="$(git -C "$cwd" rev-parse --git-path worktree-task-start-decision.json 2>/dev/null || true)"
+  if [[ -z "$artifact" || ! -f "$artifact" ]]; then
+    echo "task_start_decision: missing"
+    return
+  fi
+
+  python3 - <<'PY' "$artifact"
+import json
+import sys
+from pathlib import Path
+
+artifact = Path(sys.argv[1])
+try:
+    payload = json.loads(artifact.read_text(encoding="utf-8"))
+except Exception:
+    print("task_start_decision: unreadable")
+    print(f"task_start_decision_path: {artifact}")
+    sys.exit(0)
+
+def emit(key, value):
+    if value in (None, "", []):
+        return
+    print(f"{key}: {value}")
+
+print("task_start_decision: present")
+emit("task_start_decision_status", payload.get("status"))
+emit("task_start_decision_value", payload.get("decision"))
+emit("task_start_decision_path", artifact)
+emit("task_start_decision_doc_sync_label", payload.get("docSyncLabel"))
+emit("task_start_decision_doc_sync_repo_id", payload.get("docSyncRepoId"))
+emit("task_start_decision_doc_sync_path_prefix", payload.get("docSyncPathPrefix"))
+
+blocking = payload.get("blockingReasons") or []
+warnings = payload.get("warnings") or []
+if blocking:
+    print("task_start_decision_blocking_reasons:")
+    for item in blocking:
+        print(f"  - {item}")
+if warnings:
+    print("task_start_decision_warnings:")
+    for item in warnings:
+        print(f"  - {item}")
+PY
+}
+
 ACTIVE_BRANCH="$(safe_git_text "$ACTIVE_WT" branch --show-current)"
 ACTIVE_HEAD="$(safe_git_text "$ACTIVE_WT" rev-parse --short HEAD)"
 ACTIVE_STATUS="$(safe_status_line_count "$ACTIVE_WT")"
@@ -126,6 +174,7 @@ status_short_line_count: ${ACTIVE_STATUS:-unknown}
 EOF
 
 emit_task_start_evidence "$ACTIVE_WT" >> "$ACTIVE_FILE"
+emit_task_start_decision_evidence "$ACTIVE_WT" >> "$ACTIVE_FILE"
 
 WT_PATHS=()
 while IFS= read -r line; do
@@ -172,6 +221,7 @@ done < <(git -C "$REPO_ROOT" worktree list --porcelain | awk '/^worktree /{print
     echo "status_short_line_count: $STATUS_LINES"
     echo "invalid_worktree: no"
     emit_task_start_evidence "$WT"
+    emit_task_start_decision_evidence "$WT"
 
     if [[ "$STATUS_LINES" != "0" ]]; then
       echo "changed_files:"

@@ -10,7 +10,8 @@ Ez a helper a helyi `worktree-task-start` lane utan frissiti a workspace-szintu 
 
 1. legyen egy reviewer-visible aktiv write target;
 2. latszodjanak az osszes helyi worktree dirty/clean allapotai;
-3. a stale vagy prunable worktree-k ne boritsak fel a teljes starter bootstrapot.
+3. a task-start marker mellett a decision artifact is visszakeresheto legyen;
+4. a stale vagy prunable worktree-k ne boritsak fel a teljes starter bootstrapot.
 
 ## Kanonikus fajlok
 
@@ -27,7 +28,7 @@ A helper a kozos `.worktrees/` teruletre ir:
 
 ## Runtime szabaly
 
-Az `impact_hub` helyi starter lane-ben a koordinacios snapshot a marker bootstrap utan kotelezo lepes.
+Az `impact_hub` helyi starter lane-ben a koordinacios snapshot a marker, a readiness es a task-start guard utan kotelezo lepes.
 
 Jelenlegi fail-closed/fail-open hatar:
 
@@ -44,3 +45,15 @@ Ha a `git worktree list` matrixban marad egy nem letezo vagy prunable worktree:
 3. az aggregate output `summary_invalid_worktrees` mezoben osszesiti ezt.
 
 Ezzel a fresh worktree inditas nem bukik el egy regi, mar nem letezo sibling path miatt.
+
+## Decision evidence
+
+A snapshot most mar nem csak a `worktree-active.json` marker metadatajat emeli vissza, hanem a `worktree-task-start-decision.json` artefaktot is.
+
+Reviewer-visible minimum mezok:
+
+1. `task_start_decision_status`
+2. `task_start_decision_value`
+3. `task_start_decision_path`
+4. `task_start_decision_doc_sync_*`
+5. blokkolo okok vagy warningok, ha vannak
