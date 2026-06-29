@@ -81,6 +81,7 @@ require_file "docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md" "mis
 require_file "scripts/safe-repo-audit.sh" "missing-safe-repo-audit"
 require_file "scripts/git-health-check.sh" "missing-git-health-check"
 require_file "scripts/start-feature-worktree.sh" "missing-start-feature-worktree"
+require_file "scripts/worktree-task-start-guard.sh" "missing-worktree-task-start-guard"
 require_file "scripts/worktree-coordination-sync.sh" "missing-worktree-coordination-sync"
 require_file "notes.md" "missing-notes"
 require_file "system-status-snapshot.md" "missing-system-status-snapshot"
