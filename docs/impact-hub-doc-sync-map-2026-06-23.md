@@ -6,7 +6,7 @@ RepoId: `impact_hub`
 CanonicalMapPath: `docs/impact-hub-doc-sync-map-2026-06-23.md`
 RootHubPath: `../ai-agent/DOC-SYNC-HUB.md`
 OwnerRepo: `ai-agent`
-LastVerifiedAt: `2026-06-29T16:10:00Z`
+LastVerifiedAt: `2026-06-30T08:45:00Z`
 RegistryStatus: `partial`
 
 ## Cel
@@ -47,7 +47,7 @@ Ez a helyi map a kozos minimum statuszokat hasznalja:
 
 | Topic | Master doc | Implementation truth | QA / audit truth | Runtime / guard evidence | Continuity target | Status | Notes |
 |---|---|---|---|---|---|---|---|
-| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md`, `scripts/worktree-task-start.sh`, `scripts/worktree-task-start-guard.sh`, `scripts/worktree-readiness-check.sh`, `scripts/worktree-coordination-sync.sh` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan, `docs/worktree-coordination-sync.md` | `scripts/git-health-check.sh`, helyi pre-push path, `bash scripts/worktree-readiness-check.sh --json`, `bash scripts/worktree-task-start-guard.sh --json`, workspace `.worktrees/ACTIVE_WORKTREE.md`, workspace `.worktrees/ACTIVE_WORKTREES.md`, per-worktree `worktree-task-start-decision.json` | `notes.md`, `system-status-snapshot.md` | `partial` | A helyi governance minimum mar rendezett, most mar a runtime starter lane mellett a prunable-tolerans koordinacios snapshot minimum es a task-start decision artifact snapshotba visszaemelt truthja is tartozik hozza. |
+| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md`, `scripts/worktree-task-start.sh`, `scripts/worktree-task-start-guard.sh`, `scripts/worktree-readiness-check.sh`, `scripts/worktree-coordination-sync.sh`, `scripts/worktree-continuity-guard.sh`, `scripts/guarded-push.sh` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan, `docs/worktree-coordination-sync.md`, `docs/worktree-continuity-guard.md` | `scripts/git-health-check.sh`, helyi pre-push path, `bash scripts/worktree-readiness-check.sh --json`, `bash scripts/worktree-task-start-guard.sh --json`, `bash scripts/worktree-continuity-guard.sh --json --mode push`, workspace `.worktrees/ACTIVE_WORKTREE.md`, workspace `.worktrees/ACTIVE_WORKTREES.md`, per-worktree `worktree-task-start-decision.json` | `notes.md`, `system-status-snapshot.md` | `partial` | A helyi governance minimum mar nem csak starter + koordinacios truthot hordoz, hanem a hook-szintu continuity enforcementet is. A kozponti H5 writeback ettol meg kulon szelet marad. |
 | Recovery / deploy / guard lane | `docs/system-recovery-map.md` | recovery/deploy operativ workflowk, `scripts/git-health-check.sh` | a recovery mapben hivatkozott verify lepesek | `~/bin/impactall`, `scripts/git-health-check.sh` | `notes.md`, `system-status-snapshot.md` | `partial` | A runtime truth itt erosen operatori es recovery-kozpontu, ezert drift-riskesebb mint a tiszta docs lane-ek. |
 | Env / auth / runtime adapter | `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md` | local operatori shell/env, guard auth lane, `docs/system-recovery-map.md` | adapter sajat focused validation blokkja | `scripts/git-health-check.sh`, `~/bin/impactall` | `notes.md`, `system-status-snapshot.md` | `merged` | A helyi adapter mar megvan, most canonical mapben is feloldhato. |
 | Coupon harvester workflow lane | `docs/coupon-harvester-workflow.md` | kapcsolodo workflow scriptjei es CI lane-jei | `docs/coupon-harvester-timeout-2026-03-23.md` | CI timeout / runtime bounded lane evidence | `system-status-snapshot.md` | `partial` | Ez a lane a repo egyik konkret workflow-truthja, es runtime bound jellegu. |
@@ -71,6 +71,6 @@ Helyi continuity truthok:
 
 Innen a kovetkezo legkisebb hasznos szelet:
 
-1. a local runtime starter lane kovetkezo szuk bovitese: doc-sync/path presetek vagy recovery-lane topic filterek;
-2. ha a recovery/deploy lane tovabb no, kulon child map a `docs/system-recovery-map.md` ala;
-3. magasabb continuity/drift enforcement follow-up, ha a coordination riportalas mar stabil.
+1. a kozponti `ai-agent` H5 writeback, hogy a merge-elt helyi H4 continuity truth az all-repo rollout matrixba is visszakeruljon;
+2. kesobbi kulon korben a default-activation vagy finomabb topic/path preset follow-up;
+3. ha a recovery/deploy lane tovabb no, kulon child map a `docs/system-recovery-map.md` ala.
