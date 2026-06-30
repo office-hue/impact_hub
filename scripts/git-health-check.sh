@@ -67,6 +67,13 @@ if [[ -x "$HOOK_PATH" ]]; then
     echo "[git-health-check] FAIL: pre-push hookból hiányzik a safe-repo-audit futtatás"
     FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
+
+  if rg -q -- 'worktree-continuity-guard\.sh' "$HOOK_PATH"; then
+    echo "[git-health-check] OK: pre-push worktree continuity guard bekötve"
+  else
+    echo "[git-health-check] FAIL: pre-push hookból hiányzik a worktree continuity guard"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  fi
 else
   echo "[git-health-check] FAIL: hiányzó vagy nem futtatható pre-push hook: $HOOK_PATH"
   FAIL_COUNT=$((FAIL_COUNT + 1))

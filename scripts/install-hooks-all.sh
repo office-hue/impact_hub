@@ -43,6 +43,10 @@ install_hook() {
   fi
   mkdir -p "${hook_dir}"
 
+  if [[ -f "${repo_dir}/scripts/guarded-push.sh" ]]; then
+    git -C "${repo_dir}" config alias.wpush '!bash scripts/guarded-push.sh'
+  fi
+
   cat > "${hook_dir}/pre-commit" <<'HOOK'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -67,6 +71,32 @@ set -euo pipefail
 
 REPO_ROOT="\$(git rev-parse --show-toplevel)"
 BRANCH="\$(git branch --show-current 2>/dev/null || echo detached)"
+
+resolve_ai_agent_repo() {
+  local repo_root="\$1"
+  local search="\$repo_root"
+  local parent=""
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    if [[ "\$(basename "\$search")" == "ai-agent" && -f "\$search/scripts/dev-memory.ts" ]]; then
+      echo "\$search"
+      return 0
+    fi
+    if [[ -d "\$search/ai-agent" && -f "\$search/ai-agent/scripts/dev-memory.ts" ]]; then
+      echo "\$search/ai-agent"
+      return 0
+    fi
+    for wt in "\$search"/.worktrees/ai-agent*; do
+      if [[ -d "\$wt" && -f "\$wt/scripts/dev-memory.ts" ]]; then
+        echo "\$wt"
+        return 0
+      fi
+    done
+    parent="\$(cd "\$search/.." && pwd)"
+    [[ "\$parent" == "\$search" ]] && break
+    search="\$parent"
+  done
+  return 1
+}
 
 if [[ "\${IMPACT_POLICY_ALLOW_MAIN_PUSH:-0}" != "1" ]]; then
   if [[ "\$BRANCH" == "main" || "\$BRANCH" == "master" ]]; then
@@ -106,11 +136,18 @@ if [[ "\$missing" -ne 0 ]]; then
 fi
 
 SAFE_AUDIT_SCRIPT=""
+WORKTREE_CONTINUITY_GUARD=""
 search_dir="\$REPO_ROOT"
 for _ in 1 2 3 4 5 6; do
   candidate="\$search_dir/scripts/safe-repo-audit.sh"
   if [[ -x "\$candidate" ]]; then
     SAFE_AUDIT_SCRIPT="\$candidate"
+  fi
+  continuity_candidate="\$search_dir/scripts/worktree-continuity-guard.sh"
+  if [[ -x "\$continuity_candidate" ]]; then
+    WORKTREE_CONTINUITY_GUARD="\$continuity_candidate"
+  fi
+  if [[ -n "\$SAFE_AUDIT_SCRIPT" && -n "\$WORKTREE_CONTINUITY_GUARD" ]]; then
     break
   fi
   parent="\$(cd "\$search_dir/.." && pwd)"
@@ -123,7 +160,17 @@ if [[ -z "\$SAFE_AUDIT_SCRIPT" ]]; then
   exit 1
 fi
 
+if [[ -n "\$WORKTREE_CONTINUITY_GUARD" ]]; then
+  "\${WORKTREE_CONTINUITY_GUARD}" --mode push
+fi
+
 "\${SAFE_AUDIT_SCRIPT}" --repo "\${REPO_ROOT}" --strict --mode push
+
+AI_AGENT_REPO="\$(resolve_ai_agent_repo "\$REPO_ROOT" 2>/dev/null || true)"
+if [[ -n "\$AI_AGENT_REPO" ]] && command -v npm >/dev/null 2>&1; then
+  npm --prefix "\$AI_AGENT_REPO" run -s memory:gate -- --repo "\$REPO_ROOT"
+  npm --prefix "\$AI_AGENT_REPO" run -s memory:sync-pr -- --repo "\$REPO_ROOT" >/dev/null 2>&1 || true
+fi
 
 expected_origin="\${${origin_env_var}:-${default_origin}}"
 actual_origin="\$(git remote get-url origin 2>/dev/null || true)"

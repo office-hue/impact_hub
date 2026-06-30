@@ -62,6 +62,8 @@ wp-content/mu-plugins/*
 !/scripts/worktree-task-start.sh
 !/scripts/worktree-task-start-guard.sh
 !/scripts/worktree-coordination-sync.sh
+!/scripts/worktree-continuity-guard.sh
+!/scripts/guarded-push.sh
 /docs/*
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md
@@ -69,6 +71,7 @@ wp-content/mu-plugins/*
 !/docs/ai-assistant-canonical-policy.md
 !/docs/impact-hub-governance-system-plan-2026-06-16.md
 !/docs/worktree-coordination-sync.md
+!/docs/worktree-continuity-guard.md
 /bin/
 /impactshop-baseline-2025-10-15.md
 /impactshop-link-diagnostics.php

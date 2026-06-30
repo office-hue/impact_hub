@@ -20,6 +20,12 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
 - A starter lane a marker + readiness + task-start guard utan frissiti a koordinacios snapshotot, igy a per-worktree `worktree-task-start-decision.json` artifact nem csak letrejon, hanem a workspace-szintu riportba is visszaemelkedik.
 - Ez meg mindig nem teljes hook-level continuity enforcement, de mar reviewer-visible evidence-et ad a doc-sync label/repo/path scope-rol es a blocked/degraded/allowed dontesrol.
 
+## 2026-06-30 Runtime H4 note
+
+- A helyi runtime lane most mar hook-szintu continuity enforcementet is kapott: `scripts/worktree-continuity-guard.sh`.
+- A `scripts/install-hooks-all.sh` innentol a pre-push hookba is bekoti ezt a continuity guardot, a `scripts/guarded-push.sh` pedig ugyanazt a lane-t adja `git wpush` wrapperen keresztul.
+- Ez a H4 szelet tudatosan meg kulonvalasztja a helyi continuity/guard truthot a kesobbi kozponti H5 writebacktol.
+
 ## Canonical Anchors
 
 1. `docs/impact-hub-doc-sync-map-2026-06-23.md`
