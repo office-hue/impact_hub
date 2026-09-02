@@ -74,3 +74,9 @@ Innen a kovetkezo legkisebb hasznos szelet:
 1. a kozponti `ai-agent` H5 writeback, hogy a merge-elt helyi H4 continuity truth az all-repo rollout matrixba is visszakeruljon;
 2. kesobbi kulon korben a default-activation vagy finomabb topic/path preset follow-up;
 3. ha a recovery/deploy lane tovabb no, kulon child map a `docs/system-recovery-map.md` ala.
+
+## 2026-09-02 DEV context policy rollout
+
+`AGENTS.md`, the local policy guard and fixture, readiness/task-start chain,
+PR checklist, package alias, Jest contract, governance plan, notes and system
+snapshot move as one docsync unit. The coupon harvester is outside this unit.

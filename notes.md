@@ -11,3 +11,9 @@
 
 Repo-local policy guard and negative global-waiver fixture are source-ready.
 No product, provider, deploy, VPS, Cronos or watchdog mutation occurred.
+# 2026-09-02 DEV rollout completion
+
+Readiness now enforces the repo-local guard. The root Jest configuration makes
+the locked full tools suite executable. The existing `NEEDS_MAPPING` contract
+now returns its draft coupon instead of silently dropping it, matching the
+tracked fixture and preserving sandbox-only behavior.

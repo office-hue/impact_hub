@@ -4,7 +4,8 @@
   "type": "commonjs",
   "scripts": {
     "export": "node scripts/cj-docs-export.mjs",
-    "test": "jest"
+    "test": "jest",
+    "dev:context:check": "bash scripts/dev-context-policy-guard.sh --json"
   },
   "dependencies": {
     "csv-stringify": "^6.6.0",

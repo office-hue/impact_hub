@@ -214,7 +214,6 @@ export function extractFromHtml(html: string, subject: string, from: string, whi
   if (!code || !discount || badCodes.has(code.toUpperCase())) return null;
   const domain = (from.match(/@([^> ]+)/) || [])[1] || '';
   const shop = mapDomainToShop(domain, whitelist);
-  if (shop.slug === 'NEEDS_MAPPING') return null;
   return {
     shop_slug: shop.slug,
     shop_name: shop.name,
