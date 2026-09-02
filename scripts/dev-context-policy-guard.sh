@@ -25,7 +25,7 @@ if not branch and os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('G
     if event_path.is_file(): base=json.loads(event_path.read_text()).get('pull_request',{}).get('base',{}).get('sha') or base
 if not branch: reasons.append('detached-head')
 changed=git('diff','--name-only',f'{base}..{head}').splitlines() if base and head and base != head else []
-allowed=('AGENTS.md','package.json','notes.md','system-status-snapshot.md','.github/workflows/pr-checklist-guard.yml')
+allowed=('AGENTS.md','package.json','jest.config.cjs','notes.md','system-status-snapshot.md','.github/workflows/pr-checklist-guard.yml')
 if all(p in allowed or p.startswith(('docs/','scripts/','tests/')) for p in changed): path_class='governance-only'; provider='not-configured'; decision='allowed'
 elif any(p.startswith(('src/','public/','scripts/shortcode_sync/')) for p in changed): path_class='product'; provider='operator-review'; decision='operator-review'; reasons.append('product-path')
 else: path_class='unknown'; provider='operator-review'; decision='blocked'; reasons.append('unknown-path-class')

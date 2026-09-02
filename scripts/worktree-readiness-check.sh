@@ -85,6 +85,7 @@ require_file "scripts/worktree-task-start-guard.sh" "missing-worktree-task-start
 require_file "scripts/worktree-coordination-sync.sh" "missing-worktree-coordination-sync"
 require_file "notes.md" "missing-notes"
 require_file "system-status-snapshot.md" "missing-system-status-snapshot"
+require_file "scripts/dev-context-policy-guard.sh" "missing-dev-context-policy-guard"
 
 HOOK_PRE_PUSH="$(git rev-parse --git-path hooks/pre-push 2>/dev/null || true)"
 HOOK_PRE_COMMIT="$(git rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
@@ -99,6 +100,10 @@ fi
 warn_if_missing "${HOOK_PRE_PUSH:-}" "missing-pre-push-hook"
 warn_if_missing "${HOOK_PRE_COMMIT:-}" "missing-pre-commit-hook"
 warn_cmd "rg" "missing-rg"
+
+if [[ -x scripts/dev-context-policy-guard.sh ]] && ! bash scripts/dev-context-policy-guard.sh --repo-root "$REPO_ROOT" >/dev/null 2>&1; then
+  REASONS+=("dev-context-policy-blocked")
+fi
 
 if ((${#REASONS[@]})); then
   STATUS="blocked"
