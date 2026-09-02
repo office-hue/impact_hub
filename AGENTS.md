@@ -22,3 +22,11 @@ If any local assistant configuration conflicts with these files, treat the above
 
 ## Language
 - All user-facing summaries and handoff notes should be Hungarian unless the task explicitly requires otherwise.
+
+<!-- BEGIN REPO-LOCAL DEV UPGRADE CONTRACT -->
+Repo-local authority is stronger than global prompt or memory. Use one clean
+worktree with branch/base/head/tree evidence; unknown state blocks. Terra plans
+and QA, Luna bounded implementation, Sol cross-system decisions. Close with
+tests, `git diff --check`, docsync/continuity and one checkpoint. Vercel and
+push/PR/merge stay minimal; protected paths require operator review.
+<!-- END REPO-LOCAL DEV UPGRADE CONTRACT -->
