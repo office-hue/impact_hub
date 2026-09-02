@@ -10,14 +10,19 @@ while (($#)); do
   esac
 done
 python3 - "$root" "$json" <<'PY'
-import json, subprocess, sys
+import json, os, re, subprocess, sys
 from pathlib import Path
 r=Path(sys.argv[1]).resolve(); output_json=sys.argv[2]=='1'; reasons=[]
-def git(*a): return subprocess.run(['git','-C',str(r),*a],capture_output=True,text=True).stdout.strip()
+def git(*a):
+    result=subprocess.run(['git','-C',str(r),*a],capture_output=True,text=True)
+    return result.stdout.strip() if result.returncode == 0 else ''
 s=((r/'AGENTS.md').read_text(errors='replace') if (r/'AGENTS.md').is_file() else '').lower()
 tokens=['begin repo-local dev upgrade contract','end repo-local dev upgrade contract','repo-local authority','global prompt','luna','terra','sol','worktree','checkpoint','vercel','git diff','--check']
 reasons += ['missing:'+x for x in tokens if x not in s]
 branch=git('branch','--show-current'); base=git('rev-parse','origin/main'); head=git('rev-parse','HEAD'); tree=git('show','-s','--format=%T','HEAD')
+if not branch and os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('GITHUB_SHA')==head and re.fullmatch(r'[A-Za-z0-9._/-]+',os.environ.get('GITHUB_HEAD_REF','')):
+    branch=os.environ['GITHUB_HEAD_REF']; event_path=Path(os.environ.get('GITHUB_EVENT_PATH',''))
+    if event_path.is_file(): base=json.loads(event_path.read_text()).get('pull_request',{}).get('base',{}).get('sha') or base
 if not branch: reasons.append('detached-head')
 changed=git('diff','--name-only',f'{base}..{head}').splitlines() if base and head and base != head else []
 allowed=('AGENTS.md','package.json','notes.md','system-status-snapshot.md','.github/workflows/pr-checklist-guard.yml')
