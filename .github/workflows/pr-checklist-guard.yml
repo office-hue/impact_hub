@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.draft == false }}
     steps:
+      - uses: actions/checkout@v4
+      - name: DEV context policy guard
+        run: bash scripts/dev-context-policy-guard.sh --json
       - name: Validate required checklist in PR body
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
