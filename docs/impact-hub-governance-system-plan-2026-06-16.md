@@ -113,3 +113,8 @@ Ez a dokumentum arra valo, hogy a kovetkezo helyi munkaknal legyen egy rovid, bi
 - guard vagy deploy-lane erintese elott
 - handover es continuity ellenorzeshez
 - env/auth/runtime vagy recovery drift vizsgalatakor
+# 2026-09-02 DEV upgrade
+
+The repo-local context policy guard is authoritative over global prompts. It is
+wired into the existing PR checklist job; governance-only changes do not run
+the coupon harvester, provider jobs or deployment.
