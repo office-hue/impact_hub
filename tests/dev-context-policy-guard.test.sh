@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 payload="$(bash "$ROOT/scripts/dev-context-policy-guard.sh" --json)"
 python3 - "$payload" <<'PY'
 import json,sys
-p=json.loads(sys.argv[1]); required={'schemaVersion','repo','authoritySource','branch','baseSha','headSha','treeSha','changedPathClass','providerBuildDecision','evidenceReuseAllowed','decision','blockingReasons'}; assert required <= p.keys(); assert p['decision']=='allowed'
+p=json.loads(sys.argv[1]); required={'schemaVersion','repo','authoritySource','branch','baseSha','headSha','treeSha','changedPathClass','providerBuildDecision','evidenceReuseAllowed','decision','blockingReasons','fullValidationRequired'}; assert required <= p.keys(); assert p['decision']=='operator-review'; assert p['changedPathClass']=='protected'; assert p['fullValidationRequired'] is True
 PY
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 git -C "$tmp" init -q; git -C "$tmp" config user.email qa@example.invalid; git -C "$tmp" config user.name qa

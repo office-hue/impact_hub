@@ -17,3 +17,38 @@ Readiness now enforces the repo-local guard. The root Jest configuration makes
 the locked full tools suite executable. The existing `NEEDS_MAPPING` contract
 now returns its draft coupon instead of silently dropping it, matching the
 tracked fixture and preserving sandbox-only behavior.
+
+# 2026-09-04 DEV delivery v2 adapter
+
+Repo-local contract snapshot, exact-root policy adapter, private Git-metadata
+candidate evidence and offline fixture boundary were added. The scope remains
+source-only: no provider, product deploy, coupon harvester, cron or watchdog
+mutation occurred. Checkpoint closure requires candidate/index and commit-tree
+equality plus the complete local evidence chain.
+
+# 2026-09-04 DEV delivery v2 Terra QA correction
+
+The CI checkout now binds and verifies the pull-request event base/head commits
+before classification. Unsafe impact classes are blocked unless the workflow
+runs the full local validation gate. Production root selection is restricted to
+the invoking worktree; fixtures are explicit, separate temporary roots with
+offline/no-mutation snapshot evidence. Evidence receipts execute only the
+policy-owned command profiles and bind every result to the frozen candidate tree.
+
+# 2026-09-04 DEV delivery v2 validation-lane correction
+
+Known protected/deploy changes now return `operator-review` without stopping
+their mandatory full-validation lane; unknown paths remain blocked. Fresh CI
+and local validation use the tracked lockfile with lifecycle scripts disabled,
+while root `node_modules` stays ignored. No lockfile, provider, deploy, product,
+cron, watchdog, VPS or credential state is changed by the source correction.
+
+# 2026-09-04 DEV delivery v2 QA2 correction
+
+The final merge blockers are addressed in-source: protected self-change paths
+cannot skip full validation; GitHub CI uses only event-diff-bound runner-safe
+checks; executable evidence profiles are code-owned; record/close enforce index,
+unstaged and unexpected-untracked cleanliness; and fixtures are constrained to
+the dedicated repository root or a verified bounded test-temp root. Closure no
+longer asserts a task-wide `externalWritePerformed=false` fact. The central
+target-contract snapshot and root lockfile are intentionally unchanged.

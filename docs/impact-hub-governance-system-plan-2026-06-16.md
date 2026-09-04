@@ -118,3 +118,42 @@ Ez a dokumentum arra valo, hogy a kovetkezo helyi munkaknal legyen egy rovid, bi
 The repo-local context policy guard is authoritative over global prompts. It is
 wired into the existing PR checklist job; governance-only changes do not run
 the coupon harvester, provider jobs or deployment.
+
+## 2026-09-04 DEV delivery v2 adapter
+
+- `config/dev-delivery-v2-target-contract.json` a central contract repo-local,
+  SHA-256-ellenorzott snapshotja; futasideju central fuggoseg nincs.
+- `scripts/dev-delivery-v2-adapter.py` exact-current-worktree-root ellenorzest,
+  fail-closed impact classificationt, privat Git-metadata evidence-et,
+  candidate index-tree freeze-t es checkpoint-tree paritast ad.
+- A provider default `operator-review`, az automatikus termekdeploy tiltott. A
+  coupon-harvester workflow valtozatlanul csak heti/manual triggerrel aktiv.
+- A meglevo `PR Checklist Guard` job strukturalt `not-affected` utat hasznalhat
+  csak ismert docs/governance osztalyra; protected, deploy es unknown valtozas
+  a PR-esemeny base/head SHA-hoz kotott, tenyleges teljes validaciot igenyel.
+- A `--repo-root` csak az eppen futtato worktree sajat rootja lehet. A fixture
+  kulon, explicit ideiglenes rootot kovetel, annak valtozatlansagat hasheli, es
+  offline/mutacio-mentes marad.
+- Evidence-et a hivo exit-code-ja helyett az adapter altal inditott,
+  policyban allowlistelt profile/parancs, valamint a valtozatlan candidate tree
+  igazol. A protected/deploy besorolas `operator-review` dontessel tovabbmegy a
+  kotelezo teljes validaciora; az ismeretlen path-osztaly tovabbra is fail-closed
+  `blocked`. A friss CI checkout a verziozott lockfile-bol, lifecycle scriptek
+  nelkul materializalja a tesztfuggosegeket, majd futtatja a teljes Jest-lancot.
+
+## 2026-09-04 DEV delivery v2 QA2 hardening
+
+- A classifier sajat guard/policy/workflow perimeteret, beleertve a valos
+  `tools/__tests__/dev-delivery-v2-*` utvonalat is, csak protected/full
+  validacios osztalyba engedi; a kozel azonos, de nem egyezo tesztutvonalat
+  negativ teszt tartja tavol ettol a mintatol.
+- Az evidence parancs- es profil-allowlist kodba egetett maximum bastion; a
+  tracked JSON csak pontos tukre lehet. Record es close elott/utan index-tree,
+  unstaged tracked es unexpected untracked tisztasag kotelezo.
+- A fixture perimeter egyetlen repo-local dedikalt rootra vagy szigoru,
+  same-owner/mode/realpath/symlink kontroll alatt allo teszt-temp rootra szukul,
+  darab- es meretlimittel.
+- A PR job CI-ben reprodukalhato: exact event SHA-k, full checkout, Node 22,
+  exact lockfile install, teljes Jest, adapter fixture/negative ellenorzes,
+  bastion/continuity es exact-range audit/diff check. Helyi Git-meta snapshot,
+  hook-health vagy working-tree-only audit nem resze a PR kapunak.

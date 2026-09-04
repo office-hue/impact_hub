@@ -9,16 +9,20 @@ TARGET_PATH="."
 MODE="local"
 PUSH_BASE=""
 PUSH_RANGE=""
+RANGE_BASE=""
+RANGE_HEAD=""
 
 usage() {
   cat <<'EOF'
 Usage:
-  safe-repo-audit.sh [--repo <path>] [--strict] [--mode local|push]
+  safe-repo-audit.sh [--repo <path>] [--strict] [--mode local|push|range] [--base <sha> --head <sha>]
 
 Options:
   --repo <path>   Target git repository path (default: current directory)
   --strict        Exit non-zero when warnings are found
   --mode <mode>   Scan mode: local (working tree) or push (committed range to upstream)
+  --base <sha>    Exact base commit for range mode
+  --head <sha>    Exact head commit for range mode
   -h, --help      Show this help
 
 Examples:
@@ -41,6 +45,14 @@ while [[ $# -gt 0 ]]; do
       MODE="${2:-}"
       shift 2
       ;;
+    --base)
+      RANGE_BASE="${2:-}"
+      shift 2
+      ;;
+    --head)
+      RANGE_HEAD="${2:-}"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -58,8 +70,8 @@ if ! REPO_ROOT="$(git -C "$TARGET_PATH" rev-parse --show-toplevel 2>/dev/null)";
   exit 1
 fi
 
-if [[ "$MODE" != "local" && "$MODE" != "push" ]]; then
-  echo "ERROR: --mode must be 'local' or 'push' (got: $MODE)" >&2
+if [[ "$MODE" != "local" && "$MODE" != "push" && "$MODE" != "range" ]]; then
+  echo "ERROR: --mode must be 'local', 'push' or 'range' (got: $MODE)" >&2
   exit 1
 fi
 
@@ -97,10 +109,22 @@ if [[ "$MODE" == "push" ]]; then
     PUSH_BASE="$(git hash-object -t tree /dev/null)"
   fi
   PUSH_RANGE="${PUSH_BASE}..HEAD"
+elif [[ "$MODE" == "range" ]]; then
+  if [[ -z "$RANGE_BASE" || -z "$RANGE_HEAD" ]]; then
+    echo "ERROR: range mode requires --base and --head" >&2
+    exit 1
+  fi
+  if ! git cat-file -e "${RANGE_BASE}^{commit}" 2>/dev/null || ! git cat-file -e "${RANGE_HEAD}^{commit}" 2>/dev/null; then
+    echo "ERROR: range base or head commit is unavailable" >&2
+    exit 1
+  fi
+  PUSH_BASE="$(git rev-parse "${RANGE_BASE}^{commit}")"
+  RANGE_HEAD="$(git rev-parse "${RANGE_HEAD}^{commit}")"
+  PUSH_RANGE="${PUSH_BASE}..${RANGE_HEAD}"
 fi
 
 {
-  if [[ "$MODE" == "push" ]]; then
+  if [[ "$MODE" != "local" ]]; then
     git diff --name-only "$PUSH_RANGE"
   else
     git diff --name-only
@@ -115,7 +139,7 @@ grep -Eiv \
   "$CHANGED_LIST" > "$FILTERED_CHANGED_LIST" || true
 
 {
-  if [[ "$MODE" == "push" ]]; then
+  if [[ "$MODE" != "local" ]]; then
     git diff -U0 --no-color "$PUSH_RANGE"
   else
     git diff -U0 --no-color
@@ -128,7 +152,7 @@ echo "Repo:    $REPO_ROOT"
 echo "Branch:  $BRANCH"
 echo "HEAD:    $HEAD_SHA"
 echo "Mode:    $MODE"
-if [[ "$MODE" == "push" ]]; then
+if [[ "$MODE" != "local" ]]; then
   echo "Range:   ${PUSH_RANGE}"
 fi
 echo "Changed: $(wc -l < "$CHANGED_LIST" | tr -d ' ') files"
@@ -185,8 +209,12 @@ while IFS= read -r file; do
   [[ -n "$file" ]] || continue
   if [[ "$file" =~ (^|/)\.env($|\.|/) || "$file" =~ (^|/)\.deploy\.(production|staging)\.env$ ]]; then
     {
-      git diff -U0 --no-color -- "$file"
-      git diff --cached -U0 --no-color -- "$file"
+      if [[ "$MODE" != "local" ]]; then
+        git diff -U0 --no-color "$PUSH_RANGE" -- "$file"
+      else
+        git diff -U0 --no-color -- "$file"
+        git diff --cached -U0 --no-color -- "$file"
+      fi
     } | awk '/^\+[^+]/ {print substr($0,2)}' \
       | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' \
       | awk -F= '
@@ -292,7 +320,7 @@ fi
 
 # 5) New module files must extend bastion/guard documentation.
 {
-  if [[ "$MODE" == "push" ]]; then
+  if [[ "$MODE" != "local" ]]; then
     git diff --name-only --diff-filter=A "$PUSH_RANGE"
   else
     git diff --name-only --diff-filter=A

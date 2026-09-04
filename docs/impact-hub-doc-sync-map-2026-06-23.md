@@ -47,7 +47,7 @@ Ez a helyi map a kozos minimum statuszokat hasznalja:
 
 | Topic | Master doc | Implementation truth | QA / audit truth | Runtime / guard evidence | Continuity target | Status | Notes |
 |---|---|---|---|---|---|---|---|
-| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md`, `scripts/worktree-task-start.sh`, `scripts/worktree-task-start-guard.sh`, `scripts/worktree-readiness-check.sh`, `scripts/worktree-coordination-sync.sh`, `scripts/worktree-continuity-guard.sh`, `scripts/guarded-push.sh` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan, `docs/worktree-coordination-sync.md`, `docs/worktree-continuity-guard.md` | `scripts/git-health-check.sh`, helyi pre-push path, `bash scripts/worktree-readiness-check.sh --json`, `bash scripts/worktree-task-start-guard.sh --json`, `bash scripts/worktree-continuity-guard.sh --json --mode push`, workspace `.worktrees/ACTIVE_WORKTREE.md`, workspace `.worktrees/ACTIVE_WORKTREES.md`, per-worktree `worktree-task-start-decision.json` | `notes.md`, `system-status-snapshot.md` | `partial` | A helyi governance minimum mar nem csak starter + koordinacios truthot hordoz, hanem a hook-szintu continuity enforcementet is. A kozponti H5 writeback ettol meg kulon szelet marad. |
+| Local governance control plane | `docs/impact-hub-governance-system-plan-2026-06-16.md` | `AGENTS.md`, `docs/pr-policy.md`, `PR-EXIT-CHECKLIST.md`, `docs/ai-assistant-canonical-policy.md`, `scripts/worktree-task-start.sh`, `scripts/worktree-task-start-guard.sh`, `scripts/worktree-readiness-check.sh`, `scripts/worktree-coordination-sync.sh`, `scripts/worktree-continuity-guard.sh`, `scripts/guarded-push.sh`, `scripts/dev-delivery-v2-adapter.py` | helyi governance sync enforcement a `notes.md` es `system-status-snapshot.md` alapjan, `docs/worktree-coordination-sync.md`, `docs/worktree-continuity-guard.md`, offline fixture | `scripts/git-health-check.sh`, helyi pre-push path, `bash scripts/dev-context-policy-guard.sh --json`, private worktree Git-metadata candidate freeze/closure | `notes.md`, `system-status-snapshot.md` | `partial` | A v2 adapter a central contract auditalt, repo-local snapshotjat hasznalja; provider/deploy authority nem bovul. |
 | Recovery / deploy / guard lane | `docs/system-recovery-map.md` | recovery/deploy operativ workflowk, `scripts/git-health-check.sh` | a recovery mapben hivatkozott verify lepesek | `~/bin/impactall`, `scripts/git-health-check.sh` | `notes.md`, `system-status-snapshot.md` | `partial` | A runtime truth itt erosen operatori es recovery-kozpontu, ezert drift-riskesebb mint a tiszta docs lane-ek. |
 | Env / auth / runtime adapter | `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md` | local operatori shell/env, guard auth lane, `docs/system-recovery-map.md` | adapter sajat focused validation blokkja | `scripts/git-health-check.sh`, `~/bin/impactall` | `notes.md`, `system-status-snapshot.md` | `merged` | A helyi adapter mar megvan, most canonical mapben is feloldhato. |
 | Coupon harvester workflow lane | `docs/coupon-harvester-workflow.md` | kapcsolodo workflow scriptjei es CI lane-jei | `docs/coupon-harvester-timeout-2026-03-23.md` | CI timeout / runtime bounded lane evidence | `system-status-snapshot.md` | `partial` | Ez a lane a repo egyik konkret workflow-truthja, es runtime bound jellegu. |
@@ -80,3 +80,24 @@ Innen a kovetkezo legkisebb hasznos szelet:
 `AGENTS.md`, the local policy guard and fixture, readiness/task-start chain,
 PR checklist, package alias, Jest contract, governance plan, notes and system
 snapshot move as one docsync unit. The coupon harvester is outside this unit.
+
+## 2026-09-04 DEV delivery v2
+
+A v2 docsync unit a contract snapshotot, adaptert, explicit kulso fixture-root
+tesztet es a meglevo PR Checklist Guard esemeny-SHA-hoz kotott impact-donteset
+is tartalmazza. A protected/deploy/unknown osztaly tenyleges CI teljes
+validacios kaput kap, az evidence pedig allowlistelt command/profile + candidate
+tree provenance-hoz kotott. Ez source-only governance valtozas: nem indit
+providert, product deployt vagy harvestert.
+
+The corrective checkpoint keeps known unsafe classes review-gated while
+allowing their mandatory validation lane to execute. Fresh CI dependencies are
+materialized only from the tracked lockfile with lifecycle scripts disabled;
+the lockfile and the digest-pinned target contract remain unchanged.
+
+The QA2 correction adds the dedicated bounded fixture root, hardcoded evidence
+execution bastion, before/after index and working-state receipts, protected
+self-change classification, and an exact-PR-range CI audit lane. Local
+continuity metadata and hook health remain local closure checks, not GitHub
+runner prerequisites. The central snapshot digest remains
+`989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194`.

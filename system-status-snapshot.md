@@ -1,4 +1,13 @@
 
+# 2026-09-04 DEV delivery v2 Terra QA correction
+
+The CI checkout now binds and verifies the pull-request event base/head commits
+before classification. Unsafe impact classes are blocked unless the workflow
+runs the full local validation gate. Production root selection is restricted to
+the invoking worktree; fixtures are explicit, separate temporary roots with
+offline/no-mutation snapshot evidence. Evidence receipts execute only the
+policy-owned command profiles and bind every result to the frozen candidate tree.
+
 ## 2026-06-17T12:30:00+0200 - env/auth/runtime local adapter added
 - Uj helyi adapter anchor keszult: `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`.
 - A dokumentum a recovery/deploy/guard lane-ek env/auth/runtime minimumat a helyi `docs/system-recovery-map.md`, `docs/pr-policy.md` es `scripts/git-health-check.sh` truthra koti.
@@ -3697,3 +3706,29 @@ _Manual update: 2026-03-08 14:02:00_
 - [2026-06-30T08:45:00Z] feat(runtime/doc-sync-h4): az `impact_hub` local runtime rollout megkapta a hook-szintu continuity/guard minimumot. Uj helper: `scripts/worktree-continuity-guard.sh`; uj wrapper: `scripts/guarded-push.sh`; az `install-hooks-all.sh` pre-push lane mar ezt a continuity guardot is bekoti, a `git-health-check.sh` pedig explicit FAIL feltetelnek tekinti, ha a pre-push hookbol hianyzik. A guard a `worktree-active.json`, a `worktree-task-start-decision.json`, valamint a workspace `ACTIVE_WORKTREE.md` / `ACTIVE_WORKTREES.md` snapshotok jelen branch/path parityjat ellenorzi, es `task-start-decision-blocked` eseten fail-closed modon megallitja a push-t.
 # 2026-09-02 DEV governance adapter: source-ready; not merged or deployed.
 # 2026-09-02 DEV governance: readiness/docsync/test-chain completion candidate.
+
+# 2026-09-04 DEV delivery v2: source-ready local adapter candidate.
+
+The repository now carries a digest-verified v2 target-contract snapshot and a
+source-inert adapter. It classifies docs-only, governance-only, code-local,
+protected, deploy and unknown changes fail-closed; binds freeze/closure evidence
+to the current worktree Git metadata with 0700/0600 posture; and leaves provider
+and product-deploy authority with the operator. The coupon harvester remains
+weekly/manual only and was not invoked.
+
+# 2026-09-04 DEV delivery v2 validation lane: corrective candidate.
+
+The context guard now distinguishes review-required known classes from blocking
+unknown input, so protected/deploy validation can actually run before closure.
+The full CI lane installs exactly the tracked lockfile with dependency lifecycle
+scripts disabled. Runtime/provider/deploy authority remains unchanged.
+
+# 2026-09-04 DEV delivery v2 QA2: merge-blocker correction candidate.
+
+The protected classifier now includes real adapter tests and all local
+guard/policy/workflow self-change surfaces. GitHub PR validation is bound to the
+event base/head range and no longer requires local continuity snapshots, hooks
+or local working-tree audit state. Evidence execution is hardcoded and enforces
+before/after repository cleanliness; fixture input is owner/mode/realpath,
+symlink and size bounded. Closure records no unsupported task-wide
+external-write boolean. Central contract digest remains `989dd16d...ef0194`.

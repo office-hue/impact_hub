@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "component": "impact_hub.dev-delivery-v2-adapter",
+  "contractSha256": "989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194",
+  "stateDirectory": "dev-delivery-v2",
+  "requiredChecks": {
+    "context-guard": {"profile": "adapter-v1", "command": ["bash", "scripts/dev-context-policy-guard.sh", "--json"]},
+    "adapter-fixtures": {"profile": "adapter-v1", "command": ["internal", "fixture"]},
+    "jest-full": {"profile": "adapter-v1", "command": ["npm", "test", "--", "--runInBand"]},
+    "readiness": {"profile": "adapter-v1", "command": ["bash", "scripts/worktree-readiness-check.sh", "--json"]},
+    "continuity": {"profile": "adapter-v1", "command": ["bash", "scripts/worktree-continuity-guard.sh", "--mode", "local", "--json"]},
+    "git-health": {"profile": "adapter-v1", "command": ["bash", "scripts/git-health-check.sh"]},
+    "safe-audit": {"profile": "adapter-v1", "command": ["bash", "scripts/safe-repo-audit.sh", "--strict", "--mode", "push"]},
+    "diff-check": {"profile": "adapter-v1", "command": ["internal", "candidate-diff-check"]}
+  },
+  "provider": {"defaultDecision": "operator-review", "automaticProductDeployAuthority": false},
+  "fixture": {"networkAllowed": false, "mutationAllowed": false}
+}

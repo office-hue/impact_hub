@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "contractId": "dev.delivery.target-adapter",
+  "authority": "repo-local",
+  "centralRuntimeDependency": false,
+  "impactClasses": [
+    "docs-only",
+    "governance-only",
+    "code-local",
+    "protected",
+    "deploy",
+    "unknown"
+  ],
+  "evidence": {
+    "candidateTreeBinding": "private-worktree-git-metadata",
+    "localAndCiProvenanceAreDistinct": true,
+    "commitTreeMustMatchCandidateTree": true
+  },
+  "repoRoot": {
+    "production": "exact-current-worktree-root-only",
+    "fixture": "explicit-offline-mode-only",
+    "siblingWorktreeAllowed": false,
+    "networkAllowedInFixtureMode": false,
+    "mutationAllowedInFixtureMode": false
+  },
+  "provider": {
+    "defaultDecision": "operator-review",
+    "repoLocalPolicyRequired": true,
+    "automaticProductDeployAuthority": false
+  },
+  "requiredOutputFields": [
+    "schemaVersion",
+    "repo",
+    "authoritySource",
+    "branch",
+    "baseSha",
+    "headSha",
+    "treeSha",
+    "changedPathClass",
+    "providerBuildDecision",
+    "evidenceReuseAllowed",
+    "decision",
+    "blockingReasons"
+  ]
+}

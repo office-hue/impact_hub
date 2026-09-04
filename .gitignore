@@ -91,6 +91,7 @@ wp-content/mu-plugins/*
 /active_plugins_diff_testdiff.txt
 
 # Tooling configs
+/node_modules/
 /.vscode/
 .markdownlint.json
 .prettierignore
