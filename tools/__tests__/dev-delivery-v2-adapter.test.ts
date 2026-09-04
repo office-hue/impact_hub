@@ -62,12 +62,27 @@ test('repo fixture is restricted to the exact dedicated root', () => {
 });
 
 test('foreign and sibling worktree roots are rejected even when valid git repositories', () => {
-  const sibling = execFileSync('git', ['worktree', 'list', '--porcelain'], { cwd: root, encoding: 'utf8' })
-    .split('\n').find((line: string) => line.startsWith('worktree ') && line.slice(9) !== root)?.slice(9);
-  expect(sibling).toBeTruthy();
-  const result = fail('inspect', '--repo-root', sibling!, '--json');
-  expect(result.status).not.toBe(0);
-  expect(result.stderr).toMatch(/exact_current_worktree_root_required/);
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'impact-hub-v2-worktree-'));
+  const primary = path.join(fixtureRoot, 'primary');
+  const sibling = path.join(fixtureRoot, 'sibling');
+  try {
+    execFileSync('git', ['init', '-q', primary]);
+    execFileSync('git', ['config', 'user.email', 'qa@example.invalid'], { cwd: primary });
+    execFileSync('git', ['config', 'user.name', 'qa'], { cwd: primary });
+    fs.writeFileSync(path.join(primary, 'tracked.txt'), 'fixture\n');
+    execFileSync('git', ['add', 'tracked.txt'], { cwd: primary });
+    execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: primary });
+    execFileSync('git', ['worktree', 'add', '-q', '-b', 'fixture-sibling', sibling, 'HEAD'], { cwd: primary });
+
+    expect(execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: sibling, encoding: 'utf8' }).trim()).toBe('true');
+    expect(fs.readFileSync(path.join(sibling, '.git'), 'utf8')).toMatch(/^gitdir: /);
+    const result = fail('inspect', '--repo-root', sibling, '--json');
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toMatch(/exact_current_worktree_root_required/);
+  } finally {
+    if (fs.existsSync(sibling)) execFileSync('git', ['worktree', 'remove', '--force', sibling], { cwd: primary });
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  }
 });
 
 test('missing shallow CI commit is fail-closed and event SHAs bind a report', () => {
