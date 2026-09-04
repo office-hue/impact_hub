@@ -17,3 +17,11 @@ Readiness now enforces the repo-local guard. The root Jest configuration makes
 the locked full tools suite executable. The existing `NEEDS_MAPPING` contract
 now returns its draft coupon instead of silently dropping it, matching the
 tracked fixture and preserving sandbox-only behavior.
+
+# 2026-09-04 DEV delivery v2 adapter
+
+Repo-local contract snapshot, exact-root policy adapter, private Git-metadata
+candidate evidence and offline fixture boundary were added. The scope remains
+source-only: no provider, product deploy, coupon harvester, cron or watchdog
+mutation occurred. Checkpoint closure requires candidate/index and commit-tree
+equality plus the complete local evidence chain.

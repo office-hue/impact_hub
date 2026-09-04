@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 2,
+  "component": "impact_hub.dev-delivery-v2-adapter",
+  "contractSha256": "989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194",
+  "stateDirectory": "dev-delivery-v2",
+  "requiredChecks": ["context-guard", "adapter-fixtures", "jest-full", "readiness", "continuity", "git-health", "safe-audit", "diff-check"],
+  "provider": {"defaultDecision": "operator-review", "automaticProductDeployAuthority": false},
+  "fixture": {"networkAllowed": false, "mutationAllowed": false}
+}

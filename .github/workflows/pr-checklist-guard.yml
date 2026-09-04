@@ -14,8 +14,28 @@ jobs:
     if: ${{ github.event.pull_request.draft == false }}
     steps:
       - uses: actions/checkout@v4
+      - name: Classify DEV delivery impact
+        id: dev_impact
+        run: |
+          report="$(python3 scripts/dev-delivery-v2-adapter.py ci-classify --base "${{ github.event.pull_request.base.sha }}" --head "${{ github.event.pull_request.head.sha }}" --json)"
+          echo "$report"
+          python3 - "$report" >> "$GITHUB_OUTPUT" <<'PY'
+          import json
+          import sys
+          report = json.loads(sys.argv[1])
+          print(f"impact_class={report['changedPathClass']}")
+          print(f"provider_build_decision={report['providerBuildDecision']}")
+          print("expensive_steps_required=" + str(report['expensiveStepsRequired']).lower())
+          PY
       - name: DEV context policy guard
         run: bash scripts/dev-context-policy-guard.sh --json
+      - name: Expensive validation decision
+        run: |
+          if [ "${{ steps.dev_impact.outputs.expensive_steps_required }}" = "true" ]; then
+            echo "full-validation-required: ${{ steps.dev_impact.outputs.impact_class }}"
+          else
+            echo "not-affected: expensive validation is skipped only for known docs/governance paths"
+          fi
       - name: Validate required checklist in PR body
         env:
           PR_BODY: ${{ github.event.pull_request.body }}

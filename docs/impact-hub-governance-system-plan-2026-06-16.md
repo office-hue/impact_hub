@@ -118,3 +118,16 @@ Ez a dokumentum arra valo, hogy a kovetkezo helyi munkaknal legyen egy rovid, bi
 The repo-local context policy guard is authoritative over global prompts. It is
 wired into the existing PR checklist job; governance-only changes do not run
 the coupon harvester, provider jobs or deployment.
+
+## 2026-09-04 DEV delivery v2 adapter
+
+- `config/dev-delivery-v2-target-contract.json` a central contract repo-local,
+  SHA-256-ellenorzott snapshotja; futasideju central fuggoseg nincs.
+- `scripts/dev-delivery-v2-adapter.py` exact-current-worktree-root ellenorzest,
+  fail-closed impact classificationt, privat Git-metadata evidence-et,
+  candidate index-tree freeze-t es checkpoint-tree paritast ad.
+- A provider default `operator-review`, az automatikus termekdeploy tiltott. A
+  coupon-harvester workflow valtozatlanul csak heti/manual triggerrel aktiv.
+- A meglevo `PR Checklist Guard` job strukturalt `not-affected` utat hasznalhat
+  csak ismert docs/governance osztalyra; protected, deploy es unknown valtozas
+  teljes validaciot igenyel.

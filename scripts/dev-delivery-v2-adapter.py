@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Repo-local, source-inert DEV delivery v2 adapter for impact_hub."""
+import argparse, hashlib, json, os, stat, subprocess, sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+EXPECTED_DIGEST = "989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194"
+CLASSES = ("docs-only", "governance-only", "code-local", "protected", "deploy", "unknown")
+PROTECTED = {"scripts/dev-delivery-v2-adapter.py", "scripts/dev-context-policy-guard.sh", "config/dev-delivery-v2-target-contract.json", "config/dev-delivery-v2-impact-policy.json", ".github/workflows/pr-checklist-guard.yml"}
+GOVERNANCE_PREFIXES = ("docs/", "notes.md", "system-status-snapshot.md", "AGENTS.md", "PR-EXIT-CHECKLIST.md")
+CODE_PREFIXES = ("tools/", "ai-agent/", "wp-content/")
+DEPLOY_PREFIXES = ("scripts/shortcode_sync/", ".github/workflows/coupon-harvest.yml")
+
+def git(root, *args, required=True):
+    run = subprocess.run(["git", "-C", str(root), *args], text=True, capture_output=True)
+    if required and run.returncode:
+        raise RuntimeError("git_failed:" + (run.stderr.strip() or " ".join(args)))
+    return run.stdout.strip()
+
+def production_root(value):
+    root = Path(value or git(Path.cwd(), "rev-parse", "--show-toplevel")).resolve()
+    actual = Path(git(root, "rev-parse", "--show-toplevel")).resolve()
+    if root != actual:
+        raise RuntimeError("exact_current_worktree_root_required")
+    return root
+
+def contract(root):
+    data = (root / "config/dev-delivery-v2-target-contract.json").read_bytes()
+    if hashlib.sha256(data).hexdigest() != EXPECTED_DIGEST:
+        raise RuntimeError("target_contract_digest_mismatch")
+    value = json.loads(data)
+    if value.get("centralRuntimeDependency") is not False or value.get("authority") != "repo-local":
+        raise RuntimeError("target_contract_authority_invalid")
+    return value
+
+def changed_paths(root, base, head):
+    if not base or not head or base == head:
+        return []
+    return [p for p in git(root, "diff", "--name-only", f"{base}..{head}").splitlines() if p]
+
+def classify(paths):
+    if not paths: return "governance-only"
+    if any(p in PROTECTED or p.startswith("tests/dev-delivery-v2-") for p in paths): return "protected"
+    if any(p.startswith(DEPLOY_PREFIXES) for p in paths): return "deploy"
+    if any(p.startswith(CODE_PREFIXES) for p in paths): return "code-local"
+    if all(p.startswith(GOVERNANCE_PREFIXES) or p in ("package.json", "jest.config.cjs", "scripts/dev-context-policy-guard.sh") for p in paths):
+        return "docs-only" if all(p.startswith("docs/") or p in ("notes.md", "system-status-snapshot.md") for p in paths) else "governance-only"
+    return "unknown"
+
+def report(root, base=None, head=None):
+    contract(root)
+    base = base or git(root, "rev-parse", "origin/main", required=False)
+    head = head or git(root, "rev-parse", "HEAD")
+    klass = classify(changed_paths(root, base, head))
+    reasons = []
+    if not base: reasons.append("origin-main-unavailable")
+    if klass == "unknown": reasons.append("unknown-path-class")
+    provider = "not-affected" if klass in ("docs-only", "governance-only") else "operator-review"
+    # Protected changes require the full validation path, but remain source-only.
+    decision = "blocked" if reasons else "allowed"
+    return {"schemaVersion": 2, "repo": "impact_hub", "authoritySource": "repo-local", "branch": git(root, "branch", "--show-current") or None, "baseSha": base or None, "headSha": head, "treeSha": git(root, "show", "-s", "--format=%T", "HEAD"), "changedPathClass": klass, "providerBuildDecision": provider, "evidenceReuseAllowed": klass in ("docs-only", "governance-only"), "decision": decision, "blockingReasons": reasons, "expensiveStepsRequired": klass not in ("docs-only", "governance-only"), "automaticProductDeployAuthority": False}
+
+def state_dir(root):
+    raw = git(root, "rev-parse", "--git-path", "dev-delivery-v2")
+    target = (root / raw).resolve() if not Path(raw).is_absolute() else Path(raw)
+    target.mkdir(mode=0o700, parents=True, exist_ok=True); os.chmod(target, 0o700)
+    mode = stat.S_IMODE(target.stat().st_mode)
+    if mode != 0o700: raise RuntimeError("private_state_directory_posture_invalid")
+    return target
+
+def write_private(file, value):
+    tmp = file.with_suffix(".tmp")
+    tmp.write_text(json.dumps(value, sort_keys=True, indent=2) + "\n")
+    os.chmod(tmp, 0o600); os.replace(tmp, file); os.chmod(file, 0o600)
+
+def freeze(root):
+    contract(root)
+    if git(root, "diff", "--name-only") or git(root, "ls-files", "--others", "--exclude-standard"):
+        raise RuntimeError("freeze_requires_staged_clean_candidate")
+    receipt = {"schemaVersion": 2, "kind": "candidate-freeze", "branch": git(root, "branch", "--show-current"), "baseSha": git(root, "rev-parse", "origin/main"), "headAtFreeze": git(root, "rev-parse", "HEAD"), "candidateTree": git(root, "write-tree"), "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "checks": []}
+    write_private(state_dir(root) / "candidate-freeze.json", receipt)
+    return receipt
+
+def record(root, check, exit_code):
+    file = state_dir(root) / "candidate-freeze.json"
+    value = json.loads(file.read_text())
+    if check not in json.loads((root / "config/dev-delivery-v2-impact-policy.json").read_text())["requiredChecks"]: raise RuntimeError("unknown_evidence_check")
+    if any(c["id"] == check for c in value["checks"]): raise RuntimeError("duplicate_evidence_check")
+    value["checks"].append({"id": check, "exitCode": exit_code, "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")})
+    write_private(file, value); return value
+
+def close(root):
+    file = state_dir(root) / "candidate-freeze.json"; value = json.loads(file.read_text())
+    policy = json.loads((root / "config/dev-delivery-v2-impact-policy.json").read_text())
+    seen = {c["id"]: c["exitCode"] for c in value["checks"]}
+    missing = [c for c in policy["requiredChecks"] if seen.get(c) != 0]
+    if missing: raise RuntimeError("required_evidence_missing:" + ",".join(missing))
+    tree = git(root, "show", "-s", "--format=%T", "HEAD")
+    if tree != value["candidateTree"]: raise RuntimeError("checkpoint_tree_does_not_match_candidate")
+    closure = {"schemaVersion": 2, "kind": "checkpoint-closure", "candidateTree": value["candidateTree"], "checkpointCommit": git(root, "rev-parse", "HEAD"), "checkpointTree": tree, "externalWritePerformed": False}
+    write_private(state_dir(root) / "checkpoint-closure.json", closure); return closure
+
+def fixture(root):
+    # Explicit fixture mode: no network, no mutation and no foreign production root acceptance.
+    c = contract(root)
+    if c["repoRoot"]["networkAllowedInFixtureMode"] or c["repoRoot"]["mutationAllowedInFixtureMode"]: raise RuntimeError("fixture_boundary_widened")
+    return {"schemaVersion": 1, "decision": "pass", "fixtureMode": "offline", "networkContacted": False, "mutationPerformed": False, "realRootOnly": True}
+
+def main():
+    parser = argparse.ArgumentParser(); parser.add_argument("command", choices=("inspect", "ci-classify", "freeze", "record", "close", "fixture")); parser.add_argument("--repo-root"); parser.add_argument("--base"); parser.add_argument("--head"); parser.add_argument("--check"); parser.add_argument("--exit-code", type=int); parser.add_argument("--json", action="store_true")
+    a = parser.parse_args(); root = production_root(a.repo_root)
+    if a.command in ("inspect", "ci-classify"): out = report(root, a.base, a.head)
+    elif a.command == "freeze": out = freeze(root)
+    elif a.command == "record":
+        if not a.check or a.exit_code is None: raise RuntimeError("record_requires_check_and_exit_code")
+        out = record(root, a.check, a.exit_code)
+    elif a.command == "close": out = close(root)
+    else: out = fixture(root)
+    print(json.dumps(out, sort_keys=True))
+    if a.command in ("inspect", "ci-classify") and out["decision"] != "allowed": sys.exit(1)
+if __name__ == "__main__":
+    try: main()
+    except Exception as exc:
+        print("[dev-delivery-v2-adapter] BLOCKED " + str(exc), file=sys.stderr); sys.exit(1)

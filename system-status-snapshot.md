@@ -3697,3 +3697,12 @@ _Manual update: 2026-03-08 14:02:00_
 - [2026-06-30T08:45:00Z] feat(runtime/doc-sync-h4): az `impact_hub` local runtime rollout megkapta a hook-szintu continuity/guard minimumot. Uj helper: `scripts/worktree-continuity-guard.sh`; uj wrapper: `scripts/guarded-push.sh`; az `install-hooks-all.sh` pre-push lane mar ezt a continuity guardot is bekoti, a `git-health-check.sh` pedig explicit FAIL feltetelnek tekinti, ha a pre-push hookbol hianyzik. A guard a `worktree-active.json`, a `worktree-task-start-decision.json`, valamint a workspace `ACTIVE_WORKTREE.md` / `ACTIVE_WORKTREES.md` snapshotok jelen branch/path parityjat ellenorzi, es `task-start-decision-blocked` eseten fail-closed modon megallitja a push-t.
 # 2026-09-02 DEV governance adapter: source-ready; not merged or deployed.
 # 2026-09-02 DEV governance: readiness/docsync/test-chain completion candidate.
+
+# 2026-09-04 DEV delivery v2: source-ready local adapter candidate.
+
+The repository now carries a digest-verified v2 target-contract snapshot and a
+source-inert adapter. It classifies docs-only, governance-only, code-local,
+protected, deploy and unknown changes fail-closed; binds freeze/closure evidence
+to the current worktree Git metadata with 0700/0600 posture; and leaves provider
+and product-deploy authority with the operator. The coupon harvester remains
+weekly/manual only and was not invoked.
