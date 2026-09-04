@@ -10,8 +10,8 @@
     "readiness": {"profile": "adapter-v1", "command": ["bash", "scripts/worktree-readiness-check.sh", "--json"]},
     "continuity": {"profile": "adapter-v1", "command": ["bash", "scripts/worktree-continuity-guard.sh", "--mode", "local", "--json"]},
     "git-health": {"profile": "adapter-v1", "command": ["bash", "scripts/git-health-check.sh"]},
-    "safe-audit": {"profile": "adapter-v1", "command": ["bash", "scripts/safe-repo-audit.sh", "--strict", "--mode", "local"]},
-    "diff-check": {"profile": "adapter-v1", "command": ["git", "diff", "--check"]}
+    "safe-audit": {"profile": "adapter-v1", "command": ["bash", "scripts/safe-repo-audit.sh", "--strict", "--mode", "push"]},
+    "diff-check": {"profile": "adapter-v1", "command": ["internal", "candidate-diff-check"]}
   },
   "provider": {"defaultDecision": "operator-review", "automaticProductDeployAuthority": false},
   "fixture": {"networkAllowed": false, "mutationAllowed": false}

@@ -12,24 +12,24 @@ jobs:
   checklist:
     runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.draft == false }}
+    env:
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Bind PR base and head commits
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          git fetch --no-tags --depth=1 origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
+          git fetch --no-tags origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
           test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
-          git cat-file -e "$PR_BASE_SHA^{commit}"
-          git cat-file -e "$PR_HEAD_SHA^{commit}"
+          test "$(git rev-parse "$PR_BASE_SHA^{commit}")" = "$PR_BASE_SHA"
+          test "$(git rev-parse "$PR_HEAD_SHA^{commit}")" = "$PR_HEAD_SHA"
       - name: Classify DEV delivery impact
         id: dev_impact
         run: |
-          report="$(python3 scripts/dev-delivery-v2-adapter.py ci-classify --base "${{ github.event.pull_request.base.sha }}" --head "${{ github.event.pull_request.head.sha }}" --json)"
+          report="$(python3 scripts/dev-delivery-v2-adapter.py ci-classify --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json)"
           echo "$report"
           python3 - "$report" >> "$GITHUB_OUTPUT" <<'PY'
           import json
@@ -41,20 +41,32 @@ jobs:
           print("full_validation_required=" + str(report['fullValidationRequired']).lower())
           PY
       - name: DEV context policy guard
-        run: bash scripts/dev-context-policy-guard.sh --json
-      - name: Expensive validation decision
+        run: bash scripts/dev-context-policy-guard.sh --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json
+      - uses: actions/setup-node@v4
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install exact locked dependencies
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+        run: npm ci --ignore-scripts
+      - name: Full Jest validation
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+        run: npm test -- --runInBand
+      - name: Adapter negative and dedicated-fixture validation
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
         run: |
-          if [ "${{ steps.dev_impact.outputs.full_validation_required }}" = "true" ]; then
-            npm ci --ignore-scripts
-            npm test -- --runInBand
-            bash scripts/worktree-readiness-check.sh --json
-            bash scripts/worktree-continuity-guard.sh --mode local --json
-            bash scripts/git-health-check.sh
-            bash scripts/safe-repo-audit.sh --strict --mode local
-            git diff --check "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
-          else
-            echo "not-affected: expensive validation is skipped only for known docs/governance paths"
-          fi
+          bash tests/dev-context-policy-guard.test.sh
+          python3 scripts/dev-delivery-v2-adapter.py fixture --fixture-root tools/fixtures/dev-delivery-v2 --json
+      - name: Bastion and exact PR-diff validation
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+        run: |
+          python3 scripts/dev-delivery-v2-adapter.py ci-validate --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json
+          bash scripts/safe-repo-audit.sh --strict --mode range --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA"
+          git diff --check "$PR_BASE_SHA..$PR_HEAD_SHA"
+      - name: Known docs/governance not-affected decision
+        if: ${{ steps.dev_impact.outputs.full_validation_required != 'true' }}
+        run: echo "not-affected; full validation is skipped only for known docs/governance paths"
       - name: Validate required checklist in PR body
         env:
           PR_BODY: ${{ github.event.pull_request.body }}

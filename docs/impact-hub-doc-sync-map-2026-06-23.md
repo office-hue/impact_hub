@@ -94,3 +94,10 @@ The corrective checkpoint keeps known unsafe classes review-gated while
 allowing their mandatory validation lane to execute. Fresh CI dependencies are
 materialized only from the tracked lockfile with lifecycle scripts disabled;
 the lockfile and the digest-pinned target contract remain unchanged.
+
+The QA2 correction adds the dedicated bounded fixture root, hardcoded evidence
+execution bastion, before/after index and working-state receipts, protected
+self-change classification, and an exact-PR-range CI audit lane. Local
+continuity metadata and hook health remain local closure checks, not GitHub
+runner prerequisites. The central snapshot digest remains
+`989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194`.

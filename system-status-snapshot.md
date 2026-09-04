@@ -3722,3 +3722,13 @@ The context guard now distinguishes review-required known classes from blocking
 unknown input, so protected/deploy validation can actually run before closure.
 The full CI lane installs exactly the tracked lockfile with dependency lifecycle
 scripts disabled. Runtime/provider/deploy authority remains unchanged.
+
+# 2026-09-04 DEV delivery v2 QA2: merge-blocker correction candidate.
+
+The protected classifier now includes real adapter tests and all local
+guard/policy/workflow self-change surfaces. GitHub PR validation is bound to the
+event base/head range and no longer requires local continuity snapshots, hooks
+or local working-tree audit state. Evidence execution is hardcoded and enforces
+before/after repository cleanliness; fixture input is owner/mode/realpath,
+symlink and size bounded. Closure records no unsupported task-wide
+external-write boolean. Central contract digest remains `989dd16d...ef0194`.

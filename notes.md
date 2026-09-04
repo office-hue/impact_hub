@@ -42,3 +42,13 @@ their mandatory full-validation lane; unknown paths remain blocked. Fresh CI
 and local validation use the tracked lockfile with lifecycle scripts disabled,
 while root `node_modules` stays ignored. No lockfile, provider, deploy, product,
 cron, watchdog, VPS or credential state is changed by the source correction.
+
+# 2026-09-04 DEV delivery v2 QA2 correction
+
+The final merge blockers are addressed in-source: protected self-change paths
+cannot skip full validation; GitHub CI uses only event-diff-bound runner-safe
+checks; executable evidence profiles are code-owned; record/close enforce index,
+unstaged and unexpected-untracked cleanliness; and fixtures are constrained to
+the dedicated repository root or a verified bounded test-temp root. Closure no
+longer asserts a task-wide `externalWritePerformed=false` fact. The central
+target-contract snapshot and root lockfile are intentionally unchanged.

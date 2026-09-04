@@ -17,3 +17,25 @@ tree, never a caller-supplied exit code.
 
 No deploy, provider build, product data, cron, watchdog, VPS or credential state
 was changed by this checkpoint.
+
+## DEV delivery v2 QA2 hardening
+
+The adapter, its real `tools/__tests__/dev-delivery-v2-*` suite, policy and
+contract, guard entrypoints, PR policy anchors and every GitHub workflow are in
+the protected/full-validation class. The executable evidence allowlist is now
+hardcoded in the adapter; the JSON policy must match it exactly and cannot add
+a command or profile by itself. Every recorded check captures and enforces the
+index tree, unstaged tracked state and unexpected-untracked state both before
+and after execution; closure repeats the same checks and records no unverified
+task-wide external-write boolean.
+
+Fixture reads are restricted to `tools/fixtures/dev-delivery-v2` or a
+same-owner, mode-0700, direct system-temp test root with the exact fixture name
+prefix. Root and entry realpaths, owners, modes and file types are checked;
+symlinks, foreign roots and bounded-size violations fail closed.
+
+The required PR job uses the event base/head SHAs, full history, canonical Node
+22 and `npm ci --ignore-scripts`. Its protected lane runs the full Jest suite,
+negative/fixture adapter checks, the bastion/continuity check, exact-range safe
+audit and exact-range `git diff --check`. It does not depend on local continuity
+snapshots, installed hooks, local-main health or a clean-worktree audit.

@@ -140,3 +140,20 @@ the coupon harvester, provider jobs or deployment.
   kotelezo teljes validaciora; az ismeretlen path-osztaly tovabbra is fail-closed
   `blocked`. A friss CI checkout a verziozott lockfile-bol, lifecycle scriptek
   nelkul materializalja a tesztfuggosegeket, majd futtatja a teljes Jest-lancot.
+
+## 2026-09-04 DEV delivery v2 QA2 hardening
+
+- A classifier sajat guard/policy/workflow perimeteret, beleertve a valos
+  `tools/__tests__/dev-delivery-v2-*` utvonalat is, csak protected/full
+  validacios osztalyba engedi; a kozel azonos, de nem egyezo tesztutvonalat
+  negativ teszt tartja tavol ettol a mintatol.
+- Az evidence parancs- es profil-allowlist kodba egetett maximum bastion; a
+  tracked JSON csak pontos tukre lehet. Record es close elott/utan index-tree,
+  unstaged tracked es unexpected untracked tisztasag kotelezo.
+- A fixture perimeter egyetlen repo-local dedikalt rootra vagy szigoru,
+  same-owner/mode/realpath/symlink kontroll alatt allo teszt-temp rootra szukul,
+  darab- es meretlimittel.
+- A PR job CI-ben reprodukalhato: exact event SHA-k, full checkout, Node 22,
+  exact lockfile install, teljes Jest, adapter fixture/negative ellenorzes,
+  bastion/continuity es exact-range audit/diff check. Helyi Git-meta snapshot,
+  hook-health vagy working-tree-only audit nem resze a PR kapunak.
