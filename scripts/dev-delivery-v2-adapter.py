@@ -18,11 +18,14 @@ def git(root, *args, required=True):
     return run.stdout.strip()
 
 def production_root(value):
-    root = Path(value or git(Path.cwd(), "rev-parse", "--show-toplevel")).resolve()
+    current = Path(git(Path.cwd(), "rev-parse", "--show-toplevel")).resolve()
+    root = Path(value).resolve() if value else current
     actual = Path(git(root, "rev-parse", "--show-toplevel")).resolve()
-    if root != actual:
+    # --repo-root is a binding, not a way to select another checkout.  This
+    # blocks sibling worktrees and foreign full repositories alike.
+    if root != current or actual != current:
         raise RuntimeError("exact_current_worktree_root_required")
-    return root
+    return current
 
 def contract(root):
     data = (root / "config/dev-delivery-v2-target-contract.json").read_bytes()
@@ -33,8 +36,15 @@ def contract(root):
         raise RuntimeError("target_contract_authority_invalid")
     return value
 
+def commit_exists(root, sha):
+    return bool(sha) and subprocess.run(["git", "-C", str(root), "cat-file", "-e", f"{sha}^{{commit}}"], capture_output=True).returncode == 0
+
 def changed_paths(root, base, head):
-    if not base or not head or base == head:
+    if not base or not head:
+        raise RuntimeError("base_and_head_required")
+    if not commit_exists(root, base) or not commit_exists(root, head):
+        raise RuntimeError("base_or_head_commit_unavailable")
+    if base == head:
         return []
     return [p for p in git(root, "diff", "--name-only", f"{base}..{head}").splitlines() if p]
 
@@ -51,14 +61,14 @@ def report(root, base=None, head=None):
     contract(root)
     base = base or git(root, "rev-parse", "origin/main", required=False)
     head = head or git(root, "rev-parse", "HEAD")
-    klass = classify(changed_paths(root, base, head))
+    paths = changed_paths(root, base, head) if base else []
+    klass = classify(paths)
     reasons = []
     if not base: reasons.append("origin-main-unavailable")
-    if klass == "unknown": reasons.append("unknown-path-class")
+    if klass in ("protected", "deploy", "unknown"): reasons.append(f"{klass}-requires-full-validation")
     provider = "not-affected" if klass in ("docs-only", "governance-only") else "operator-review"
-    # Protected changes require the full validation path, but remain source-only.
     decision = "blocked" if reasons else "allowed"
-    return {"schemaVersion": 2, "repo": "impact_hub", "authoritySource": "repo-local", "branch": git(root, "branch", "--show-current") or None, "baseSha": base or None, "headSha": head, "treeSha": git(root, "show", "-s", "--format=%T", "HEAD"), "changedPathClass": klass, "providerBuildDecision": provider, "evidenceReuseAllowed": klass in ("docs-only", "governance-only"), "decision": decision, "blockingReasons": reasons, "expensiveStepsRequired": klass not in ("docs-only", "governance-only"), "automaticProductDeployAuthority": False}
+    return {"schemaVersion": 2, "repo": "impact_hub", "authoritySource": "repo-local", "branch": git(root, "branch", "--show-current") or None, "baseSha": base or None, "headSha": head, "treeSha": git(root, "show", "-s", "--format=%T", head), "changedPathClass": klass, "changedPaths": paths, "providerBuildDecision": provider, "evidenceReuseAllowed": klass in ("docs-only", "governance-only"), "decision": decision, "blockingReasons": reasons, "expensiveStepsRequired": klass not in ("docs-only", "governance-only"), "fullValidationRequired": klass in ("protected", "deploy", "unknown"), "automaticProductDeployAuthority": False}
 
 def state_dir(root):
     raw = git(root, "rev-parse", "--git-path", "dev-delivery-v2")
@@ -81,12 +91,25 @@ def freeze(root):
     write_private(state_dir(root) / "candidate-freeze.json", receipt)
     return receipt
 
-def record(root, check, exit_code):
+def policy(root):
+    return json.loads((root / "config/dev-delivery-v2-impact-policy.json").read_text())
+
+def record(root, check, profile, fixture_root=None):
+    spec = policy(root)["requiredChecks"].get(check)
+    if not spec or spec["profile"] != profile: raise RuntimeError("evidence_profile_not_authorized")
     file = state_dir(root) / "candidate-freeze.json"
     value = json.loads(file.read_text())
-    if check not in json.loads((root / "config/dev-delivery-v2-impact-policy.json").read_text())["requiredChecks"]: raise RuntimeError("unknown_evidence_check")
     if any(c["id"] == check for c in value["checks"]): raise RuntimeError("duplicate_evidence_check")
-    value["checks"].append({"id": check, "exitCode": exit_code, "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")})
+    if git(root, "write-tree") != value["candidateTree"]: raise RuntimeError("candidate_tree_changed_before_evidence")
+    command = spec["command"]
+    if command == ["internal", "fixture"]:
+        result = fixture(root, fixture_root)
+        exit_code, observed = 0, result
+    else:
+        run = subprocess.run(command, cwd=root, text=True, capture_output=True)
+        exit_code, observed = run.returncode, {"stdoutSha256": hashlib.sha256(run.stdout.encode()).hexdigest(), "stderrSha256": hashlib.sha256(run.stderr.encode()).hexdigest()}
+    if git(root, "write-tree") != value["candidateTree"]: raise RuntimeError("candidate_tree_changed_during_evidence")
+    value["checks"].append({"id": check, "profile": profile, "command": command, "exitCode": exit_code, "candidateTree": value["candidateTree"], "observed": observed, "recordedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")})
     write_private(file, value); return value
 
 def close(root):
@@ -100,22 +123,32 @@ def close(root):
     closure = {"schemaVersion": 2, "kind": "checkpoint-closure", "candidateTree": value["candidateTree"], "checkpointCommit": git(root, "rev-parse", "HEAD"), "checkpointTree": tree, "externalWritePerformed": False}
     write_private(state_dir(root) / "checkpoint-closure.json", closure); return closure
 
-def fixture(root):
-    # Explicit fixture mode: no network, no mutation and no foreign production root acceptance.
+def fixture(root, fixture_root):
+    # This performs no subprocesses other than local hashing and writes nothing.
+    if not fixture_root: raise RuntimeError("explicit_fixture_root_required")
+    target = Path(fixture_root).resolve()
+    if target == root or not target.is_dir(): raise RuntimeError("fixture_root_must_be_separate_existing_directory")
     c = contract(root)
     if c["repoRoot"]["networkAllowedInFixtureMode"] or c["repoRoot"]["mutationAllowedInFixtureMode"]: raise RuntimeError("fixture_boundary_widened")
-    return {"schemaVersion": 1, "decision": "pass", "fixtureMode": "offline", "networkContacted": False, "mutationPerformed": False, "realRootOnly": True}
+    def snapshot():
+        entries = []
+        for item in sorted(target.rglob("*")):
+            if item.is_file(): entries.append((str(item.relative_to(target)), hashlib.sha256(item.read_bytes()).hexdigest()))
+        return hashlib.sha256(json.dumps(entries).encode()).hexdigest()
+    before, after = snapshot(), snapshot()
+    if before != after: raise RuntimeError("fixture_mutation_detected")
+    return {"schemaVersion": 2, "decision": "pass", "fixtureMode": "offline", "fixtureRoot": str(target), "networkContacted": False, "mutationPerformed": False, "fixtureSnapshot": before}
 
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument("command", choices=("inspect", "ci-classify", "freeze", "record", "close", "fixture")); parser.add_argument("--repo-root"); parser.add_argument("--base"); parser.add_argument("--head"); parser.add_argument("--check"); parser.add_argument("--exit-code", type=int); parser.add_argument("--json", action="store_true")
+    parser = argparse.ArgumentParser(); parser.add_argument("command", choices=("inspect", "ci-classify", "freeze", "record", "close", "fixture")); parser.add_argument("--repo-root"); parser.add_argument("--base"); parser.add_argument("--head"); parser.add_argument("--check"); parser.add_argument("--profile"); parser.add_argument("--fixture-root"); parser.add_argument("--json", action="store_true")
     a = parser.parse_args(); root = production_root(a.repo_root)
     if a.command in ("inspect", "ci-classify"): out = report(root, a.base, a.head)
     elif a.command == "freeze": out = freeze(root)
     elif a.command == "record":
-        if not a.check or a.exit_code is None: raise RuntimeError("record_requires_check_and_exit_code")
-        out = record(root, a.check, a.exit_code)
+        if not a.check or not a.profile: raise RuntimeError("record_requires_check_and_profile")
+        out = record(root, a.check, a.profile, a.fixture_root)
     elif a.command == "close": out = close(root)
-    else: out = fixture(root)
+    else: out = fixture(root, a.fixture_root)
     print(json.dumps(out, sort_keys=True))
     if a.command in ("inspect", "ci-classify") and out["decision"] != "allowed": sys.exit(1)
 if __name__ == "__main__":

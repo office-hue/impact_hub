@@ -1,4 +1,13 @@
 
+# 2026-09-04 DEV delivery v2 Terra QA correction
+
+The CI checkout now binds and verifies the pull-request event base/head commits
+before classification. Unsafe impact classes are blocked unless the workflow
+runs the full local validation gate. Production root selection is restricted to
+the invoking worktree; fixtures are explicit, separate temporary roots with
+offline/no-mutation snapshot evidence. Evidence receipts execute only the
+policy-owned command profiles and bind every result to the frozen candidate tree.
+
 ## 2026-06-17T12:30:00+0200 - env/auth/runtime local adapter added
 - Uj helyi adapter anchor keszult: `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`.
 - A dokumentum a recovery/deploy/guard lane-ek env/auth/runtime minimumat a helyi `docs/system-recovery-map.md`, `docs/pr-policy.md` es `scripts/git-health-check.sh` truthra koti.

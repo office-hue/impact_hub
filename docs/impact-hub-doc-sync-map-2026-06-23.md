@@ -83,6 +83,9 @@ snapshot move as one docsync unit. The coupon harvester is outside this unit.
 
 ## 2026-09-04 DEV delivery v2
 
-A v2 docsync unit a contract snapshotot, adaptert, fixture-tesztet es a meglevo
-PR Checklist Guard strukturalt impact-donteset is tartalmazza. Ez source-only
-governance valtozas: nem indit providert, product deployt vagy harvestert.
+A v2 docsync unit a contract snapshotot, adaptert, explicit kulso fixture-root
+tesztet es a meglevo PR Checklist Guard esemeny-SHA-hoz kotott impact-donteset
+is tartalmazza. A protected/deploy/unknown osztaly tenyleges CI teljes
+validacios kaput kap, az evidence pedig allowlistelt command/profile + candidate
+tree provenance-hoz kotott. Ez source-only governance valtozas: nem indit
+providert, product deployt vagy harvestert.

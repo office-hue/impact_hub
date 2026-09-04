@@ -14,6 +14,18 @@ jobs:
     if: ${{ github.event.pull_request.draft == false }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Bind PR base and head commits
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
+          test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
+          git cat-file -e "$PR_BASE_SHA^{commit}"
+          git cat-file -e "$PR_HEAD_SHA^{commit}"
       - name: Classify DEV delivery impact
         id: dev_impact
         run: |
@@ -26,13 +38,19 @@ jobs:
           print(f"impact_class={report['changedPathClass']}")
           print(f"provider_build_decision={report['providerBuildDecision']}")
           print("expensive_steps_required=" + str(report['expensiveStepsRequired']).lower())
+          print("full_validation_required=" + str(report['fullValidationRequired']).lower())
           PY
       - name: DEV context policy guard
         run: bash scripts/dev-context-policy-guard.sh --json
       - name: Expensive validation decision
         run: |
-          if [ "${{ steps.dev_impact.outputs.expensive_steps_required }}" = "true" ]; then
-            echo "full-validation-required: ${{ steps.dev_impact.outputs.impact_class }}"
+          if [ "${{ steps.dev_impact.outputs.full_validation_required }}" = "true" ]; then
+            npm test -- --runInBand
+            bash scripts/worktree-readiness-check.sh --json
+            bash scripts/worktree-continuity-guard.sh --mode local --json
+            bash scripts/git-health-check.sh
+            bash scripts/safe-repo-audit.sh --strict --mode local
+            git diff --check "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
           else
             echo "not-affected: expensive validation is skipped only for known docs/governance paths"
           fi

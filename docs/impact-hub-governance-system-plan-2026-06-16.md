@@ -130,4 +130,10 @@ the coupon harvester, provider jobs or deployment.
   coupon-harvester workflow valtozatlanul csak heti/manual triggerrel aktiv.
 - A meglevo `PR Checklist Guard` job strukturalt `not-affected` utat hasznalhat
   csak ismert docs/governance osztalyra; protected, deploy es unknown valtozas
-  teljes validaciot igenyel.
+  a PR-esemeny base/head SHA-hoz kotott, tenyleges teljes validaciot igenyel.
+- A `--repo-root` csak az eppen futtato worktree sajat rootja lehet. A fixture
+  kulon, explicit ideiglenes rootot kovetel, annak valtozatlansagat hasheli, es
+  offline/mutacio-mentes marad.
+- Evidence-et a hivo exit-code-ja helyett az adapter altal inditott,
+  policyban allowlistelt profile/parancs, valamint a valtozatlan candidate tree
+  igazol. A protected/deploy/unknown besorolas evidence nelkul `blocked`.

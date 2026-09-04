@@ -25,3 +25,12 @@ candidate evidence and offline fixture boundary were added. The scope remains
 source-only: no provider, product deploy, coupon harvester, cron or watchdog
 mutation occurred. Checkpoint closure requires candidate/index and commit-tree
 equality plus the complete local evidence chain.
+
+# 2026-09-04 DEV delivery v2 Terra QA correction
+
+The CI checkout now binds and verifies the pull-request event base/head commits
+before classification. Unsafe impact classes are blocked unless the workflow
+runs the full local validation gate. Production root selection is restricted to
+the invoking worktree; fixtures are explicit, separate temporary roots with
+offline/no-mutation snapshot evidence. Evidence receipts execute only the
+policy-owned command profiles and bind every result to the frozen candidate tree.
