@@ -89,3 +89,8 @@ is tartalmazza. A protected/deploy/unknown osztaly tenyleges CI teljes
 validacios kaput kap, az evidence pedig allowlistelt command/profile + candidate
 tree provenance-hoz kotott. Ez source-only governance valtozas: nem indit
 providert, product deployt vagy harvestert.
+
+The corrective checkpoint keeps known unsafe classes review-gated while
+allowing their mandatory validation lane to execute. Fresh CI dependencies are
+materialized only from the tracked lockfile with lifecycle scripts disabled;
+the lockfile and the digest-pinned target contract remain unchanged.

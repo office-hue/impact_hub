@@ -34,3 +34,11 @@ runs the full local validation gate. Production root selection is restricted to
 the invoking worktree; fixtures are explicit, separate temporary roots with
 offline/no-mutation snapshot evidence. Evidence receipts execute only the
 policy-owned command profiles and bind every result to the frozen candidate tree.
+
+# 2026-09-04 DEV delivery v2 validation-lane correction
+
+Known protected/deploy changes now return `operator-review` without stopping
+their mandatory full-validation lane; unknown paths remain blocked. Fresh CI
+and local validation use the tracked lockfile with lifecycle scripts disabled,
+while root `node_modules` stays ignored. No lockfile, provider, deploy, product,
+cron, watchdog, VPS or credential state is changed by the source correction.

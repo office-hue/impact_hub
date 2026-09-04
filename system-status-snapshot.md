@@ -3715,3 +3715,10 @@ protected, deploy and unknown changes fail-closed; binds freeze/closure evidence
 to the current worktree Git metadata with 0700/0600 posture; and leaves provider
 and product-deploy authority with the operator. The coupon harvester remains
 weekly/manual only and was not invoked.
+
+# 2026-09-04 DEV delivery v2 validation lane: corrective candidate.
+
+The context guard now distinguishes review-required known classes from blocking
+unknown input, so protected/deploy validation can actually run before closure.
+The full CI lane installs exactly the tracked lockfile with dependency lifecycle
+scripts disabled. Runtime/provider/deploy authority remains unchanged.

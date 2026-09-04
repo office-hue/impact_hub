@@ -45,6 +45,7 @@ jobs:
       - name: Expensive validation decision
         run: |
           if [ "${{ steps.dev_impact.outputs.full_validation_required }}" = "true" ]; then
+            npm ci --ignore-scripts
             npm test -- --runInBand
             bash scripts/worktree-readiness-check.sh --json
             bash scripts/worktree-continuity-guard.sh --mode local --json

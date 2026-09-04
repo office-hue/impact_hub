@@ -65,9 +65,9 @@ def report(root, base=None, head=None):
     klass = classify(paths)
     reasons = []
     if not base: reasons.append("origin-main-unavailable")
-    if klass in ("protected", "deploy", "unknown"): reasons.append(f"{klass}-requires-full-validation")
+    if klass == "unknown": reasons.append("unknown-path-class")
     provider = "not-affected" if klass in ("docs-only", "governance-only") else "operator-review"
-    decision = "blocked" if reasons else "allowed"
+    decision = "blocked" if reasons else ("operator-review" if klass in ("protected", "deploy") else "allowed")
     return {"schemaVersion": 2, "repo": "impact_hub", "authoritySource": "repo-local", "branch": git(root, "branch", "--show-current") or None, "baseSha": base or None, "headSha": head, "treeSha": git(root, "show", "-s", "--format=%T", head), "changedPathClass": klass, "changedPaths": paths, "providerBuildDecision": provider, "evidenceReuseAllowed": klass in ("docs-only", "governance-only"), "decision": decision, "blockingReasons": reasons, "expensiveStepsRequired": klass not in ("docs-only", "governance-only"), "fullValidationRequired": klass in ("protected", "deploy", "unknown"), "automaticProductDeployAuthority": False}
 
 def state_dir(root):
@@ -150,7 +150,7 @@ def main():
     elif a.command == "close": out = close(root)
     else: out = fixture(root, a.fixture_root)
     print(json.dumps(out, sort_keys=True))
-    if a.command in ("inspect", "ci-classify") and out["decision"] != "allowed": sys.exit(1)
+    if a.command in ("inspect", "ci-classify") and out["decision"] == "blocked": sys.exit(1)
 if __name__ == "__main__":
     try: main()
     except Exception as exc:

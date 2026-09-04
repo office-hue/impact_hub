@@ -30,7 +30,7 @@ test('fixture is explicit, offline, separate and mutation-free', () => {
     fs.writeFileSync(path.join(fixtureRoot, 'sentinel.txt'), 'immutable fixture');
     const before = fs.readFileSync(path.join(fixtureRoot, 'sentinel.txt'), 'utf8');
     const fixture = run('fixture', '--fixture-root', fixtureRoot, '--json');
-    expect(fixture).toMatchObject({ decision: 'pass', fixtureMode: 'offline', fixtureRoot, networkContacted: false, mutationPerformed: false });
+    expect(fixture).toMatchObject({ decision: 'pass', fixtureMode: 'offline', fixtureRoot: fs.realpathSync(fixtureRoot), networkContacted: false, mutationPerformed: false });
     expect(fs.readFileSync(path.join(fixtureRoot, 'sentinel.txt'), 'utf8')).toBe(before);
     expect(fail('fixture', '--json').status).not.toBe(0);
     expect(fail('fixture', '--fixture-root', root, '--json').stderr).toMatch(/fixture_root_must_be_separate/);
@@ -56,7 +56,7 @@ test('missing shallow CI commit is fail-closed and event SHAs bind a report', ()
   expect(report).toMatchObject({ baseSha: head, headSha: head, decision: 'allowed' });
 });
 
-test('path classifier is exact and unsafe classes remain blocked without validation evidence', () => {
+test('path classifier is exact and known unsafe classes require validation without blocking it', () => {
   expect(classify(['docs/readme.md'])).toBe('docs-only');
   expect(classify(['AGENTS.md'])).toBe('governance-only');
   expect(classify(['tools/new-tool.js'])).toBe('code-local');
@@ -65,7 +65,16 @@ test('path classifier is exact and unsafe classes remain blocked without validat
   expect(classify(['scripts/unknown.sh'])).toBe('unknown');
   const base = execFileSync('git', ['rev-parse', 'HEAD^'], { cwd: root, encoding: 'utf8' }).trim();
   const protectedReport = run('ci-classify', '--base', base, '--head', 'HEAD', '--json');
-  expect(protectedReport).toMatchObject({ changedPathClass: 'protected', decision: 'blocked', fullValidationRequired: true });
+  expect(protectedReport).toMatchObject({
+    changedPathClass: 'protected',
+    decision: 'operator-review',
+    blockingReasons: [],
+    fullValidationRequired: true,
+    providerBuildDecision: 'operator-review',
+  });
+  const contextGuard = spawnSync('bash', ['scripts/dev-context-policy-guard.sh', '--json'], { cwd: root, encoding: 'utf8' });
+  expect(contextGuard.status).toBe(0);
+  expect(JSON.parse(contextGuard.stdout)).toMatchObject({ decision: 'operator-review', fullValidationRequired: true });
 });
 
 test('evidence rejects caller-supplied exit codes and requires authorized profile plus candidate provenance', () => {

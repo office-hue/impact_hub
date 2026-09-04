@@ -136,4 +136,7 @@ the coupon harvester, provider jobs or deployment.
   offline/mutacio-mentes marad.
 - Evidence-et a hivo exit-code-ja helyett az adapter altal inditott,
   policyban allowlistelt profile/parancs, valamint a valtozatlan candidate tree
-  igazol. A protected/deploy/unknown besorolas evidence nelkul `blocked`.
+  igazol. A protected/deploy besorolas `operator-review` dontessel tovabbmegy a
+  kotelezo teljes validaciora; az ismeretlen path-osztaly tovabbra is fail-closed
+  `blocked`. A friss CI checkout a verziozott lockfile-bol, lifecycle scriptek
+  nelkul materializalja a tesztfuggosegeket, majd futtatja a teljes Jest-lancot.
