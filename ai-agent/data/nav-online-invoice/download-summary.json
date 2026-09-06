@@ -1,0 +1,188 @@
+{
+  "inbound": {
+    "digestSummaries": [
+      {
+        "from": "2025-01-01",
+        "to": "2025-02-04",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-01-01_2025-02-04-p1.xml"
+      },
+      {
+        "from": "2025-02-05",
+        "to": "2025-03-11",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-02-05_2025-03-11-p1.xml"
+      },
+      {
+        "from": "2025-03-12",
+        "to": "2025-04-15",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-03-12_2025-04-15-p1.xml"
+      },
+      {
+        "from": "2025-04-16",
+        "to": "2025-05-20",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-04-16_2025-05-20-p1.xml"
+      },
+      {
+        "from": "2025-05-21",
+        "to": "2025-06-24",
+        "page": 1,
+        "availablePage": 1,
+        "count": 11,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-05-21_2025-06-24-p1.xml"
+      },
+      {
+        "from": "2025-06-25",
+        "to": "2025-07-29",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-06-25_2025-07-29-p1.xml"
+      },
+      {
+        "from": "2025-07-30",
+        "to": "2025-09-02",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-07-30_2025-09-02-p1.xml"
+      },
+      {
+        "from": "2025-09-03",
+        "to": "2025-10-07",
+        "page": 1,
+        "availablePage": 1,
+        "count": 9,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-09-03_2025-10-07-p1.xml"
+      },
+      {
+        "from": "2025-10-08",
+        "to": "2025-11-11",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-10-08_2025-11-11-p1.xml"
+      },
+      {
+        "from": "2025-11-12",
+        "to": "2025-12-16",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-11-12_2025-12-16-p1.xml"
+      },
+      {
+        "from": "2025-12-17",
+        "to": "2025-12-31",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-inbound-2025-12-17_2025-12-31-p1.xml"
+      }
+    ],
+    "errors": []
+  },
+  "outbound": {
+    "digestSummaries": [
+      {
+        "from": "2025-01-01",
+        "to": "2025-02-04",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-01-01_2025-02-04-p1.xml"
+      },
+      {
+        "from": "2025-02-05",
+        "to": "2025-03-11",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-02-05_2025-03-11-p1.xml"
+      },
+      {
+        "from": "2025-03-12",
+        "to": "2025-04-15",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-03-12_2025-04-15-p1.xml"
+      },
+      {
+        "from": "2025-04-16",
+        "to": "2025-05-20",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-04-16_2025-05-20-p1.xml"
+      },
+      {
+        "from": "2025-05-21",
+        "to": "2025-06-24",
+        "page": 1,
+        "availablePage": 0,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-05-21_2025-06-24-p1.xml"
+      },
+      {
+        "from": "2025-06-25",
+        "to": "2025-07-29",
+        "page": 1,
+        "availablePage": 0,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-06-25_2025-07-29-p1.xml"
+      },
+      {
+        "from": "2025-07-30",
+        "to": "2025-09-02",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-07-30_2025-09-02-p1.xml"
+      },
+      {
+        "from": "2025-09-03",
+        "to": "2025-10-07",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-09-03_2025-10-07-p1.xml"
+      },
+      {
+        "from": "2025-10-08",
+        "to": "2025-11-11",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-10-08_2025-11-11-p1.xml"
+      },
+      {
+        "from": "2025-11-12",
+        "to": "2025-12-16",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-11-12_2025-12-16-p1.xml"
+      },
+      {
+        "from": "2025-12-17",
+        "to": "2025-12-31",
+        "page": 1,
+        "availablePage": 1,
+        "count": 0,
+        "file": "/Users/bujdosoarnold/Developer/GitHub/impact_hub/ai-agent/data/nav-online-invoice/digest-outbound-2025-12-17_2025-12-31-p1.xml"
+      }
+    ],
+    "errors": []
+  }
+}

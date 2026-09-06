@@ -41,6 +41,10 @@ export async function responseAssemblyNode(state: CoreAgentState): Promise<Parti
     return { logs, finalResponse: state.finalResponse };
   }
 
+  if (output?.kind === 'ads' && typeof output.summary === 'string') {
+    return { logs, finalResponse: state.finalResponse ?? output.summary };
+  }
+
   let responseText: string | undefined;
 
   if (Array.isArray(output?.outputFiles) && output.outputFiles.length) {

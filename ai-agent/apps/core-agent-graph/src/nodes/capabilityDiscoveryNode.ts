@@ -83,6 +83,23 @@ async function pickCapability(
     lower.includes('merge') ||
     lower.includes('összefésül');
   const wantsCoupon = lower.includes('kupon') || lower.includes('coupon') || lower.includes('shop') || lower.includes('bolt');
+  const wantsAds =
+    lower.includes('hirdetés') ||
+    lower.includes('hirdetes') ||
+    lower.includes('ads') ||
+    lower.includes('kampány') ||
+    lower.includes('kampany') ||
+    lower.includes('target') ||
+    lower.includes('targetál') ||
+    lower.includes('targetal') ||
+    lower.includes('remarketing') ||
+    lower.includes('konverzió') ||
+    lower.includes('konverzio') ||
+    lower.includes('capi') ||
+    lower.includes('google ads') ||
+    lower.includes('facebook') ||
+    lower.includes('tiktok') ||
+    lower.includes('youtube');
 
   if ((wantsMerge || hasStructured) && wantsCoupon) {
     const mergeCap = candidates.find(c => c.id === 'merge-tables');
@@ -94,6 +111,20 @@ async function pickCapability(
   if (wantsMerge || hasStructured) {
     const mergeCap = candidates.find(c => c.id === 'merge-tables');
     if (mergeCap) return { selected: mergeCap };
+  }
+
+  if (wantsAds) {
+    const ingestCap = candidates.find(c => c.id === 'ads-event-ingest');
+    const decisionCap = candidates.find(c => c.id === 'ads-decision');
+    const executeCap = candidates.find(c => c.id === 'ads-execute');
+    if (ingestCap && decisionCap && executeCap) {
+      return { selected: ingestCap, chain: [ingestCap.id, decisionCap.id, executeCap.id] };
+    }
+    if (decisionCap && executeCap) {
+      return { selected: decisionCap, chain: [decisionCap.id, executeCap.id] };
+    }
+    if (decisionCap) return { selected: decisionCap };
+    if (executeCap) return { selected: executeCap };
   }
   const impiCap = candidates.find(c => c.id.startsWith('impi-'));
   const heuristicPick = impiCap ?? candidates[0];

@@ -1,0 +1,15 @@
+name: Safe Repo Audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  safe-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run strict safe repo audit
+        run: bash scripts/safe-repo-audit.sh --strict

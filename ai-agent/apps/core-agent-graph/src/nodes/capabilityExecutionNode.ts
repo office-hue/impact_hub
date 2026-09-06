@@ -32,6 +32,12 @@ export async function capabilityExecutionNode(state: CoreAgentState): Promise<Pa
         query: originalState.userMessage,
       };
     }
+    if (nextCapId.startsWith('ads-') && prevOutput && typeof prevOutput === 'object') {
+      return {
+        id: nextCapId,
+        ...(prevOutput as Record<string, unknown>),
+      };
+    }
     if (prevOutput && typeof prevOutput === 'object' && (prevOutput as any).id) {
       return prevOutput;
     }

@@ -58,6 +58,13 @@ const DEFAULT_WORKSPACES: CoreWorkspace[] = [
         categories: ['accounting'],
       },
       {
+        id: 'billingo-sync',
+        label: 'Billingo szinkron',
+        description: 'Billingo API beolvasás és összesítés (számlák/partnerek/termékek).',
+        outputTypes: ['sheet', 'json'],
+        categories: ['billingo'],
+      },
+      {
         id: 'cashbook-sync',
         label: 'Cashbook szinkron',
         description: 'Cashbook API-n keresztüli egyeztetés / audit log.',

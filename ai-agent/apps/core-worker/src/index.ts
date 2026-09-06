@@ -3,14 +3,19 @@ import 'dotenv/config';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 import { Worker } from 'bullmq';
 import { updateCoreTaskStatus } from '@apps/api-gateway/src/services/core-tasks.js';
 import { findWorkspaceById } from '@apps/api-gateway/src/services/core-workspaces.js';
+import { ensureDrivePath, createDriveFile, applyDrivePermissions } from '@apps/api-gateway/src/services/drive-client.js';
+import { writeSheetValues } from '@apps/api-gateway/src/services/sheets-client.js';
 import { detectDocumentKind, ingestExcelFile, ingestPdfFile } from '@apps/document-ingest/src/index.js';
 import type { DocumentAttachment } from '@apps/core-agent-graph/src/state.js';
 import { fetchMemoryContext, type MemoryContextRequest } from '@apps/api-gateway/src/services/memory-context.js';
+import { buildGraphitiAuthHeaders } from '@apps/shared/graphitiAuth.js';
 import { normalizeJobType, type CoreJobPayload, type CoreJobType } from './job-types.js';
 import { mergeAndExportDocuments } from './merge-tables.js';
+import { fetchBillingoSnapshot } from './billingo.js';
 
 const connectionUrl = process.env.CORE_QUEUE_REDIS_URL || process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const queueName = process.env.CORE_QUEUE_NAME || 'core_tasks';
@@ -20,6 +25,76 @@ const DOCUMENT_OUTPUT_DIR = process.env.CORE_DOCUMENT_OUTPUT_DIR
 const MEMORY_OUTPUT_DIR = process.env.CORE_MEMORY_OUTPUT_DIR
   ? path.resolve(process.env.CORE_MEMORY_OUTPUT_DIR)
   : path.resolve(process.cwd(), 'tmp', 'state', 'memory');
+const BILLINGO_OUTPUT_DIR = process.env.CORE_BILLINGO_OUTPUT_DIR
+  ? path.resolve(process.env.CORE_BILLINGO_OUTPUT_DIR)
+  : path.resolve(process.cwd(), 'tmp', 'state', 'billingo');
+const DRIVE_READERS = (process.env.CORE_DRIVE_READERS || '').split(',').map(item => item.trim()).filter(Boolean);
+const DRIVE_WRITERS = (process.env.CORE_DRIVE_WRITERS || '').split(',').map(item => item.trim()).filter(Boolean);
+
+function buildBillingoDrivePath(root: string, taskId: string): { path: string; name: string } {
+  const date = new Date();
+  const folder = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  const filename = `${date.toISOString().slice(0, 10)}-billingo-sync-${taskId.slice(0, 8)}`;
+  const drivePath = [root.replace(/\/$/, ''), folder, filename].join('/');
+  return { path: drivePath, name: filename };
+}
+
+async function writeBillingoSummarySheet(
+  workspaceDriveRoot: string,
+  taskId: string,
+  summary: Array<{ endpoint: string; count: number }>,
+): Promise<{ fileId?: string; link?: string } | null> {
+  try {
+    const suggestion = buildBillingoDrivePath(workspaceDriveRoot, taskId);
+    const provision = await ensureDrivePath(suggestion.path);
+    const created = await createDriveFile(provision, 'application/vnd.google-apps.spreadsheet');
+    if (created.fileId) {
+      await applyDrivePermissions(created.fileId, DRIVE_READERS, DRIVE_WRITERS);
+      const values = [
+        ['endpoint', 'count'],
+        ...summary.map(item => [item.endpoint, item.count]),
+      ];
+      await writeSheetValues(created.fileId, 'A1', values);
+    }
+    return { fileId: created.fileId, link: created.webViewLink };
+  } catch (error) {
+    console.warn('Billingo sheet írás sikertelen', error);
+    return null;
+  }
+}
+
+async function recordBillingoGraphiti(taskId: string, createdBy: string, summary: string): Promise<void> {
+  const graphitiUrl = process.env.GRAPHITI_API_URL;
+  if (!graphitiUrl) {
+    return;
+  }
+  const headers = buildGraphitiAuthHeaders({
+    extraHeaders: { 'Content-Type': 'application/json' },
+  });
+  const payload = {
+    graph: 'impactshop_memory',
+    interactions: [
+      {
+        type: 'capability_interaction',
+        session_id: taskId,
+        user_id: createdBy,
+        user_message: summary,
+        capability: 'billingo_sync',
+        success: true,
+        timestamp: Date.now(),
+      },
+    ],
+  };
+  try {
+    await fetch(`${graphitiUrl.replace(/\/$/, '')}/ingest/capability-interaction`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.warn('Graphiti Billingo ingest sikertelen', error);
+  }
+}
 
 async function runGenericTask(payload: CoreJobPayload): Promise<void> {
   const workspace = await findWorkspaceById(payload.workspaceId);
@@ -150,10 +225,46 @@ async function handleMemorySyncJob(payload: CoreJobPayload): Promise<void> {
   );
 }
 
+async function handleBillingoSyncJob(payload: CoreJobPayload): Promise<void> {
+  const workspace = await findWorkspaceById(payload.workspaceId);
+  if (!workspace) {
+    await updateCoreTaskStatus(payload.taskId, 'error', 'Billingo sync: ismeretlen workspace.');
+    return;
+  }
+  await updateCoreTaskStatus(payload.taskId, 'running', 'Billingo sync elindult.');
+  await fs.mkdir(BILLINGO_OUTPUT_DIR, { recursive: true });
+  const { results } = await fetchBillingoSnapshot();
+  const outputs: string[] = [];
+  for (const result of results) {
+    const outputPath = path.join(BILLINGO_OUTPUT_DIR, `${payload.taskId}-${result.endpoint}.json`);
+    await fs.writeFile(outputPath, JSON.stringify(result.items, null, 2), 'utf8');
+    outputs.push(outputPath);
+  }
+  const summary = results.map(item => ({ endpoint: item.endpoint, count: item.count }));
+  const sheet = await writeBillingoSummarySheet(workspace.driveRoot, payload.taskId, summary);
+  const summaryText = `Billingo sync kész (${summary.map(item => `${item.endpoint}:${item.count}`).join(', ')})`;
+  if (sheet?.link) {
+    await updateCoreTaskStatus(payload.taskId, 'done', `${summaryText} → Sheet: ${sheet.link}`);
+  } else {
+    await updateCoreTaskStatus(payload.taskId, 'done', `${summaryText} → ${outputs.join(', ')}`);
+  }
+  await recordBillingoGraphiti(payload.taskId, payload.createdBy, summaryText);
+}
+
+async function handleNavOnlineInvoiceSyncJob(payload: CoreJobPayload): Promise<void> {
+  await updateCoreTaskStatus(
+    payload.taskId,
+    'error',
+    'NAV Online sync: jelenleg manualis futtatas (digest + invoiceData) tartja karban.',
+  );
+}
+
 const handlers: Record<CoreJobType, (payload: CoreJobPayload) => Promise<void>> = {
   generic: runGenericTask,
   document_ingest: handleDocumentIngestJob,
   memory_sync: handleMemorySyncJob,
+  billingo_sync: handleBillingoSyncJob,
+  nav_online_invoice_sync: handleNavOnlineInvoiceSyncJob,
 };
 
 const worker = new Worker(queueName, async job => {

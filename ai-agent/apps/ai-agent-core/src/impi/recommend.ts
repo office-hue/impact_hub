@@ -462,13 +462,14 @@ function keywordHitScore(coupon: NormalizedCoupon, keywords: string[]): number {
 
 function formatSummary(top: RecommendationOffer[]): string {
   if (!top.length) {
-    return 'Most nem találtam releváns kupont, de jelezd újra és vadászok tovább.';
+    return `Most nem találtam releváns kupont, de írd meg, mit keresel, vagy töltsd ki az űrlapot: ${DEFAULT_FILLOUT_URL}.`;
   }
   const first = top[0];
   const ngo = first.ngo ? `a ${first.ngo} ügyet` : 'az ImpactShop alapot';
+  const link = first.cta_url || DEFAULT_FILLOUT_URL;
     if (first.price_huf && first.estimated_donation_huf) {
       const ngoPart = `egy ${first.price_huf.toLocaleString('hu-HU')} Ft-os vásárlásból kb. ${first.estimated_donation_huf.toLocaleString('hu-HU')} Ft érkezik ${ngo} támogatására`;
-      return `Impi szerint most a ${first.shop_name} ajánlata a legerősebb: ${first.discount_label || first.title || 'kupon'} – ${ngoPart}. Nézd meg a további tippeket is!`;
+      return `Impi szerint most a ${first.shop_name} ajánlata a legerősebb: ${first.discount_label || first.title || 'kupon'} – ${ngoPart}. Link: ${link}`;
     }
 
   const perThousand = hasKnownDonation(first.donation_rate) ? first.donation_per_1000_huf : 0;
@@ -476,7 +477,7 @@ function formatSummary(top: RecommendationOffer[]): string {
     perThousand && perThousand > 0
       ? `minden 1 000 Ft költés után kb. ${perThousand.toLocaleString('hu-HU')} Ft érkezik ${ngo} támogatására (${first.donation_mode_label})`
       : `innen biztosan jó helyre mennek a jutalékok (összeg nem becsülhető)`;
-  return `Impi szerint most a ${first.shop_name} ajánlata a legerősebb: ${first.discount_label || first.title || 'kupon'} – ${ngoPart}. Nézd meg a további tippeket is!`;
+  return `Impi szerint most a ${first.shop_name} ajánlata a legerősebb: ${first.discount_label || first.title || 'kupon'} – ${ngoPart}. Link: ${link}`;
 }
 
 export async function recommendCoupons(input: RecommendInput): Promise<RecommendationResponse> {
@@ -1195,42 +1196,33 @@ function detectHighLevelIntent(query: string): IntentDetectionResult {
 function summarizeSuppressedIntent(intent: HighLevelIntent): string {
   switch (intent) {
     case 'video_support':
-      return 'Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek. Link: https://adomany.sharity.hu/about-us?utm_source=impi&ngo=bator-tabor';
+      return `Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek. Link: ${buildNgoCtaUrl(VIDEO_SUPPORT_NGO_SLUG)}`;
     case 'transparency':
-      return [
-        'Átláthatósági kérésnél nyisd meg az Impact riportot és a REST toplistát:',
-        '🏆 Toplista: https://app.sharity.hu/impactshop/leaderboard (CSV export a "total_donation_huf", supporters, last_donation_at mezőkhöz).',
-        '📊 REST: https://app.sharity.hu/wp-json/impactshop/v1/leaderboard?limit=50 (mezők: ngo, total_donation_huf, supporters, last_donation_at, period_start, period_end).',
-        '📅 Időszakos szűrés: pl. .../leaderboard?period=2025-11 → csak a novemberi adományok.',
-        'Ha visszajelzést adnál vagy konkrét ügyet választanál, használd az űrlapot; ide tölthetsz fel screenshotot is.'
-      ].join('\n');
+      return `Az átláthatósági riport itt érhető el: https://app.sharity.hu/impactshop/leaderboard. Ha részletes adat kell, a REST JSON: https://app.sharity.hu/wp-json/impactshop/v1/leaderboard. Visszajelzéshez űrlap: ${DEFAULT_FILLOUT_URL}.`;
     case 'no_shop':
-      return 'Fallback sorrend: kampány → videó → űrlap. Ha most nem vásárolnál, nézd meg az aktuális kampányokat vagy videós támogatást, végül válaszd ki az ügyet egy űrlapon – így pénz nélkül is segíthetsz.';
+      return `Ha most nem vásárolnál, támogass videóval vagy válassz ügyet űrlapon. Link: ${buildNgoCtaUrl(VIDEO_SUPPORT_NGO_SLUG)}. Ha kérsz, adok űrlapot is: ${DEFAULT_FILLOUT_URL}.`;
     case 'leaderboard':
-      return 'A ranglistát az ImpactShop toplista és a REST API (`/wp-json/impactshop/v1/leaderboard`) adja; most a Bátor Tábor, a Csoda Emma és a Dányi Apró Patak LSE áll a csúcson. Nézd meg a dashboardot, és a linkjeimről indulva rögzül a saját helyezésed is.';
+      return 'A ranglista itt van: https://app.sharity.hu/impactshop/leaderboard. Ha a linkről indulsz, rögzül az adományod a toplistán is.';
     case 'feedback':
-      return [
-        'Ha nem látod az adományodat a riportban, jelezd űrlapon, hogy hozzáadják manuálisan.',
-        '1) Tartsd meg a rendelés azonosítóját, tölts fel screenshotot.',
-        '2) Hibabejelentő űrlap: https://app.sharity.hu/impactshop?ngo=impactshop&d1=impactshop&src=impi',
-        '3) Írd meg a shop nevét, NGO slugot, rendelési összeget.',
-      ].join('\n');
+      return 'Ha nem látod az adományodat a riportban, jelezd a hibabejelentő űrlapon. Link: https://app.sharity.hu/impactshop?ngo=impactshop&d1=impactshop&src=impi. Írd meg a rendelés azonosítót és a shop nevét.';
     case 'impact_data':
-      return 'Összegzett statisztikáért a sorrend: Impact riport → REST JSON → CSV export. Először nézd meg a webes toplistát (`/impactshop/leaderboard`), ha részletes adat kell, használd a REST végpontot (`/wp-json/impactshop/v1/leaderboard`), majd tölts le CSV-t és szűrd időszakra.';
+      return 'Összegzett statisztikához nézd meg az Impact riportot: https://app.sharity.hu/impactshop/leaderboard. Részletes REST JSON: https://app.sharity.hu/wp-json/impactshop/v1/leaderboard.';
     case 'referral':
-      return 'Barát meghívásához oszd meg az NGO kártyát vagy a `https://app.sharity.hu/impactshop?ngo=<slug>&d1=<slug>` linket. Így ugyanarra az ügyre terelheted őket, és a ranglista pontjaid is nőnek.';
+      return 'Barát meghívásához oszd meg az NGO linket: https://app.sharity.hu/impactshop?ngo=<slug>&d1=<slug>. Így ugyanarra az ügyre terelheted őket.';
     case 'wrong_expectation':
-      return 'A vásárlások után járó jutalékból lesz adomány (általában 3–7%). A teljes összeg nem kerül át, viszont ha a linkjeimet használod, pontosan rögzül, mennyi jut a kiválasztott NGO-nak. Segítek kiszámolni, milyen összeget érhetsz el.';
+      return `A vásárlásból 3–7% jutalékból lesz adomány, nem a teljes összeg megy át. Ha pontosítanál, írj, vagy használd az űrlapot: ${DEFAULT_FILLOUT_URL}.`;
     case 'unsafe_request':
       return 'A bankkártya-, jelszó- vagy adóügyeket nem kezelhetem: ilyen adatot soha ne adj ki chatben. Ha hivatalos ügyben kérsz segítséget, keresd fel közvetlenül a szolgáltatódat vagy az adóhatóságot.';
     default:
-      return 'Most nem mutatok konkrét shop ajánlatot – válassz ügyet egy űrlapon, vagy kérj Impact riportot az átláthatóság kedvéért.';
+      return `Most nem mutatok konkrét shop ajánlatot – válassz ügyet az űrlapon: ${DEFAULT_FILLOUT_URL}. Átláthatósági riport: https://app.sharity.hu/impactshop/leaderboard.`;
   }
 }
 
 function summarizeCategoryIntent(match: NgoCategoryMatch): string {
   const names = match.category.ngos.slice(0, 3).map(entry => entry.name).join(', ');
-  return `${match.category.title} témában most ezek a szervezetek aktívak: ${names}. A linkekről indulva automatikusan az ő ügyük erősödik, szólj, ha máshova terelnéd a támogatást!`;
+  const firstSlug = sanitizeSlug(match.category.ngos[0]?.slug) || 'impactshop';
+  const link = buildNgoCtaUrl(firstSlug);
+  return `${match.category.title} témában most ezek a szervezetek aktívak: ${names}. Link: ${link}`;
 }
 
 function buildHighImpactOffers(limit: number): RecommendationOffer[] {
@@ -1271,12 +1263,15 @@ function buildHighImpactOffers(limit: number): RecommendationOffer[] {
 function summarizeHighImpactOffers(): string {
   const entries = getTopImpactEntries(3);
   const parts = entries.map(entry => `${entry.shop_name} → ${(entry.donation_rate * 100).toFixed(1)}% a ${entry.ngo} javára`);
-  return `A legnagyobb hatású vásárlások most: ${parts.join('; ')}. Használd a fenti linkeket, hogy az adomány automatikusan rögzüljön.`;
+  const first = entries[0];
+  const link = first ? buildGoLink(first.shop_slug, sanitizeSlug(first.ngo)) : '';
+  const linkPart = link ? ` Link: ${link}` : '';
+  return `A legnagyobb hatású vásárlások most: ${parts.join('; ')}.${linkPart}`;
 }
 
 function buildVideoSupportOffer(preferredNgoSlug?: string): RecommendationOffer {
   const ngoSlug = preferredNgoSlug || VIDEO_SUPPORT_NGO_SLUG;
-  const ctaUrl = `${VIDEO_SUPPORT_URL}${VIDEO_SUPPORT_URL.includes('?') ? '&' : '?'}ngo=${ngoSlug}`;
+  const ctaUrl = buildNgoCtaUrl(ngoSlug);
   const donationPerView = Number.isFinite(VIDEO_SUPPORT_DONATION_HUF) ? VIDEO_SUPPORT_DONATION_HUF : 150;
   return {
     source: 'video_support',
@@ -1310,7 +1305,7 @@ function buildVideoSupportOffer(preferredNgoSlug?: string): RecommendationOffer 
 
 function summarizeVideoSupport(offer: RecommendationOffer): string {
   const ngo = offer.preferred_ngo_slug || VIDEO_SUPPORT_NGO_SLUG;
-  const link = offer.cta_url || offer.fillout_url || VIDEO_SUPPORT_URL;
+  const link = offer.cta_url || offer.fillout_url || buildNgoCtaUrl(ngo);
   return `Videós támogatás: indítsd el a kampányvideót, és a jutalék automatikusan a(z) ${ngo} ügyéhez kerül. Link: ${link}`;
 }
 

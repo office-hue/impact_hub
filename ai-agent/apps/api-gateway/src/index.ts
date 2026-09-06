@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 import fsSync from 'node:fs';
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { loadSourceSnapshots, recommendCoupons, loadManualCoupons, loadGmailPromotions } from '../../ai-agent-core/src/index.js';
 import { getReliabilityFeatureStatus } from '../../ai-agent-core/src/services/reliability.js';
 import type { SourceSnapshot } from '../../ai-agent-core/src/sources/types.js';
@@ -16,11 +16,23 @@ import { fetchMemoryContext, type MemoryContextRequest } from './services/memory
 import { getProfilePreference } from './services/profile-cache.js';
 import { extractOfferContextMetadata } from './services/offer-metadata.js';
 import { analyzeBannerImage } from './services/vision-client.js';
+import {
+  attachIncidentPostmortem,
+  getPilotMetrics,
+  insertMemoryItem,
+  isAiMemoryPhase0Enabled,
+  retrieveMemory,
+  submitMemoryFeedback,
+  type MemoryEnvironment,
+  type MemoryScope,
+  type MemorySeverity,
+} from './services/ai-memory-phase0.js';
 import { getCoreWorkspaces, findWorkspaceById } from './services/core-workspaces.js';
 import type { CoreWorkspace } from './services/core-workspaces.js';
 import { createCoreTask, listCoreTasks, type AttachmentRef } from './services/core-tasks.js';
 import { enqueueCoreTask } from './services/core-queue.js';
 import { normalizeJobType, type CoreJobType } from '@apps/core-worker/src/job-types.js';
+import { runBillingoCron } from '@apps/core-worker/src/billingo-cron.js';
 import { detectDocumentKind, ingestExcelFile, ingestPdfFile } from '@apps/document-ingest/src/index.js';
 import { runCoreAgentPrototype } from '@apps/core-agent-graph/src/index.js';
 import { getCapabilityMetrics, getCapabilityMetricsWithDerived, renderMetricsPrometheus } from '@apps/core-agent-graph/src/utils/metrics.js';
@@ -56,8 +68,16 @@ const upload = multer({
 });
 const PORT = Number(process.env.PORT || 4000);
 const API_KEY = process.env.AI_AGENT_API_KEY;
+const ROLE_SIGNATURE_SECRET = process.env.IMPACT_ROLE_SECRET || process.env.ROLE_SECRET;
+const ALLOW_UNVERIFIED_ROLES =
+  process.env.IMPACT_ALLOW_UNVERIFIED_ROLES === '1' && process.env.NODE_ENV !== 'production';
+const ALLOW_QUERY_API_KEY = process.env.AI_AGENT_ALLOW_QUERY_API_KEY === '1';
+const ALLOW_BODY_API_KEY = process.env.AI_AGENT_ALLOW_BODY_API_KEY === '1';
 const LOG_PATH = process.env.IMPI_CHAT_LOG || path.join(process.cwd(), 'tmp', 'logs', 'impi-chat.log');
 const OPENAI_ENABLED = Boolean(process.env.OPENAI_API_KEY);
+const BILLINGO_CRON_ENABLED = process.env.CORE_BILLINGO_CRON_ENABLED === '1';
+const BILLINGO_CRON_INTERVAL_MS = Number(process.env.CORE_BILLINGO_CRON_INTERVAL_MS || 24 * 60 * 60 * 1000);
+const BILLINGO_CRON_INITIAL_DELAY_MS = Number(process.env.CORE_BILLINGO_CRON_INITIAL_DELAY_MS || 5 * 60 * 1000);
 const DEFAULT_FILLOUT_URL = process.env.IMPACTSHOP_IMPI_FILLOUT_URL || 'https://form.fillout.com/t/eM61RLkz6jus';
 const DOCUMENT_OUTPUT_DIR = process.env.CORE_DOCUMENT_OUTPUT_DIR
   ? path.resolve(process.env.CORE_DOCUMENT_OUTPUT_DIR)
@@ -70,6 +90,7 @@ const TRANSPARENCY_INTENT_KEYWORDS = ['nem akarok vasarolni', 'nem akarok vásá
 const IMPACT_REPORT_URL = process.env.IMPACTSHOP_IMPI_IMPACT_URL || 'https://app.sharity.hu/impactshop/leaderboard';
 const IMPACT_REPORT_API = process.env.IMPACTSHOP_IMPI_IMPACT_API || 'https://app.sharity.hu/wp-json/impactshop/v1/leaderboard';
 const SESSION_TTL_MS = Number(process.env.AI_AGENT_SESSION_TTL_MS || 15 * 60 * 1000);
+const AI_MEMORY_PHASE0_FEATURE = isAiMemoryPhase0Enabled();
 const DOCUMENT_UPLOAD_DIR = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'tmp', 'document-uploads');
 const DOCUMENT_INGEST_LOG_PATH = process.env.DOCUMENT_INGEST_LOG_PATH
   ? path.resolve(process.env.DOCUMENT_INGEST_LOG_PATH)
@@ -121,16 +142,11 @@ const EMPATHY_KEYWORDS = [
   'stresszes vagyok'
 ];
 
-const LOW_EFFORT_TEMPLATE = [
-  '',
-  '🔸 **Alacsony energiájú opciók:**',
-  '1. **Videós támogatás** – nézz meg egy rövid kampányvideót (1-2 perc), a reklámbevételből automatikusan adomány lesz.',
-  '2. **Gyors minishop** – válassz egy kis összegű vásárlást a kedvenc shopodból, így pár kattintással jut pénz az ügyhöz.',
-  '3. **NGO választás** – írd meg, melyik ügy fontos, és ajánlok hozzá szervezetet/linket.',
-  'Ha más irányt próbálnál ki, csak jelezd, és igazítom a javaslatokat. 🙌',
-].join('\n');
+const LOW_EFFORT_TEMPLATE =
+  'Ha most kevesebb energiád van: videós támogatás (1–2 perc), egy kis összegű vásárlás, vagy egy gyors NGO‑választás is sokat számít. Ha írsz pár szót, igazítom a javaslatot. 🙌';
 
-const CONFIDENCE_TEMPLATE = '\n\nℹ️ Ha nem pont erre gondoltál, jelezd bátran a fókuszt (pl. konkrét termék, összeg vagy kampány), és pontosítok a következő körben.';
+const CONFIDENCE_TEMPLATE =
+  'ℹ️ Ha nem pont erre gondoltál, jelezd bátran a fókuszt (pl. konkrét termék, összeg vagy kampány), és pontosítok a következő körben.';
 
 const SHOPPING_FOLLOWUP_KEYWORDS = [
   'webshop',
@@ -336,6 +352,7 @@ function normalizeTaskAttachments(raw: unknown): AttachmentRef[] {
 const DOCUMENT_EXTENSIONS = ['.pdf', '.xls', '.xlsx', '.xlsm'];
 const DOCUMENT_MIME_KEYWORDS = ['pdf', 'excel', 'sheet'];
 const DOCUMENT_TEMPLATE_TAGS = new Set(['ocr', 'document']);
+const BILLINGO_TEMPLATE_TAGS = new Set(['billingo']);
 const MEMORY_TEMPLATE_TAGS = new Set(['email', 'assistant']);
 
 type JobDescriptor = {
@@ -385,6 +402,38 @@ function normalizeMemoryInput(raw: unknown): MemoryContextRequest | undefined {
   };
 }
 
+function normalizeMemoryScope(raw: unknown): MemoryScope | undefined {
+  if (raw !== 'session' && raw !== 'project' && raw !== 'org') {
+    return undefined;
+  }
+  return raw;
+}
+
+function normalizeMemoryEnvironment(raw: unknown): MemoryEnvironment | undefined {
+  if (raw !== 'dev' && raw !== 'staging' && raw !== 'prod') {
+    return undefined;
+  }
+  return raw;
+}
+
+function normalizeMemorySeverity(raw: unknown): MemorySeverity | undefined {
+  if (raw !== 'low' && raw !== 'medium' && raw !== 'high' && raw !== 'critical') {
+    return undefined;
+  }
+  return raw;
+}
+
+function parseTags(raw: unknown): string[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  return raw
+    .filter((item): item is string => typeof item === 'string')
+    .map(item => item.trim())
+    .filter(Boolean)
+    .slice(0, 20);
+}
+
 function determineJobDescriptor(options: DetermineJobOptions): JobDescriptor {
   if (options.overrideType) {
     const enforcedType = normalizeJobType(options.overrideType);
@@ -404,6 +453,11 @@ function determineJobDescriptor(options: DetermineJobOptions): JobDescriptor {
     return { jobType: 'document_ingest', params: { attachments } };
   }
 
+  const requiresBillingo = templateHasCategory(template, BILLINGO_TEMPLATE_TAGS);
+  if (requiresBillingo) {
+    return { jobType: 'billingo_sync' };
+  }
+
   const normalizedMemory = normalizeMemoryInput(options.memoryInput);
   const shouldRunMemory = Boolean(normalizedMemory)
     || templateHasCategory(template, MEMORY_TEMPLATE_TAGS);
@@ -415,14 +469,60 @@ function determineJobDescriptor(options: DetermineJobOptions): JobDescriptor {
   return { jobType: 'generic' };
 }
 
-function resolveUserRoles(req: express.Request): string[] {
-  const headerRoles = req.get('x-user-roles') || req.get('x-user-role');
-  const roles = headerRoles ? headerRoles.split(',').map(item => item.trim()).filter(Boolean) : [];
-  if (roles.length) {
-    return roles;
+function parseUserRoles(rawValue?: string | null): string[] {
+  if (!rawValue) {
+    return [];
   }
-  if (typeof req.body?.roles === 'string') {
-    return req.body.roles.split(',').map((item: string) => item.trim()).filter(Boolean);
+  const unique = new Set(
+    rawValue
+      .split(',')
+      .map(item => item.trim())
+      .filter(Boolean),
+  );
+  return Array.from(unique);
+}
+
+function verifyRoleSignature(rawRoles: string, providedSignature: string): boolean {
+  if (!ROLE_SIGNATURE_SECRET) {
+    return false;
+  }
+  const normalizedSignature = providedSignature.trim().toLowerCase();
+  const expectedSignature = createHmac('sha256', ROLE_SIGNATURE_SECRET).update(rawRoles).digest('hex');
+  try {
+    const left = Buffer.from(normalizedSignature, 'hex');
+    const right = Buffer.from(expectedSignature, 'hex');
+    if (left.length === 0 || left.length !== right.length) {
+      return false;
+    }
+    return timingSafeEqual(left, right);
+  } catch {
+    return false;
+  }
+}
+
+function resolveUserRoles(req: express.Request): string[] {
+  const rawHeaderRoles = req.get('x-user-roles') || req.get('x-user-role') || '';
+  const parsedRoles = parseUserRoles(rawHeaderRoles);
+  if (parsedRoles.length) {
+    const signature = req.get('x-user-roles-signature') || req.get('x-user-roles-sig') || '';
+    if (ROLE_SIGNATURE_SECRET) {
+      if (signature && verifyRoleSignature(rawHeaderRoles, signature)) {
+        return parsedRoles;
+      }
+      structuredLog('warn', 'auth.roles.signature_invalid', {
+        path: req.path,
+        has_signature: Boolean(signature),
+      });
+    } else if (ALLOW_UNVERIFIED_ROLES) {
+      structuredLog('warn', 'auth.roles.unverified_allowed', {
+        path: req.path,
+      });
+      return parsedRoles;
+    } else {
+      structuredLog('warn', 'auth.roles.unverified_rejected', {
+        path: req.path,
+      });
+    }
   }
   const defaultRole = process.env.CORE_DEFAULT_ROLE;
   return defaultRole ? [defaultRole] : [];
@@ -438,14 +538,32 @@ function userHasWorkspaceAccess(workspaceRoles: string[] | undefined, userRoles:
   return workspaceRoles.some(role => userRoles.includes(role));
 }
 
-function hasValidApiKey(req: express.Request): boolean {
+function hasValidApiKey(
+  req: express.Request,
+  options: { allowQuery?: boolean; allowBody?: boolean } = {},
+): boolean {
   if (!API_KEY) {
-    return true;
+    return false;
   }
   const headerKey = req.get('x-api-key');
-  const queryKey = typeof req.query.key === 'string' ? req.query.key : undefined;
-  const bodyKey = typeof req.body?.api_key === 'string' ? req.body.api_key : undefined;
-  return headerKey === API_KEY || queryKey === API_KEY || bodyKey === API_KEY;
+  if (headerKey === API_KEY) {
+    return true;
+  }
+  const queryAllowed = options.allowQuery || ALLOW_QUERY_API_KEY;
+  if (queryAllowed) {
+    const queryKey = typeof req.query.key === 'string' ? req.query.key : undefined;
+    if (queryKey === API_KEY) {
+      return true;
+    }
+  }
+  const bodyAllowed = options.allowBody || ALLOW_BODY_API_KEY;
+  if (bodyAllowed) {
+    const bodyKey = typeof req.body?.api_key === 'string' ? req.body.api_key : undefined;
+    if (bodyKey === API_KEY) {
+      return true;
+    }
+  }
+  return false;
 }
 
 app.get('/core/workspaces', async (req, res) => {
@@ -570,7 +688,7 @@ function normalizeBannerImageUrl(value: unknown): string | undefined {
 }
 
 function renderBannerAnalysisPage(pageKey?: string): string {
-  const analyzeUrl = `/api/v1/vision/analyze${pageKey ? `?key=${encodeURIComponent(pageKey)}` : ''}`;
+  const analyzeUrl = '/api/v1/vision/analyze';
   return `<!DOCTYPE html>
   <html lang="hu">
     <head>
@@ -635,7 +753,7 @@ function renderBannerAnalysisPage(pageKey?: string): string {
       </main>
       <script>
         const ANALYZE_URL = ${JSON.stringify(analyzeUrl)};
-        const DOCUMENT_URL = ${JSON.stringify(`/api/v1/vision/document-ocr${pageKey ? `?key=${pageKey}` : ''}`)};
+        const DOCUMENT_URL = '/api/v1/vision/document-ocr';
         const CHAT_URL = '/api/v1/chat/impi';
         const PAGE_KEY = ${pageKey ? JSON.stringify(pageKey) : 'null'};
         const form = document.getElementById('analysisForm');
@@ -668,7 +786,11 @@ function renderBannerAnalysisPage(pageKey?: string): string {
             formData.delete('image');
           }
           try {
-            const response = await fetch(ANALYZE_URL, { method: 'POST', body: formData });
+            const headers = {};
+            if (PAGE_KEY) {
+              headers['x-api-key'] = PAGE_KEY;
+            }
+            const response = await fetch(ANALYZE_URL, { method: 'POST', headers, body: formData });
             const payload = await response.json();
             if (!response.ok || payload.status !== 'ok') {
               throw new Error(payload.message || 'Vision API hiba');
@@ -682,6 +804,9 @@ function renderBannerAnalysisPage(pageKey?: string): string {
           return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', DOCUMENT_URL);
+            if (PAGE_KEY) {
+              xhr.setRequestHeader('x-api-key', PAGE_KEY);
+            }
             xhr.onload = () => {
               try {
                 const payload = JSON.parse(xhr.responseText);
@@ -1402,10 +1527,10 @@ function detectEmpathyCue(message: string): string | null {
 }
 
 function appendLowEffortGuidance(summary: string): string {
-  if (summary.includes('Alacsony energiájú opciók')) {
+  if (summary.includes('kevesebb energiád')) {
     return summary;
   }
-  return `${summary}${LOW_EFFORT_TEMPLATE}`;
+  return `${summary} ${LOW_EFFORT_TEMPLATE}`.trim();
 }
 
 function shouldAddConfidenceDisclaimer(recommendation: RecommendationResponse): boolean {
@@ -1425,12 +1550,11 @@ function appendConfidenceDisclaimer(summary: string): string {
   if (summary.includes('ℹ️ Ha nem pont erre gondoltál')) {
     return summary;
   }
-  return `${summary}${CONFIDENCE_TEMPLATE}`;
+  return `${summary} ${CONFIDENCE_TEMPLATE}`.trim();
 }
 
 function autolinkText(text: string): string {
-  if (!text) return text;
-  return text.replace(/https?:\/\/[^\s<>()]+/g, '<$&>');
+  return text;
 }
 
 function ensurePerThousandText(text: string, offers: RecommendationOffer[] = []): string {
@@ -1460,10 +1584,10 @@ function ensurePerThousandText(text: string, offers: RecommendationOffer[] = [])
 
   if (uniqueValues.length === 1) {
     const rounded = Math.round(uniqueValues[0].value);
-    return `Minden 1 000 Ft költés után kb. ${rounded.toLocaleString('hu-HU')} Ft adomány rögzül.\n${text}`;
+    return `${text} Minden 1 000 Ft költés után kb. ${rounded.toLocaleString('hu-HU')} Ft adomány rögzül.`.trim();
   }
 
-  return `Minden 1 000 Ft költés után az adott ajánlatnál megadott összeg rögzül.\n${text}`;
+  return `${text} Minden 1 000 Ft költés után az adott ajánlatnál megadott összeg rögzül.`.trim();
 }
 
 function computeStoryEvent(prev: string | undefined, opts: { transparencyOnly: boolean; recommendationIntent?: string; shoppingFollowUp: boolean }): string | undefined {
@@ -1748,7 +1872,7 @@ async function buildFeatureSnapshot(
 }
 
 app.post('/api/v1/vision/analyze', upload.single('image'), async (req, res) => {
-  if (!hasValidApiKey(req)) {
+  if (!hasValidApiKey(req, { allowQuery: true })) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   const provider = typeof req.body?.provider === 'string' ? req.body.provider : undefined;
@@ -1773,7 +1897,7 @@ app.post('/api/v1/vision/analyze', upload.single('image'), async (req, res) => {
 });
 
 app.post('/api/v1/vision/document-ocr', upload.single('document'), async (req, res) => {
-  if (!hasValidApiKey(req)) {
+  if (!hasValidApiKey(req, { allowQuery: true })) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   if (!req.file) {
@@ -1808,22 +1932,17 @@ app.post('/api/v1/vision/document-ocr', upload.single('document'), async (req, r
 });
 
 app.get('/admin/banner-analysis', (req, res) => {
-  if (API_KEY) {
-    const pageKey = resolveAdminPageKey(req);
-    if (!pageKey) {
-      res.status(401).send('API kulcs szükséges. Add meg a ?key=<API_KEY> paramétert.');
-      return;
-    }
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(renderBannerAnalysisPage(pageKey));
+  const pageKey = resolveAdminPageKey(req);
+  if (!pageKey) {
+    res.status(401).send('API kulcs szükséges. Add meg a ?key=<API_KEY> paramétert.');
     return;
   }
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send(renderBannerAnalysisPage());
+  res.send(renderBannerAnalysisPage(pageKey));
 });
 
 app.get('/admin/core-console', async (req, res) => {
-  if (!hasValidApiKey(req)) {
+  if (!hasValidApiKey(req, { allowQuery: true })) {
     res.status(401).send('API kulcs szükséges. Add meg a ?key=<API_KEY> paramétert.');
     return;
   }
@@ -1991,7 +2110,7 @@ app.get('/api/v1/coupons', async (_req, res) => {
 });
 
 app.get('/gmail/promotions', async (req, res) => {
-  if (API_KEY && req.get('x-api-key') !== API_KEY) {
+  if (!hasValidApiKey(req)) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   try {
@@ -2012,7 +2131,7 @@ app.get('/gmail/promotions', async (req, res) => {
 });
 
 app.get('/api/v1/context/memory', async (req, res) => {
-  if (API_KEY && req.get('x-api-key') !== API_KEY) {
+  if (!hasValidApiKey(req)) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   try {
@@ -2026,8 +2145,188 @@ app.get('/api/v1/context/memory', async (req, res) => {
   }
 });
 
+app.get('/api/v1/memory/retrieve', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  if (!AI_MEMORY_PHASE0_FEATURE) {
+    return res.status(404).json({ status: 'error', message: 'ai_memory_phase0_disabled' });
+  }
+  const query = typeof req.query.query === 'string' ? req.query.query.trim() : '';
+  if (!query) {
+    return res.status(400).json({ status: 'error', message: 'query_required' });
+  }
+  const scope = normalizeMemoryScope(req.query.scope);
+  const environment = normalizeMemoryEnvironment(req.query.environment);
+  const projectKey = typeof req.query.project_key === 'string' ? req.query.project_key.trim() : undefined;
+  const topK = Number(req.query.top_k);
+  try {
+    const items = await retrieveMemory({
+      query,
+      scope,
+      projectKey: projectKey || undefined,
+      environment,
+      topK: Number.isFinite(topK) ? topK : undefined,
+    });
+    return res.json({
+      status: 'ok',
+      data: items,
+      meta: {
+        total: items.length,
+        scope: scope || 'any',
+        project_key: projectKey || null,
+        environment: environment || null,
+      },
+    });
+  } catch (err) {
+    structuredLog('error', 'ai_memory.retrieve_failed', { error: err instanceof Error ? err.message : String(err) });
+    return res.status(503).json({ status: 'error', message: 'ai_memory_unavailable' });
+  }
+});
+
+app.post('/api/v1/memory/decision', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  if (!AI_MEMORY_PHASE0_FEATURE) {
+    return res.status(404).json({ status: 'error', message: 'ai_memory_phase0_disabled' });
+  }
+  const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
+  const body = typeof req.body?.body === 'string' ? req.body.body.trim() : '';
+  if (!title || !body) {
+    return res.status(400).json({ status: 'error', message: 'title_and_body_required' });
+  }
+  const scope = normalizeMemoryScope(req.body?.scope) || 'project';
+  const environment = normalizeMemoryEnvironment(req.body?.environment);
+  const severity = normalizeMemorySeverity(req.body?.severity);
+  const tags = parseTags(req.body?.tags);
+  const createdBy = req.get('x-user-email') || (typeof req.body?.created_by === 'string' ? req.body.created_by : undefined);
+  try {
+    const memoryId = await insertMemoryItem({
+      scope,
+      itemType: 'decision',
+      title,
+      body,
+      projectKey: typeof req.body?.project_key === 'string' ? req.body.project_key.trim() : undefined,
+      environment,
+      severity,
+      sourceKind: typeof req.body?.source_kind === 'string' ? req.body.source_kind : 'manual',
+      sourceRef: typeof req.body?.source_ref === 'string' ? req.body.source_ref : undefined,
+      tags,
+      createdBy,
+      piiLevel: req.body?.pii_level === 'restricted' ? 'restricted' : req.body?.pii_level === 'low' ? 'low' : 'none',
+    });
+    return res.status(201).json({ status: 'ok', memory_id: memoryId });
+  } catch (err) {
+    structuredLog('error', 'ai_memory.decision_insert_failed', { error: err instanceof Error ? err.message : String(err) });
+    return res.status(503).json({ status: 'error', message: 'ai_memory_unavailable' });
+  }
+});
+
+app.post('/api/v1/memory/incident', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  if (!AI_MEMORY_PHASE0_FEATURE) {
+    return res.status(404).json({ status: 'error', message: 'ai_memory_phase0_disabled' });
+  }
+  const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
+  const body = typeof req.body?.body === 'string' ? req.body.body.trim() : '';
+  if (!title || !body) {
+    return res.status(400).json({ status: 'error', message: 'title_and_body_required' });
+  }
+
+  const symptom = typeof req.body?.symptom === 'string' ? req.body.symptom.trim() : '';
+  const rootCause = typeof req.body?.root_cause === 'string' ? req.body.root_cause.trim() : '';
+  const detectionMethod = typeof req.body?.detection_method === 'string' ? req.body.detection_method.trim() : '';
+  const fixSummary = typeof req.body?.fix_summary === 'string' ? req.body.fix_summary.trim() : '';
+  const preventionGuard = typeof req.body?.prevention_guard === 'string' ? req.body.prevention_guard.trim() : '';
+  if (!symptom || !rootCause || !detectionMethod || !fixSummary || !preventionGuard) {
+    return res.status(400).json({ status: 'error', message: 'postmortem_fields_required' });
+  }
+
+  const scope = normalizeMemoryScope(req.body?.scope) || 'project';
+  const environment = normalizeMemoryEnvironment(req.body?.environment);
+  const severity = normalizeMemorySeverity(req.body?.severity) || 'high';
+  const tags = parseTags(req.body?.tags);
+  const createdBy = req.get('x-user-email') || (typeof req.body?.created_by === 'string' ? req.body.created_by : undefined);
+  try {
+    const memoryId = await insertMemoryItem({
+      scope,
+      itemType: 'incident',
+      title,
+      body,
+      projectKey: typeof req.body?.project_key === 'string' ? req.body.project_key.trim() : undefined,
+      environment,
+      severity,
+      sourceKind: typeof req.body?.source_kind === 'string' ? req.body.source_kind : 'manual',
+      sourceRef: typeof req.body?.source_ref === 'string' ? req.body.source_ref : undefined,
+      tags,
+      createdBy,
+      piiLevel: req.body?.pii_level === 'restricted' ? 'restricted' : req.body?.pii_level === 'low' ? 'low' : 'none',
+    });
+    await attachIncidentPostmortem(memoryId, {
+      symptom,
+      rootCause,
+      detectionMethod,
+      fixSummary,
+      preventionGuard,
+      regressionTestRef: typeof req.body?.regression_test_ref === 'string' ? req.body.regression_test_ref : undefined,
+      checklistRef: typeof req.body?.checklist_ref === 'string' ? req.body.checklist_ref : undefined,
+      owner: typeof req.body?.owner === 'string' ? req.body.owner : createdBy,
+    });
+    return res.status(201).json({ status: 'ok', memory_id: memoryId });
+  } catch (err) {
+    structuredLog('error', 'ai_memory.incident_insert_failed', { error: err instanceof Error ? err.message : String(err) });
+    return res.status(503).json({ status: 'error', message: 'ai_memory_unavailable' });
+  }
+});
+
+app.post('/api/v1/memory/feedback', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  if (!AI_MEMORY_PHASE0_FEATURE) {
+    return res.status(404).json({ status: 'error', message: 'ai_memory_phase0_disabled' });
+  }
+  const memoryId = typeof req.body?.memory_id === 'string' ? req.body.memory_id.trim() : '';
+  if (!memoryId) {
+    return res.status(400).json({ status: 'error', message: 'memory_id_required' });
+  }
+  const createdBy = req.get('x-user-email') || (typeof req.body?.created_by === 'string' ? req.body.created_by : undefined);
+  try {
+    await submitMemoryFeedback({
+      memoryId,
+      useful: typeof req.body?.useful === 'boolean' ? req.body.useful : undefined,
+      score: typeof req.body?.score === 'number' ? req.body.score : undefined,
+      note: typeof req.body?.note === 'string' ? req.body.note : undefined,
+      createdBy,
+    });
+    return res.status(201).json({ status: 'ok' });
+  } catch (err) {
+    structuredLog('error', 'ai_memory.feedback_failed', { error: err instanceof Error ? err.message : String(err) });
+    return res.status(503).json({ status: 'error', message: 'ai_memory_unavailable' });
+  }
+});
+
+app.get('/api/v1/memory/pilot-metrics', async (req, res) => {
+  if (!hasValidApiKey(req)) {
+    return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
+  }
+  if (!AI_MEMORY_PHASE0_FEATURE) {
+    return res.status(404).json({ status: 'error', message: 'ai_memory_phase0_disabled' });
+  }
+  try {
+    const metrics = await getPilotMetrics();
+    return res.json({ status: 'ok', data: metrics });
+  } catch (err) {
+    structuredLog('error', 'ai_memory.metrics_failed', { error: err instanceof Error ? err.message : String(err) });
+    return res.status(503).json({ status: 'error', message: 'ai_memory_unavailable' });
+  }
+});
+
 app.post('/api/v1/chat/impi', async (req, res) => {
-  if (API_KEY && req.get('x-api-key') !== API_KEY) {
+  if (!hasValidApiKey(req)) {
     return res.status(401).json({ status: 'error', message: 'API kulcs szükséges' });
   }
   const message = String(req.body?.message ?? '').trim();
@@ -2148,7 +2447,7 @@ app.post('/api/v1/chat/impi', async (req, res) => {
       narrative = [
         'Nézz meg egy kampányvideót, és a lejátszás rögzíti az adományt a választott ügynek.',
         `Link: ${cta}`,
-        `A támogatás a(z) ${ngoSlug} javára könyvelődik, amint elindítod a videót. Nincs kuponkód és nincs fix összeg feltüntetve; csak kattints a linkre és indítsd a lejátszást.`
+        `A támogatás a(z) ${ngoSlug} javára könyvelődik, amint elindítod a videót.`
       ].join('\n');
       modelUsed = 'fixed-video-support';
     } else if (!recommendation.intent || !SUMMARY_LOCKED_INTENTS.has(recommendation.intent)) {
@@ -2309,6 +2608,28 @@ app.post('/api/v1/chat/impi', async (req, res) => {
 app.get('/', (_req, res) => {
   res.json({ status: 'ok', message: 'AI Agent API ready', timestamp: new Date().toISOString() });
 });
+
+if (BILLINGO_CRON_ENABLED) {
+  let billingoRunning = false;
+  const runOnce = async () => {
+    if (billingoRunning) {
+      console.warn('[billingo-cron] skip: már fut');
+      return;
+    }
+    billingoRunning = true;
+    try {
+      await runBillingoCron();
+      console.log('[billingo-cron] done');
+    } catch (error) {
+      console.error('[billingo-cron] error', error);
+    } finally {
+      billingoRunning = false;
+    }
+  };
+  setTimeout(runOnce, BILLINGO_CRON_INITIAL_DELAY_MS);
+  setInterval(runOnce, BILLINGO_CRON_INTERVAL_MS);
+  console.log(`[billingo-cron] enabled interval=${BILLINGO_CRON_INTERVAL_MS}ms`);
+}
 
 app.listen(PORT, () => {
   console.log(`AI Agent API listening on http://127.0.0.1:${PORT}`);

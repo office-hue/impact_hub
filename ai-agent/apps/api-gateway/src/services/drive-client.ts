@@ -7,7 +7,26 @@ interface DriveCredentials {
   private_key: string;
 }
 
+interface OAuthClientCredentials {
+  client_id: string;
+  client_secret: string;
+  redirect_uris?: string[];
+}
+
+interface OAuthTokenCredentials {
+  refresh_token: string;
+}
+
 const DRIVE_CREDENTIALS_PATH = process.env.CORE_DRIVE_SERVICE_ACCOUNT || path.resolve(process.cwd(), 'config', 'drive-service-account.json');
+const OAUTH_CLIENT_PATH = process.env.CORE_DRIVE_OAUTH_CLIENT
+  ? path.resolve(process.env.CORE_DRIVE_OAUTH_CLIENT)
+  : undefined;
+const OAUTH_TOKEN_PATH = process.env.CORE_DRIVE_OAUTH_TOKEN
+  ? path.resolve(process.env.CORE_DRIVE_OAUTH_TOKEN)
+  : undefined;
+const SHARED_DRIVE_ID = process.env.CORE_DRIVE_SHARED_DRIVE_ID || '';
+const SHARED_ROOT_ID = process.env.CORE_DRIVE_SHARED_ROOT_ID || '';
+const SHARED_ROOT_SKIP = Number(process.env.CORE_DRIVE_SHARED_ROOT_SKIP || 2);
 let cachedDrive: drive_v3.Drive | null = null;
 
 async function loadCredentials(): Promise<DriveCredentials> {
@@ -23,8 +42,45 @@ async function loadCredentials(): Promise<DriveCredentials> {
   }
 }
 
+async function loadOAuthClient(): Promise<OAuthClientCredentials> {
+  if (!OAUTH_CLIENT_PATH) {
+    throw new Error('CORE_DRIVE_OAUTH_CLIENT nincs beállítva');
+  }
+  const raw = await fs.readFile(OAUTH_CLIENT_PATH, 'utf8');
+  const parsed = JSON.parse(raw);
+  const client = parsed.installed || parsed.web || parsed;
+  if (!client?.client_id || !client?.client_secret) {
+    throw new Error('OAuth kliens JSON hiányos');
+  }
+  return client as OAuthClientCredentials;
+}
+
+async function loadOAuthToken(): Promise<OAuthTokenCredentials> {
+  if (!OAUTH_TOKEN_PATH) {
+    throw new Error('CORE_DRIVE_OAUTH_TOKEN nincs beállítva');
+  }
+  const raw = await fs.readFile(OAUTH_TOKEN_PATH, 'utf8');
+  const parsed = JSON.parse(raw);
+  if (!parsed?.refresh_token) {
+    throw new Error('OAuth token JSON hiányos (refresh_token)');
+  }
+  return parsed as OAuthTokenCredentials;
+}
+
 async function getDriveClient(): Promise<drive_v3.Drive> {
   if (cachedDrive) {
+    return cachedDrive;
+  }
+  if (OAUTH_CLIENT_PATH && OAUTH_TOKEN_PATH) {
+    const client = await loadOAuthClient();
+    const token = await loadOAuthToken();
+    const oauth = new google.auth.OAuth2(
+      client.client_id,
+      client.client_secret,
+      client.redirect_uris?.[0],
+    );
+    oauth.setCredentials({ refresh_token: token.refresh_token });
+    cachedDrive = google.drive({ version: 'v3', auth: oauth });
     return cachedDrive;
   }
   const creds = await loadCredentials();
@@ -44,6 +100,18 @@ function splitPathSegments(fullPath: string): string[] {
     .filter(Boolean);
 }
 
+function buildDriveListParams(): Partial<drive_v3.Params$Resource$Files$List> {
+  if (!SHARED_DRIVE_ID) {
+    return {};
+  }
+  return {
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+    corpora: 'drive',
+    driveId: SHARED_DRIVE_ID,
+  };
+}
+
 async function findOrCreateFolder(parentId: string | undefined, name: string): Promise<string> {
   const drive = await getDriveClient();
   const qParts = [`mimeType='application/vnd.google-apps.folder'`, `name='${name.replace(/'/g, "\\'")}'`, 'trashed=false'];
@@ -52,7 +120,8 @@ async function findOrCreateFolder(parentId: string | undefined, name: string): P
   }
   const search = await drive.files.list({
     q: qParts.join(' and '),
-    fields: 'files(id, name)'
+    fields: 'files(id, name)',
+    ...buildDriveListParams(),
   });
   const existing = search.data.files?.[0]?.id;
   if (existing) {
@@ -64,7 +133,8 @@ async function findOrCreateFolder(parentId: string | undefined, name: string): P
       mimeType: 'application/vnd.google-apps.folder',
       parents: parentId ? [parentId] : undefined,
     },
-    fields: 'id'
+    fields: 'id',
+    supportsAllDrives: Boolean(SHARED_DRIVE_ID),
   });
   if (!created.data.id) {
     throw new Error('Drive folder létrehozás sikertelen');
@@ -79,11 +149,17 @@ export interface DriveFileSuggestion {
 }
 
 export async function ensureDrivePath(fullPath: string): Promise<DriveFileSuggestion> {
-  const segments = splitPathSegments(fullPath);
+  let segments = splitPathSegments(fullPath);
   if (!segments.length) {
     throw new Error('drive path empty');
   }
   let parentId: string | undefined = undefined;
+  if (SHARED_ROOT_ID) {
+    parentId = SHARED_ROOT_ID;
+    if (segments.length > SHARED_ROOT_SKIP) {
+      segments = segments.slice(SHARED_ROOT_SKIP);
+    }
+  }
   for (let i = 0; i < segments.length - 1; i++) {
     parentId = await findOrCreateFolder(parentId, segments[i]);
   }
@@ -99,7 +175,8 @@ export async function createDriveFile(suggestion: DriveFileSuggestion, mimeType:
   const drive = await getDriveClient();
   const existing = await drive.files.list({
     q: ['trashed=false', `name='${suggestion.fileName.replace(/'/g, "\\'")}'`, `'${suggestion.folderId}' in parents`].join(' and '),
-    fields: 'files(id, webViewLink)'
+    fields: 'files(id, webViewLink)',
+    ...buildDriveListParams(),
   });
   if (existing.data.files?.length) {
     const file = existing.data.files[0];
@@ -111,7 +188,8 @@ export async function createDriveFile(suggestion: DriveFileSuggestion, mimeType:
       mimeType,
       parents: [suggestion.folderId],
     },
-    fields: 'id, webViewLink'
+    fields: 'id, webViewLink',
+    supportsAllDrives: Boolean(SHARED_DRIVE_ID),
   });
   if (!created.data.id) {
     throw new Error('Drive file létrehozás sikertelen');
