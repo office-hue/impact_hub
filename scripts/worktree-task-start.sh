@@ -168,10 +168,14 @@ if [[ -n "$MARKER_FILE" ]]; then
 fi
 
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+CURRENT_HEAD="$(git -C "$WT_DIR" rev-parse HEAD)"
+CURRENT_TREE="$(git -C "$WT_DIR" rev-parse HEAD^{tree})"
+BASE_REF="origin/main"
+BASE_COMMIT="$(git -C "$WT_DIR" rev-parse "$BASE_REF")"
 if [[ -n "$MARKER_FILE" ]]; then
   python3 - <<'PY' \
     "$MARKER_FILE" "$FEATURE_BRANCH" "$WT_DIR" "$REPO_NAME" "$REPO_ROOT" "$STARTED_AT" "$RESUME" \
-    "$DOC_SYNC_LABEL" "$DOC_SYNC_REPO_ID" "$DOC_SYNC_PATH_PREFIX"
+    "$DOC_SYNC_LABEL" "$DOC_SYNC_REPO_ID" "$DOC_SYNC_PATH_PREFIX" "$CURRENT_HEAD" "$CURRENT_TREE" "$BASE_REF" "$BASE_COMMIT"
 import json
 import sys
 
@@ -186,15 +190,24 @@ import sys
     doc_sync_label,
     doc_sync_repo_id,
     doc_sync_path_prefix,
-) = sys.argv[1:11]
+    current_head,
+    current_tree,
+    base_ref,
+    base_commit,
+) = sys.argv[1:15]
 
 payload = {
+    "schemaVersion": 2,
     "branch": feature_branch,
     "path": wt_dir,
     "repo": repo_name,
     "repo_root": repo_root,
     "started_at": started_at,
     "resume": resume == "1",
+    "head": current_head,
+    "tree": current_tree,
+    "baseRef": base_ref,
+    "baseCommit": base_commit,
 }
 if doc_sync_label:
     payload["doc_sync_label"] = doc_sync_label

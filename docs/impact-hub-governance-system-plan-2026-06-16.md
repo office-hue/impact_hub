@@ -164,3 +164,11 @@ the coupon harvester, provider jobs or deployment.
   exact lockfile install, teljes Jest, adapter fixture/negative ellenorzes,
   bastion/continuity es exact-range audit/diff check. Helyi Git-meta snapshot,
   hook-health vagy working-tree-only audit nem resze a PR kapunak.
+
+## 2026-09-11 DEV v4 Stage B note
+
+- A repo-local DEV v4 trigger és natív Stage B adapter csak helyi Node
+  forrásellenőrzést enged, és `stage-b-admitted-unverified` döntést ad.
+- Readiness, provider, build, deploy, VPS, runtime, secret, cron, watchdog és
+  shared-dependency authority továbbra sincs; a csomag a v2 protected lane-ben
+  marad.

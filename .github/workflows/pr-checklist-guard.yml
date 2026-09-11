@@ -53,6 +53,11 @@ jobs:
       - name: Full Jest validation
         if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
         run: npm test -- --runInBand
+      - name: DEV v4 Stage B native adapter validation
+        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+        run: |
+          node scripts/dev-v4-stage-b-adapter.mjs --ci
+          node --test tests/dev-v4-stage-a.test.mjs tests/dev-v4-stage-b.test.mjs
       - name: Adapter negative and dedicated-fixture validation
         if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
         run: |

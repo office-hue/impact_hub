@@ -127,6 +127,11 @@ else
   MARKER_PATH=""
 fi
 
+CURRENT_HEAD="$(git rev-parse HEAD 2>/dev/null || true)"
+CURRENT_TREE="$(git show -s --format=%T HEAD 2>/dev/null || true)"
+BASE_REF="origin/main"
+BASE_COMMIT="$(git rev-parse "$BASE_REF" 2>/dev/null || true)"
+
 EFFECTIVE_DOC_SYNC_LABEL="${DOC_SYNC_LABEL:-$MARKER_DOC_SYNC_LABEL}"
 EFFECTIVE_DOC_SYNC_REPO_ID="${DOC_SYNC_REPO_ID:-$MARKER_DOC_SYNC_REPO_ID}"
 EFFECTIVE_DOC_SYNC_PATH_PREFIX="${DOC_SYNC_PATH_PREFIX:-$MARKER_DOC_SYNC_PATH_PREFIX}"
@@ -173,7 +178,7 @@ fi
 PAYLOAD="$(python3 - <<'PY' \
   "$STATUS" "$DECISION" "$REPO_ROOT" "$ARTIFACT_FILE" "${MARKER_FILE:-}" "${COORD_ACTIVE_FILE:-}" "${COORD_SNAPSHOT_FILE:-}" \
   "$EFFECTIVE_DOC_SYNC_LABEL" "$EFFECTIVE_DOC_SYNC_REPO_ID" "$EFFECTIVE_DOC_SYNC_PATH_PREFIX" \
-  "$MARKER_BRANCH" "$MARKER_PATH" "$reasons_blob" "$warnings_blob"
+  "$MARKER_BRANCH" "$MARKER_PATH" "$reasons_blob" "$warnings_blob" "$CURRENT_HEAD" "$CURRENT_TREE" "$BASE_REF" "$BASE_COMMIT"
 import json
 import sys
 
@@ -192,9 +197,14 @@ import sys
     marker_path,
     reasons_blob,
     warnings_blob,
-) = sys.argv[1:15]
+    current_head,
+    current_tree,
+    base_ref,
+    base_commit,
+) = sys.argv[1:19]
 
 payload = {
+    "schemaVersion": 2,
     "status": status,
     "decision": decision,
     "repoRoot": repo_root,
@@ -207,6 +217,10 @@ payload = {
     "docSyncPathPrefix": doc_sync_path_prefix or None,
     "currentBranch": marker_branch or None,
     "currentWorktree": marker_path or None,
+    "head": current_head or None,
+    "tree": current_tree or None,
+    "baseRef": base_ref or None,
+    "baseCommit": base_commit or None,
     "blockingReasons": [line for line in reasons_blob.splitlines() if line],
     "warnings": [line for line in warnings_blob.splitlines() if line],
 }

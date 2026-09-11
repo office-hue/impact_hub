@@ -109,7 +109,12 @@ test('path classifier is exact and known unsafe classes require validation witho
   expect(classify(['.github/workflows/coupon-harvest.yml'])).toBe('protected');
   expect(classify(['tools/__tests__/delivery-v2-adapter.test.ts'])).toBe('code-local');
   expect(classify(['scripts/unknown.sh'])).toBe('unknown');
-  const base = execFileSync('git', ['rev-parse', 'HEAD^'], { cwd: root, encoding: 'utf8' }).trim();
+  const envBase = process.env.PR_BASE_SHA || '';
+  const base = /^[0-9a-f]{40}$/.test(envBase)
+    ? envBase
+    : execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], { cwd: root, encoding: 'utf8' }).trim();
+  expect(base).toMatch(/^[0-9a-f]{40}$/);
+  expect(() => execFileSync('git', ['cat-file', '-e', `${base}^{commit}`], { cwd: root })).not.toThrow();
   const protectedReport = run('ci-classify', '--base', base, '--head', 'HEAD', '--json');
   expect(protectedReport).toMatchObject({
     changedPathClass: 'protected',

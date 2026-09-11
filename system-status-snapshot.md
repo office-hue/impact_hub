@@ -1,4 +1,17 @@
 
+## 2026-09-11 DEV v4 Stage B
+
+Repository identity correction: CI binds `office-hue/impact_hub` to numeric ID
+`1080246107`; the central contract retains the distinct `ai-agent` ID.
+
+CI correction: explicit `--ci` is a source-only, unverified self-check bound to
+the exact PR event and detached head; it cannot replace local capsule admission
+or grant merge, provider, runtime, host, secret, cron or watchdog authority.
+
+Source-only, local-Node-only adapter admission is present and remains
+`stage-b-admitted-unverified`; readiness and all external mutation authority
+remain false. Stage B is classified as protected by the DEV v2 lane.
+
 # 2026-09-04 DEV delivery v2 Terra QA correction
 
 The CI checkout now binds and verifies the pull-request event base/head commits
@@ -3747,3 +3760,11 @@ The existing DEV v2 classifier now classifies the Stage A correction paths as
 full validation rather than `unknown-path-class`. No activation, authority,
 provider, build, deploy, VPS, runtime, secret, cron or watchdog capability was
 added.
+
+# 2026-09-11 DEV v4 Stage B CI fixture closure
+
+The Stage B test bootstrap no longer assumes that GitHub Actions has a
+worktree-private capsule. CI identity remains bound to the authenticated PR
+event tuple; local admission still requires the private capsule. The combined
+Stage A/Stage B suite passes 13/13 and all provider/runtime mutation flags stay
+false.

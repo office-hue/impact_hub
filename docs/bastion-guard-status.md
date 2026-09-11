@@ -18,6 +18,17 @@ tree, never a caller-supplied exit code.
 No deploy, provider build, product data, cron, watchdog, VPS or credential state
 was changed by this checkpoint.
 
+## DEV v4 Impact Hub Stage B
+
+The native adapter is source-only and local-Node-only. It validates the Stage A
+identity and returns only `stage-b-admitted-unverified`; readiness and all
+external mutation authority remain false. Stage B stays in the DEV v2 protected
+lane. No provider, build, deploy, VPS, runtime, secret, cron, watchdog or
+shared-dependency mutation occurred.
+
+The Stage A verifier remains at its exact Stage A blob; Stage B root, capsule,
+central-snapshot and file-pin checks are isolated in the Stage B adapter.
+
 ## DEV delivery v2 QA2 hardening
 
 The adapter, its real `tools/__tests__/dev-delivery-v2-*` suite, policy and
