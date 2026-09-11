@@ -8,6 +8,10 @@ import { execFileSync } from 'node:child_process';
 const root = path.resolve(import.meta.dirname, '..');
 const policyPath = path.join(root, 'config/dev-v4/stage-b-policy.v1.json');
 const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+const markerPath = execFileSync('git', ['rev-parse', '--git-path', 'worktree-active.json'], { encoding: 'utf8' }).trim();
+const decisionPath = execFileSync('git', ['rev-parse', '--git-path', 'worktree-task-start-decision.json'], { encoding: 'utf8' }).trim();
+const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+const decision = JSON.parse(fs.readFileSync(decisionPath, 'utf8'));
 
 test('Stage B admits only local source work and stays unverified', () => {
   const result = verifyStageB(root);
@@ -46,4 +50,19 @@ test('pre-merge fixture rejects a forged capsule base equal to candidate HEAD', 
 test('post-merge fixture accepts an arbitrary branch base recorded from origin/main', () => {
   const originMain = execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
   assert.equal(validateRecordedBase(root, originMain, 'origin/main', originMain), null);
+});
+
+test('end-to-end capsule fixtures fail closed for missing or tampered identity', () => {
+  const markerMissingBase = { ...marker };
+  const decisionMissingBase = { ...decision };
+  delete markerMissingBase.baseCommit;
+  delete decisionMissingBase.baseCommit;
+  const variants = [
+    { marker: markerMissingBase, decision: decisionMissingBase },
+    { marker: { ...marker, head: '0'.repeat(40) }, decision },
+    { marker, decision: { ...decision, tree: '0'.repeat(40) } },
+  ];
+  for (const fixture of variants) {
+    assert.equal(verifyStageB(root, policy, fixture).decision, 'protected');
+  }
 });

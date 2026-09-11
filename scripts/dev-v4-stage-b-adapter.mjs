@@ -29,6 +29,7 @@ const json = (root, rel) => JSON.parse(read(root, rel));
 const capsule = (root, name) => { const file = git(root, 'rev-parse', '--git-path', name); return JSON.parse(fs.readFileSync(file, 'utf8')); };
 
 function capsuleIdentity(root, branch, head, tree, marker, decision, originMain) {
+  if (marker.schemaVersion !== 2 || decision.schemaVersion !== 2) return 'capsule-schema-invalid';
   for (const [value, expected, reason] of [
     [marker.branch, branch, 'worktree-capsule-branch-mismatch'],
     [marker.repo_root, root, 'worktree-capsule-root-mismatch'],
@@ -40,12 +41,13 @@ function capsuleIdentity(root, branch, head, tree, marker, decision, originMain)
   if (decision.status !== 'allowed' || decision.decision !== 'allowed' || decision.currentBranch !== branch || path.resolve(decision.currentWorktree || '') !== root) return 'task-start-decision-invalid';
   for (const [payload, expected, reason] of [[marker, head, 'capsule-head-mismatch'], [decision, head, 'decision-head-mismatch']]) {
     const value = payload.head ?? payload.headSha ?? payload.currentHead;
-    if (value !== undefined && value !== expected) return reason;
+    if (value === undefined || value !== expected) return reason;
     const valueTree = payload.tree ?? payload.treeSha ?? payload.currentTree;
-    if (valueTree !== undefined && valueTree !== tree) return reason.replace('head', 'tree');
+    if (valueTree === undefined || valueTree !== tree) return reason.replace('head', 'tree');
   }
   const recordedRef = marker.baseRef ?? marker.base_ref ?? decision.baseRef ?? decision.baseRefName;
   const recordedBase = marker.baseCommit ?? marker.base_commit ?? marker.baseSha ?? decision.baseCommit ?? decision.baseSha;
+  if (recordedRef === undefined || recordedBase === undefined) return 'capsule-base-missing';
   const baseError = validateRecordedBase(root, originMain, recordedRef, recordedBase);
   if (baseError) return baseError;
   return null;
@@ -60,7 +62,7 @@ export function validateRecordedBase(root, originMain, recordedRef, recordedBase
   return null;
 }
 
-export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null) {
+export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injectedCapsules = null) {
   try {
     const requested = path.resolve(root);
     const canonical = path.resolve(git(requested, 'rev-parse', '--show-toplevel'));
@@ -73,8 +75,8 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null) {
     const head = git(canonical, 'rev-parse', 'HEAD');
     const tree = git(canonical, 'rev-parse', 'HEAD^{tree}');
     if (!branch || !commit.test(head) || !commit.test(tree) || git(canonical, 'show', '-s', '--format=%T', head) !== tree) return protectedResult('head-tree-identity-invalid');
-    const marker = capsule(canonical, 'worktree-active.json');
-    const decision = capsule(canonical, 'worktree-task-start-decision.json');
+    const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
+    const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');
     if (marker.repo !== 'impact_hub' || decision.docSyncRepoId !== 'impact_hub') return protectedResult('worktree-capsule-invalid');
     const originMain = git(canonical, 'rev-parse', 'origin/main');
     const identityError = capsuleIdentity(canonical, branch, head, tree, marker, decision, originMain);
