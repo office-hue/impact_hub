@@ -14,3 +14,11 @@ The existing v2 authority, provider/deploy/runtime/host/secret/scheduler and
 watchdog surfaces are unchanged. No central repository dependency is loaded at
 runtime. Any activation or readiness claim requires a separate Stage B package
 from exact merged main.
+
+## CI correction receipt
+
+The correction checkpoint updates only the existing v2 path classifier so the
+Stage A verifier/test paths are protected and receive mandatory validation
+instead of `unknown-path-class`. The exact CI command now returns
+`operator-review` with no blocking reason. This is source-only evidence and
+does not widen activation or mutation authority.

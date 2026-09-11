@@ -3740,3 +3740,10 @@ or local working-tree audit state. Evidence execution is hardcoded and enforces
 before/after repository cleanliness; fixture input is owner/mode/realpath,
 symlink and size bounded. Closure records no unsupported task-wide
 external-write boolean. Central contract digest remains `989dd16d...ef0194`.
+# 2026-09-11 DEV v4 Stage A CI correction receipt
+
+The existing DEV v2 classifier now classifies the Stage A correction paths as
+`protected`, so the exact CI range returns `operator-review` with mandatory
+full validation rather than `unknown-path-class`. No activation, authority,
+provider, build, deploy, VPS, runtime, secret, cron or watchdog capability was
+added.

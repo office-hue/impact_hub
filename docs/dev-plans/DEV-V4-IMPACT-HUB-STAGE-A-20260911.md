@@ -19,3 +19,11 @@ Acceptance is limited to focused Node tests, the static maximum bastion,
 existing repo guards, DocSync/continuity, strict audit and diff check. Stage B
 requires a fresh exact-main worktree and a separately authorized activation
 change; this Stage A candidate is `valid-unverified` only.
+
+## CI correction receipt
+
+The follow-up checkpoint classifies the Stage A paths as `protected` in the
+existing DEV v2 classifier. This fixes the correction-range CI command from
+`blocked/unknown-path-class` to `operator-review` with full validation required.
+No authority, provider, runtime, host, secret, scheduler, watchdog or deploy
+capability was added.

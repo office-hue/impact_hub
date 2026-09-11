@@ -1,3 +1,5 @@
+[2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.
+
 [2026-06-17T10:30:00Z] | docs(dev-guard/env-auth-runtime-adapter): az `impact_hub` repo kulon helyi env/auth/runtime adapter anchorat is megkapta: `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`. A dokumentum a helyi recovery/deploy/guard truthra kot (`docs/system-recovery-map.md`, `docs/pr-policy.md`, `scripts/git-health-check.sh`, operatori `~/bin/impactall` health path), es a local governance system plan mar ezt is kanonikus entrypointkent hordozza recovery vagy auth drift vizsgalatakor.
 
 [2026-06-16T18:20:00Z] | feat(dev-guard/local-governance-sync-enforcement): a local governance/guard lane-re bekerult a fail-closed masterplan-sync enforcement. A `scripts/safe-repo-audit.sh` most mar elbukik, ha guard/policy/governance-hub valtozas tortenik a helyi `docs/impact-hub-governance-system-plan-2026-06-16.md` syncje nelkul. A `scripts/git-health-check.sh` mar ellenorzi a safe-audit bekoteset, az `AGENTS.md` es a local system plan pedig explicit policykent is kimondja ugyanezt.
@@ -60,3 +62,4 @@ unstaged and unexpected-untracked cleanliness; and fixtures are constrained to
 the dedicated repository root or a verified bounded test-temp root. Closure no
 longer asserts a task-wide `externalWritePerformed=false` fact. The central
 target-contract snapshot and root lockfile are intentionally unchanged.
+[2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.
