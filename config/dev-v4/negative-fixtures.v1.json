@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {"id": "activation-true", "central": {"activationAllowed": true}, "expected": "protected"},
+    {"id": "ready-true", "capabilities": {"readyStateAllowed": true}, "expected": "protected"},
+    {"id": "provider-build", "capabilities": {"providerMutationAllowed": true}, "expected": "protected"},
+    {"id": "missing-central-identity", "central": {"centralMerge": {}}, "expected": "protected"}
+  ]
+}

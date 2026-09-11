@@ -1,3 +1,5 @@
+[2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.
+
 [2026-06-17T10:30:00Z] | docs(dev-guard/env-auth-runtime-adapter): az `impact_hub` repo kulon helyi env/auth/runtime adapter anchorat is megkapta: `docs/impact-hub-env-auth-runtime-guard-adapter-2026-06-17.md`. A dokumentum a helyi recovery/deploy/guard truthra kot (`docs/system-recovery-map.md`, `docs/pr-policy.md`, `scripts/git-health-check.sh`, operatori `~/bin/impactall` health path), es a local governance system plan mar ezt is kanonikus entrypointkent hordozza recovery vagy auth drift vizsgalatakor.
 
 [2026-06-16T18:20:00Z] | feat(dev-guard/local-governance-sync-enforcement): a local governance/guard lane-re bekerult a fail-closed masterplan-sync enforcement. A `scripts/safe-repo-audit.sh` most mar elbukik, ha guard/policy/governance-hub valtozas tortenik a helyi `docs/impact-hub-governance-system-plan-2026-06-16.md` syncje nelkul. A `scripts/git-health-check.sh` mar ellenorzi a safe-audit bekoteset, az `AGENTS.md` es a local system plan pedig explicit policykent is kimondja ugyanezt.
@@ -7,6 +9,14 @@
 [2026-06-29T16:10:00Z] | feat(runtime/doc-sync-n2): az `impact_hub` local runtime doc-sync rollout kovetkezo, szuk N2 szelete is megvalosult. Uj helper: `scripts/worktree-task-start-guard.sh`, amely fail-closed modon task-start decision artifactot ir, es ugyanazt a `allowed` / `degraded` / `blocked` taxonomiat adja vissza JSON-ban. A `scripts/worktree-task-start.sh` ezt mar automatikusan lefuttatja a marker + coordination + readiness utan, a `scripts/worktree-readiness-check.sh` pedig immar explicit koveteli a helper jelenletet. Focused validation: `bash -n scripts/worktree-task-start-guard.sh scripts/worktree-task-start.sh scripts/worktree-readiness-check.sh` PASS; marker nelkuli `bash scripts/worktree-task-start-guard.sh --json` -> `blocked`; `bash scripts/worktree-task-start.sh feat/impact-hub-doc-sync-runtime-n2-20260629 --resume --doc-sync-label impact-hub-doc-sync --doc-sync-repo-id impact_hub --doc-sync-path-prefix docs/` -> `allowed`, artifact kiirassal.
 [2026-06-29T19:35:00Z] | feat(runtime/doc-sync-n3): az `impact_hub` local runtime rollout kovetkezo, szuk N3 szelete a koordinacios snapshot evidence-visszaemelest zarja. A `scripts/worktree-task-start.sh` most mar a task-start guard utan frissiti a koordinacios snapshotot, a `scripts/worktree-coordination-sync.sh` pedig nemcsak a marker metadatajat, hanem a `worktree-task-start-decision.json` statusz/dontes/doc-sync scope truthjat is beemeli az `ACTIVE_WORKTREE.md` es `ACTIVE_WORKTREES.md` riportba. Ezzel a reviewer-visible koordinacios truth mar nem egy lepesel korabbi marker-allapotot, hanem a tenyleges task-start decision evidence-et mutatja.
 [2026-06-30T08:45:00Z] | feat(runtime/doc-sync-h4): az `impact_hub` local runtime rollout kovetkezo, szuk H4 szelete a hook-szintu continuity enforcementet zarja. Uj helper: `scripts/worktree-continuity-guard.sh`, amely a helyi marker + task-start decision artifact + workspace snapshot paritasat ellenorzi, es `allowed` / `degraded` / `blocked` kimenettel fail-closed modon ved push elott. Emelle bekerult a `scripts/guarded-push.sh` wrapper, az `install-hooks-all.sh` pre-push lane mar bekoti a continuity guardot, a `git-health-check.sh` pedig explicit elvaraskent ellenorzi ezt a hook-bekotest. A helyi doc-sync map es governance plan innentol a continuity/guard truthot is hordozza; a termeszetes kovetkezo lepes mar a kozponti `ai-agent` H5 writeback.
+# 2026-09-11 DEV v4 Impact Hub Stage A
+
+Inert source-only bootstrap candidate in a dedicated worktree. Central contract
+and repo capability snapshots pin the reviewed `ai-agent` identity and remain
+evidence-only. Focused verifier, negative fixtures and static maximum bastion
+keep `ready` impossible. No provider, build, deploy, VPS, runtime, secret,
+cron, watchdog, network or central dependency mutation occurred.
+
 # 2026-09-02 DEV governance adapter
 
 Repo-local policy guard and negative global-waiver fixture are source-ready.
@@ -52,3 +62,4 @@ unstaged and unexpected-untracked cleanliness; and fixtures are constrained to
 the dedicated repository root or a verified bounded test-temp root. Closure no
 longer asserts a task-wide `externalWritePerformed=false` fact. The central
 target-contract snapshot and root lockfile are intentionally unchanged.
+[2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.

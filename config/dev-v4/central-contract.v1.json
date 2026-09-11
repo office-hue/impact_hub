@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.central-contract",
+  "status": "snapshot-only",
+  "authority": "central-base-read-only",
+  "centralRepository": {"repo": "office-hue/ai-agent", "numericId": 1173292974},
+  "centralMerge": {
+    "sha": "94db78c66b21979c9511594344649a518a4d31d8",
+    "tree": "6fd0f87b40b74e74abce72caf03a48280f7659ab"
+  },
+  "operationsPackageSha256": "229649232d28644a85321f43f0f7b266bdb8a05cc6d5329d8b40c84b154d43dd",
+  "centralContractDigest": "184dc4386f6330f47a1921f114aca32b0f66cd0b714a8e88af562f47b7699157",
+  "activationAllowed": false,
+  "providerMutationAllowed": false,
+  "runtimeMutationAllowed": false,
+  "hostMutationAllowed": false,
+  "readyStateAllowed": false,
+  "source": "reviewed immutable handoff; not a runtime dependency"
+}

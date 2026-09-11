@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.repo-capabilities",
+  "repoId": "impact_hub",
+  "status": "snapshot-only",
+  "authority": "repo-base",
+  "capabilities": [
+    {"id": "node-test", "state": "required", "source": "repo", "requirement": "plan-required"},
+    {"id": "git-readback", "state": "required", "source": "repo", "requirement": "base-required"},
+    {"id": "provider", "state": "not-applicable", "source": "repo", "requirement": "optional", "observation": {"policyDigest": "989dd16dd30bdebb07403c1b0f88ad9a182ea0dd167fc37674438b4bc8ef0194", "rationale": "Stage A is source-only and performs no provider build or deployment."}}
+  ],
+  "semanticSurfaces": [
+    {"id": "dev-v4-stage-a", "paths": ["config/dev-v4/", "scripts/dev-v4-stage-a-verifier.mjs", "tests/dev-v4-stage-a.test.mjs"], "authority": "repo"}
+  ],
+  "activationAllowed": false,
+  "readyStateAllowed": false
+}
