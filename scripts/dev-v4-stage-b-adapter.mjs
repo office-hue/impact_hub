@@ -23,6 +23,10 @@ const objectExists = (root, object) => {
   try { execFileSync('git', ['-C', root, 'cat-file', '-e', object]); return true; }
   catch { return false; }
 };
+const normalizeOrigin = (value) => {
+  const match = String(value).trim().match(/^(?:https:\/\/github\.com\/|git@github\.com:)(office-hue\/impact_hub)(?:\.git)?$/);
+  return match ? match[1] : null;
+};
 const commit = /^[0-9a-f]{40}$/;
 const read = (root, rel) => { const file = path.resolve(root, rel); if (!file.startsWith(`${root}${path.sep}`) || !fs.existsSync(file) || !fs.statSync(file).isFile()) throw new Error(`required-file-missing:${rel}`); return fs.readFileSync(file, 'utf8'); };
 const json = (root, rel) => JSON.parse(read(root, rel));
@@ -62,12 +66,12 @@ export function validateRecordedBase(root, originMain, recordedRef, recordedBase
   return null;
 }
 
-export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injectedCapsules = null) {
+export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injectedCapsules = null, injectedEnv = process.env) {
   try {
     const requested = path.resolve(root);
     const canonical = path.resolve(git(requested, 'rev-parse', '--show-toplevel'));
     if (requested !== canonical) return protectedResult('foreign-or-sibling-root');
-    if (!/^https:\/\/github\.com\/office-hue\/impact_hub\.git$/.test(git(canonical, 'remote', 'get-url', 'origin'))) return protectedResult('repo-identity-invalid');
+    if (normalizeOrigin(git(canonical, 'remote', 'get-url', 'origin')) !== 'office-hue/impact_hub') return protectedResult('repo-identity-invalid');
     const commonDir = path.resolve(git(canonical, 'rev-parse', '--git-common-dir'));
     if (!commonDir || !fs.existsSync(commonDir) || !objectExists(canonical, `${STAGE_A}^{commit}`)) return protectedResult('stage-a-base-unavailable');
     if (git(canonical, 'rev-parse', `${STAGE_A}^{tree}`) !== STAGE_A_TREE) return protectedResult('stage-a-base-unavailable');
@@ -75,12 +79,21 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injected
     const head = git(canonical, 'rev-parse', 'HEAD');
     const tree = git(canonical, 'rev-parse', 'HEAD^{tree}');
     if (!branch || !commit.test(head) || !commit.test(tree) || git(canonical, 'show', '-s', '--format=%T', head) !== tree) return protectedResult('head-tree-identity-invalid');
-    const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
-    const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');
-    if (marker.repo !== 'impact_hub' || decision.docSyncRepoId !== 'impact_hub') return protectedResult('worktree-capsule-invalid');
     const originMain = git(canonical, 'rev-parse', 'origin/main');
-    const identityError = capsuleIdentity(canonical, branch, head, tree, marker, decision, originMain);
-    if (identityError) return protectedResult(identityError);
+    const ciKeys = ['GITHUB_ACTIONS', 'GITHUB_REPOSITORY', 'PR_BASE_SHA', 'PR_HEAD_SHA'];
+    const ciRequested = ciKeys.some((key) => injectedEnv[key] !== undefined);
+    const ci = injectedEnv.GITHUB_ACTIONS === 'true';
+    if (ciRequested && !ci) return protectedResult('ci-context-invalid');
+    if (ci) {
+      if (injectedEnv.GITHUB_REPOSITORY !== 'office-hue/impact_hub' || !commit.test(injectedEnv.PR_BASE_SHA || '') || !commit.test(injectedEnv.PR_HEAD_SHA || '')) return protectedResult('ci-context-invalid');
+      if (injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD')) return protectedResult('ci-pr-tuple-invalid');
+    } else {
+      const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
+      const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');
+      if (marker.repo !== 'impact_hub' || decision.docSyncRepoId !== 'impact_hub') return protectedResult('worktree-capsule-invalid');
+      const identityError = capsuleIdentity(canonical, branch, head, tree, marker, decision, originMain);
+      if (identityError) return protectedResult(identityError);
+    }
     const policy = injectedPolicy ?? json(canonical, 'config/dev-v4/stage-b-policy.v1.json');
     if (policy.schemaVersion !== 1 || policy.contractId !== 'dev-v4.stage-b-policy' || policy.status !== 'active-source-only' || policy.authority !== 'repo-local') return protectedResult('stage-b-policy-invalid');
     if (policy.baseStageA?.commit !== STAGE_A || policy.baseStageA?.tree !== STAGE_A_TREE || policy.central?.merge !== CENTRAL.merge || policy.central?.tree !== CENTRAL.tree || policy.central?.operations !== CENTRAL.operations) return protectedResult('immutable-identity-invalid');

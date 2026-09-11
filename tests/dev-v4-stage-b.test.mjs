@@ -66,3 +66,21 @@ test('end-to-end capsule fixtures fail closed for missing or tampered identity',
     assert.equal(verifyStageB(root, policy, fixture).decision, 'protected');
   }
 });
+
+test('CI accepts only the exact activation PR tuple without a private capsule', () => {
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const ciEnv = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit, PR_HEAD_SHA: head };
+  assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, ciEnv).decision, 'stage-b-admitted-unverified');
+});
+
+test('CI rejects partial, wrong-repository, wrong-base and wrong-head tuples', () => {
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const base = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit, PR_HEAD_SHA: head };
+  for (const variant of [
+    { ...base, GITHUB_REPOSITORY: 'office-hue/other' },
+    { ...base, PR_BASE_SHA: '0'.repeat(40) },
+    { ...base, PR_HEAD_SHA: '0'.repeat(40) },
+    { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit },
+    { ...base, GITHUB_ACTIONS: 'false' },
+  ]) assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, variant).decision, 'protected');
+});

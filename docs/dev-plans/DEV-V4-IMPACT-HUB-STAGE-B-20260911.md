@@ -9,6 +9,9 @@ capsule base, when present, must name `origin/main` and be an ancestor/equal
 of the current remote-tracking ref; this also permits a post-squash arbitrary
 branch while rejecting a forged HEAD-as-base pre-merge capsule. The Stage A
 verifier remains byte-identical to its Stage A blob.
+GitHub Actions has a separate fail-closed read-only path: it requires the
+exact `office-hue/impact_hub` repository and the activation PR base/head tuple;
+private local capsules are never required or synthesized in CI.
 Central/shared dependencies are evidence-only and missing capability remains
 lane-specific unverified. Provider, build, deploy, VPS, runtime, secret, cron
 and watchdog actions are outside this package.
