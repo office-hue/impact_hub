@@ -16,9 +16,12 @@ const readPrivateFixture = (filePath) => fs.existsSync(filePath)
   : {};
 const marker = readPrivateFixture(markerPath);
 const decision = readPrivateFixture(decisionPath);
+const verifyCurrentCheckout = () => process.env.GITHUB_ACTIONS === 'true'
+  ? verifyStageB(root, null, { marker: {}, decision: {} }, { ...process.env, __ciMode: true })
+  : verifyStageB(root);
 
 test('Stage B admits only local source work and stays unverified', () => {
-  const result = verifyStageB(root);
+  const result = verifyCurrentCheckout();
   assert.equal(result.decision, 'stage-b-admitted-unverified');
   assert.equal(result.authoritative, false);
   assert.equal(result.ready, false);
