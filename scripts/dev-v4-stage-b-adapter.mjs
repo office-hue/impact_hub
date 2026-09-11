@@ -85,7 +85,7 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injected
     const ci = ciMode;
     if (ciRequested && !ci) return protectedResult('ci-context-spoofed');
     if (ci) {
-      if (injectedEnv.GITHUB_ACTIONS !== 'true' || injectedEnv.GITHUB_EVENT_NAME !== 'pull_request' || !commit.test(injectedEnv.PR_BASE_SHA || '') || !commit.test(injectedEnv.PR_HEAD_SHA || '')) return protectedResult('ci-context-invalid');
+      if (injectedEnv.GITHUB_ACTIONS !== 'true' || injectedEnv.GITHUB_EVENT_NAME !== 'pull_request' || injectedEnv.GITHUB_REPOSITORY !== 'office-hue/impact_hub' || !commit.test(injectedEnv.PR_BASE_SHA || '') || !commit.test(injectedEnv.PR_HEAD_SHA || '')) return protectedResult('ci-context-invalid');
       const eventPath = injectedEnv.GITHUB_EVENT_PATH;
       if (!eventPath || !path.isAbsolute(eventPath) || !fs.existsSync(eventPath) || fs.lstatSync(eventPath).isSymbolicLink() || fs.statSync(eventPath).size > 1024 * 1024) return protectedResult('ci-event-invalid');
       const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
