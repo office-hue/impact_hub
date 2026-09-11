@@ -78,18 +78,19 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injected
     const branch = git(canonical, 'branch', '--show-current');
     const head = git(canonical, 'rev-parse', 'HEAD');
     const tree = git(canonical, 'rev-parse', 'HEAD^{tree}');
-    if (!branch || !commit.test(head) || !commit.test(tree) || git(canonical, 'show', '-s', '--format=%T', head) !== tree) return protectedResult('head-tree-identity-invalid');
+    if (!commit.test(head) || !commit.test(tree) || git(canonical, 'show', '-s', '--format=%T', head) !== tree) return protectedResult('head-tree-identity-invalid');
     const originMain = git(canonical, 'rev-parse', 'origin/main');
     const ciKeys = ['GITHUB_ACTIONS', 'GITHUB_REPOSITORY', 'PR_BASE_SHA', 'PR_HEAD_SHA'];
     const ciRequested = ciKeys.some((key) => injectedEnv[key] !== undefined);
     const ci = ciMode;
     if (ciRequested && !ci) return protectedResult('ci-context-spoofed');
+    if (!ci && !branch) return protectedResult('branch-identity-invalid');
     if (ci) {
-      if (injectedEnv.GITHUB_ACTIONS !== 'true' || injectedEnv.GITHUB_EVENT_NAME !== 'pull_request' || injectedEnv.GITHUB_REPOSITORY !== 'office-hue/impact_hub' || !commit.test(injectedEnv.PR_BASE_SHA || '') || !commit.test(injectedEnv.PR_HEAD_SHA || '')) return protectedResult('ci-context-invalid');
+      if ((branch && !injectedCapsules) || injectedEnv.GITHUB_ACTIONS !== 'true' || injectedEnv.GITHUB_EVENT_NAME !== 'pull_request' || injectedEnv.GITHUB_REPOSITORY !== 'office-hue/impact_hub' || !commit.test(injectedEnv.PR_BASE_SHA || '') || !commit.test(injectedEnv.PR_HEAD_SHA || '')) return protectedResult('ci-context-invalid');
       const eventPath = injectedEnv.GITHUB_EVENT_PATH;
       if (!eventPath || !path.isAbsolute(eventPath) || !fs.existsSync(eventPath) || fs.lstatSync(eventPath).isSymbolicLink() || fs.statSync(eventPath).size > 1024 * 1024) return protectedResult('ci-event-invalid');
       const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== 1173292974 || event.pull_request?.base?.sha !== STAGE_A || event.pull_request?.head?.sha !== head || injectedEnv.PR_BASE_SHA !== event.pull_request.base.sha || injectedEnv.PR_HEAD_SHA !== event.pull_request.head.sha || injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD')) return protectedResult('ci-pr-tuple-invalid');
+      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== 1173292974 || event.pull_request?.base?.sha !== STAGE_A || event.pull_request?.head?.sha !== head || injectedEnv.PR_BASE_SHA !== event.pull_request.base.sha || injectedEnv.PR_HEAD_SHA !== event.pull_request.head.sha || injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD') || !isAncestor(canonical, STAGE_A, head)) return protectedResult('ci-pr-tuple-invalid');
     } else {
       const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
       const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');
