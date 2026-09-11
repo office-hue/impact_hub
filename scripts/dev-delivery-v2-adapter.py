@@ -97,6 +97,11 @@ def is_protected_path(path):
         or path.startswith("config/dev-delivery-v2-")
         or path.startswith("tests/dev-delivery-v2-")
         or path.startswith("tools/__tests__/dev-delivery-v2-")
+        or path.startswith("config/dev-v4/")
+        or path.startswith("scripts/dev-v4-")
+        or path.startswith("tests/dev-v4-")
+        or path.startswith("docs/dev-plans/DEV-V4-")
+        or path.startswith("docs/continuity/dev/2026-09-11-dev-v4-")
         or "guard" in parts
         or "guards" in parts
         or "policy" in name
