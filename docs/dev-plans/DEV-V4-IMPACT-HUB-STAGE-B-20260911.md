@@ -4,8 +4,11 @@ Stage B activates a native, repo-local adapter for the reviewed Stage A
 contract. Admission is limited to local Node checks and remains
 `stage-b-admitted-unverified`; it does not establish readiness or authority.
 The Stage B verifier binds the live worktree capsule, task-start decision,
-branch, HEAD/tree, and immutable Stage A Git objects; the Stage A verifier
-remains byte-identical to its Stage A blob.
+current branch, HEAD/tree, and immutable Stage A Git objects. A recorded
+capsule base, when present, must name `origin/main` and be an ancestor/equal
+of the current remote-tracking ref; this also permits a post-squash arbitrary
+branch while rejecting a forged HEAD-as-base pre-merge capsule. The Stage A
+verifier remains byte-identical to its Stage A blob.
 Central/shared dependencies are evidence-only and missing capability remains
 lane-specific unverified. Provider, build, deploy, VPS, runtime, secret, cron
 and watchdog actions are outside this package.

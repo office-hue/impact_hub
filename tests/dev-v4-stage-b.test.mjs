@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { verifyStageB } from '../scripts/dev-v4-stage-b-adapter.mjs';
+import { validateRecordedBase, verifyStageB } from '../scripts/dev-v4-stage-b-adapter.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
 const policyPath = path.join(root, 'config/dev-v4/stage-b-policy.v1.json');
@@ -34,4 +35,15 @@ test('immutable file pins and central digest reject drift without editing tracke
   const drift = { ...policy, requiredStageAFiles: policy.requiredStageAFiles.map((x, i) => i === 0 ? { ...x, blob: '0'.repeat(40) } : x) };
   assert.equal(verifyStageB(root, drift).decision, 'protected');
   assert.equal(verifyStageB(root, { ...policy, central: { ...policy.central, snapshotDigest: '0'.repeat(64) } }).decision, 'protected');
+});
+
+test('pre-merge fixture rejects a forged capsule base equal to candidate HEAD', () => {
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const originMain = execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
+  assert.equal(validateRecordedBase(root, originMain, 'origin/main', head), 'capsule-base-not-ancestor');
+});
+
+test('post-merge fixture accepts an arbitrary branch base recorded from origin/main', () => {
+  const originMain = execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
+  assert.equal(validateRecordedBase(root, originMain, 'origin/main', originMain), null);
 });
