@@ -8,6 +8,7 @@ RootHubPath: `../ai-agent/DOC-SYNC-HUB.md`
 OwnerRepo: `ai-agent`
 LastVerifiedAt: `2026-06-30T08:45:00Z`
 RegistryStatus: `partial`
+LatestStageA: `docs/dev-plans/DEV-V4-IMPACT-HUB-STAGE-A-20260911.md`
 
 ## Cel
 
@@ -59,6 +60,15 @@ Helyi continuity truthok:
 
 1. `notes.md`
 2. `system-status-snapshot.md`
+3. `docs/continuity/dev/2026-09-11-dev-v4-impact-hub-stage-a.md`
+
+## 2026-09-11 DEV v4 Stage A
+
+The inert target bootstrap is tracked by central-contract and capability
+snapshots under `config/dev-v4/`, with a read-only verifier and negative
+fixtures. It remains under DEV v2 authority: only `stage-a-valid-unverified`
+and `bastion-pass-unverified` are possible; `ready` and activation/mutation
+surfaces are fail-closed. Stage B requires a fresh exact-main worktree.
 
 ## Drift-Risk Notes
 

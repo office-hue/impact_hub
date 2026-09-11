@@ -26,6 +26,13 @@ Ez a dokumentum nem uj policy-t vezet be. A celja az, hogy egyetlen helyi rendsz
 - A `scripts/install-hooks-all.sh` innentol a pre-push hookba is bekoti ezt a continuity guardot, a `scripts/guarded-push.sh` pedig ugyanazt a lane-t adja `git wpush` wrapperen keresztul.
 - Ez a H4 szelet tudatosan meg kulonvalasztja a helyi continuity/guard truthot a kesobbi kozponti H5 writebacktol.
 
+## 2026-09-11 DEV v4 Stage A note
+
+- Az `impact_hub` kapott egy inert, source-only DEV v4 Stage A snapshotot és
+  statikus maximum bastiont. A csomag a meglévő DEV v2 authority alatt marad;
+  `ready`, provider-, host-, runtime-, secret-, scheduler- és watchdog-aktiválás
+  nem lehetséges. Stage B kizárólag külön, exact-main alapú csomag lehet.
+
 ## Canonical Anchors
 
 1. `docs/impact-hub-doc-sync-map-2026-06-23.md`

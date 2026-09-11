@@ -3704,6 +3704,14 @@ _Manual update: 2026-03-08 14:02:00_
 - [2026-06-29] feat(runtime/doc-sync-n2): a local worktree runtime starter lane kapott egy kulon task-start decision reteget. Uj helper: `scripts/worktree-task-start-guard.sh`; a starter lane mar automatikusan kiirja a per-worktree `worktree-task-start-decision.json` artifactot, es a readiness check explicit fuggosegkent kezeli ezt a helper minimumot. Ezzel az `impact_hub` runtime rollout mar nem csak starter/readiness/coordination minimumot, hanem reviewer-visible task-start evidence-et is tud adni.
 - [2026-06-29T19:35:00Z] feat(runtime/doc-sync-n3): a koordinacios snapshot mar a task-start decision evidence-et is visszaemeli. A `scripts/worktree-task-start.sh` sorrendje ugy lett szukitve, hogy a coordination sync a guard utan fusson, a `scripts/worktree-coordination-sync.sh` pedig mar `task_start_decision_status`, `task_start_decision_value` es a kapcsolodo doc-sync scope mezoket is kirakja az `ACTIVE_WORKTREE.md` es `ACTIVE_WORKTREES.md` riportba. Ezzel a snapshot mar a valos starter-dontest tukrozi, nem csak a marker bootstrap korabbi allapotat.
 - [2026-06-30T08:45:00Z] feat(runtime/doc-sync-h4): az `impact_hub` local runtime rollout megkapta a hook-szintu continuity/guard minimumot. Uj helper: `scripts/worktree-continuity-guard.sh`; uj wrapper: `scripts/guarded-push.sh`; az `install-hooks-all.sh` pre-push lane mar ezt a continuity guardot is bekoti, a `git-health-check.sh` pedig explicit FAIL feltetelnek tekinti, ha a pre-push hookbol hianyzik. A guard a `worktree-active.json`, a `worktree-task-start-decision.json`, valamint a workspace `ACTIVE_WORKTREE.md` / `ACTIVE_WORKTREES.md` snapshotok jelen branch/path parityjat ellenorzi, es `task-start-decision-blocked` eseten fail-closed modon megallitja a push-t.
+# 2026-09-11 DEV v4 Impact Hub Stage A: source-only, activation pending
+
+Dedicated clean worktree carries inert central-contract and capability
+snapshots, a read-only verifier, negative fixtures and a static maximum bastion.
+Result is `stage-a-valid-unverified`; `ready` is impossible and existing DEV v2
+authority remains active. No provider/build/deploy/VPS/runtime/secret/cron/
+watchdog/network mutation occurred.
+
 # 2026-09-02 DEV governance adapter: source-ready; not merged or deployed.
 # 2026-09-02 DEV governance: readiness/docsync/test-chain completion candidate.
 
