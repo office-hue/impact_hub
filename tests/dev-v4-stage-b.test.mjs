@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { verifyStageB } from '../scripts/dev-v4-stage-b-adapter.mjs';
-import { maximumBastion } from '../scripts/dev-v4-stage-a-verifier.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -23,7 +22,6 @@ test('Stage B rejects every widening of the admission boundary', () => {
     const widened = { ...policy, admission: { ...policy.admission, [key]: true } };
     assert.equal(verifyStageB(root, widened).decision, 'protected');
   }
-  assert.equal(maximumBastion(root).decision, 'bastion-pass-unverified');
 });
 
 test('foreign, missing and old-worktree roots fail closed', () => {

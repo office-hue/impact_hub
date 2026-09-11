@@ -26,6 +26,9 @@ external mutation authority remain false. Stage B stays in the DEV v2 protected
 lane. No provider, build, deploy, VPS, runtime, secret, cron, watchdog or
 shared-dependency mutation occurred.
 
+The Stage A verifier remains at its exact Stage A blob; Stage B root, capsule,
+central-snapshot and file-pin checks are isolated in the Stage B adapter.
+
 ## DEV delivery v2 QA2 hardening
 
 The adapter, its real `tools/__tests__/dev-delivery-v2-*` suite, policy and
