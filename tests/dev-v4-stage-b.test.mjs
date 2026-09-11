@@ -11,8 +11,11 @@ const policyPath = path.join(root, 'config/dev-v4/stage-b-policy.v1.json');
 const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
 const markerPath = execFileSync('git', ['rev-parse', '--git-path', 'worktree-active.json'], { encoding: 'utf8' }).trim();
 const decisionPath = execFileSync('git', ['rev-parse', '--git-path', 'worktree-task-start-decision.json'], { encoding: 'utf8' }).trim();
-const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
-const decision = JSON.parse(fs.readFileSync(decisionPath, 'utf8'));
+const readPrivateFixture = (filePath) => fs.existsSync(filePath)
+  ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
+  : {};
+const marker = readPrivateFixture(markerPath);
+const decision = readPrivateFixture(decisionPath);
 
 test('Stage B admits only local source work and stays unverified', () => {
   const result = verifyStageB(root);

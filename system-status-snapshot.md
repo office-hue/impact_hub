@@ -3760,3 +3760,11 @@ The existing DEV v2 classifier now classifies the Stage A correction paths as
 full validation rather than `unknown-path-class`. No activation, authority,
 provider, build, deploy, VPS, runtime, secret, cron or watchdog capability was
 added.
+
+# 2026-09-11 DEV v4 Stage B CI fixture closure
+
+The Stage B test bootstrap no longer assumes that GitHub Actions has a
+worktree-private capsule. CI identity remains bound to the authenticated PR
+event tuple; local admission still requires the private capsule. The combined
+Stage A/Stage B suite passes 13/13 and all provider/runtime mutation flags stay
+false.
