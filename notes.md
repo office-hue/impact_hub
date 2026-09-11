@@ -66,3 +66,4 @@ longer asserts a task-wide `externalWritePerformed=false` fact. The central
 target-contract snapshot and root lockfile are intentionally unchanged.
 [2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.
 [2026-09-11T18:45:00Z] | DEV v4 Stage B CI correction receipt: the candidate-controlled CI self-check now requires explicit `--ci`, exact pull-request event/repository/base/head binding, detached HEAD and Stage-A ancestry; local admission remains capsule-bound and all live authority remains false.
+[2026-09-11T18:55:00Z] | DEV v4 Stage B CI identity correction: the target GitHub repository ID is read back as `1080246107`; the separate central `ai-agent` repository ID remains `1173292974`.

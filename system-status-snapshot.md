@@ -1,6 +1,9 @@
 
 ## 2026-09-11 DEV v4 Stage B
 
+Repository identity correction: CI binds `office-hue/impact_hub` to numeric ID
+`1080246107`; the central contract retains the distinct `ai-agent` ID.
+
 CI correction: explicit `--ci` is a source-only, unverified self-check bound to
 the exact PR event and detached head; it cannot replace local capsule admission
 or grant merge, provider, runtime, host, secret, cron or watchdog authority.

@@ -8,6 +8,7 @@ const MODULE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const STAGE_A = '5f592790aa2f69de69dee3b3c0ba5d43c5d9ef36';
 const STAGE_A_TREE = 'c343d4126d60f0d50149815ae461ab6fead79dbb';
 const CENTRAL = { repo: 'office-hue/ai-agent', numericId: 1173292974, merge: '94db78c66b21979c9511594344649a518a4d31d8', tree: '6fd0f87b40b74e74abce72caf03a48280f7659ab', operations: '229649232d28644a85321f43f0f7b266bdb8a05cc6d5329d8b40c84b154d43dd' };
+const TARGET_REPO_ID = 1080246107;
 const requiredStageAFiles = ['config/dev-v4/central-contract.v1.json', 'config/dev-v4/impact-hub-capabilities.v1.json', 'config/dev-v4/negative-fixtures.v1.json', 'docs/bastion-guard-status.md', 'docs/continuity/dev/2026-09-11-dev-v4-impact-hub-stage-a.md', 'docs/dev-plans/DEV-V4-IMPACT-HUB-STAGE-A-20260911.md', 'docs/impact-hub-doc-sync-map-2026-06-23.md', 'docs/impact-hub-governance-system-plan-2026-06-16.md', 'notes.md', 'scripts/dev-delivery-v2-adapter.py', 'scripts/dev-v4-stage-a-verifier.mjs', 'system-status-snapshot.md', 'tests/dev-v4-stage-a.test.mjs'];
 const protectedResult = (reason) => ({ decision: 'protected', authoritative: false, ready: false, reason });
 const git = (root, ...rawArgs) => {
@@ -90,7 +91,7 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injected
       const eventPath = injectedEnv.GITHUB_EVENT_PATH;
       if (!eventPath || !path.isAbsolute(eventPath) || !fs.existsSync(eventPath) || fs.lstatSync(eventPath).isSymbolicLink() || fs.statSync(eventPath).size > 1024 * 1024) return protectedResult('ci-event-invalid');
       const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== 1173292974 || event.pull_request?.base?.sha !== STAGE_A || event.pull_request?.head?.sha !== head || injectedEnv.PR_BASE_SHA !== event.pull_request.base.sha || injectedEnv.PR_HEAD_SHA !== event.pull_request.head.sha || injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD') || !isAncestor(canonical, STAGE_A, head)) return protectedResult('ci-pr-tuple-invalid');
+      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== TARGET_REPO_ID || event.pull_request?.base?.sha !== STAGE_A || event.pull_request?.head?.sha !== head || injectedEnv.PR_BASE_SHA !== event.pull_request.base.sha || injectedEnv.PR_HEAD_SHA !== event.pull_request.head.sha || injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD') || !isAncestor(canonical, STAGE_A, head)) return protectedResult('ci-pr-tuple-invalid');
     } else {
       const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
       const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');
