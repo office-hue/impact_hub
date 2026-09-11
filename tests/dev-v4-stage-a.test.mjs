@@ -24,6 +24,19 @@ test('negative activation and provider fixtures fail closed', () => {
   assert.equal(verifyStageA({ ...central, centralMerge: {} }, caps).decision, 'protected');
 });
 
+test('every central identity mismatch fails closed', () => {
+  const central = read('central-contract.v1.json');
+  const caps = read('impact-hub-capabilities.v1.json');
+  const mismatches = [
+    { centralMerge: { ...central.centralMerge, sha: '0'.repeat(40) } },
+    { centralMerge: { ...central.centralMerge, tree: '0'.repeat(40) } },
+    { centralRepository: { ...central.centralRepository, numericId: 1 } },
+    { operationsPackageSha256: '0'.repeat(64) },
+    { centralContractDigest: '0'.repeat(64) },
+  ];
+  for (const change of mismatches) assert.equal(verifyStageA({ ...central, ...change }, caps).decision, 'protected');
+});
+
 test('checked-in negative fixture catalog is explicit', () => {
   const fixtures = read('negative-fixtures.v1.json').fixtures;
   assert.deepEqual(fixtures.map((x) => x.expected), ['protected', 'protected', 'protected', 'protected']);

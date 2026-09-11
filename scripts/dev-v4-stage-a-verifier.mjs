@@ -6,15 +6,23 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const COMMIT = /^[0-9a-f]{40}$/;
 const TREE = /^[0-9a-f]{40}$/;
+const TRUSTED_CENTRAL = Object.freeze({
+  repo: 'office-hue/ai-agent',
+  numericId: 1173292974,
+  mergeSha: '94db78c66b21979c9511594344649a518a4d31d8',
+  mergeTree: '6fd0f87b40b74e74abce72caf03a48280f7659ab',
+  operationsDigest: '229649232d28644a85321f43f0f7b266bdb8a05cc6d5329d8b40c84b154d43dd',
+  contractDigest: '184dc4386f6330f47a1921f114aca32b0f66cd0b714a8e88af562f47b7699157',
+});
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 const protectedResult = (reason) => ({ decision: 'protected', authoritative: false, reason });
 
 export function verifyStageA(central, capabilities) {
   if (!central || central.schemaVersion !== 1 || central.contractId !== 'dev-v4.central-contract') return protectedResult('central-contract-invalid');
   if (central.authority !== 'central-base-read-only' || central.status !== 'snapshot-only') return protectedResult('central-contract-authority-invalid');
-  if (central.centralRepository?.repo !== 'office-hue/ai-agent' || central.centralRepository.numericId !== 1173292974) return protectedResult('central-repository-identity-invalid');
-  if (!COMMIT.test(central.centralMerge?.sha ?? '') || !TREE.test(central.centralMerge?.tree ?? '')) return protectedResult('central-merge-identity-invalid');
-  if (!/^[0-9a-f]{64}$/.test(central.operationsPackageSha256 ?? '') || !/^[0-9a-f]{64}$/.test(central.centralContractDigest ?? '')) return protectedResult('central-digest-invalid');
+  if (central.centralRepository?.repo !== TRUSTED_CENTRAL.repo || central.centralRepository.numericId !== TRUSTED_CENTRAL.numericId) return protectedResult('central-repository-identity-invalid');
+  if (!COMMIT.test(central.centralMerge?.sha ?? '') || !TREE.test(central.centralMerge?.tree ?? '') || central.centralMerge.sha !== TRUSTED_CENTRAL.mergeSha || central.centralMerge.tree !== TRUSTED_CENTRAL.mergeTree) return protectedResult('central-merge-identity-invalid');
+  if (central.operationsPackageSha256 !== TRUSTED_CENTRAL.operationsDigest || central.centralContractDigest !== TRUSTED_CENTRAL.contractDigest) return protectedResult('central-digest-invalid');
   if ([central.activationAllowed, central.providerMutationAllowed, central.runtimeMutationAllowed, central.hostMutationAllowed, central.readyStateAllowed].some((v) => v !== false)) return protectedResult('activation-or-ready-flag-enabled');
   if (!capabilities || capabilities.schemaVersion !== 1 || capabilities.contractId !== 'dev-v4.repo-capabilities' || capabilities.repoId !== 'impact_hub' || capabilities.status !== 'snapshot-only' || capabilities.authority !== 'repo-base') return protectedResult('capability-snapshot-invalid');
   if (capabilities.activationAllowed !== false || capabilities.readyStateAllowed !== false) return protectedResult('capability-activation-enabled');
