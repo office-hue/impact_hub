@@ -15,6 +15,7 @@ If any local assistant configuration conflicts with these files, treat the above
 - New work starts from a feature/worktree branch.
 - Deploy may only happen from merged mainline state through guarded workflow.
 - Governance lane hardening: guard, policy vagy governance-hub lane valtozas nem tolható fel a local governance system plan syncje nelkul: `docs/impact-hub-governance-system-plan-2026-06-16.md`
+- DEV v4 trigger: `config/dev-v4/`, `scripts/dev-v4-*`, vagy `tests/dev-v4-*` módosításakor a Stage B adaptert és maximum bastiont kell futtatni; ez csak repo-local Node és source-only, unverified admission, ready/provider/runtime authority nélkül.
 
 ## Session Workflow
 - Session start: run `memory:pre-task` from the `ai-agent` repo.

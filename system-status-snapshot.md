@@ -1,4 +1,10 @@
 
+## 2026-09-11 DEV v4 Stage B
+
+Source-only, local-Node-only adapter admission is present and remains
+`stage-b-admitted-unverified`; readiness and all external mutation authority
+remain false. Stage B is classified as protected by the DEV v2 lane.
+
 # 2026-09-04 DEV delivery v2 Terra QA correction
 
 The CI checkout now binds and verifies the pull-request event base/head commits

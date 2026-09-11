@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.stage-b-policy",
+  "status": "active-source-only",
+  "authority": "repo-local",
+  "baseStageA": {
+    "commit": "5f592790aa2f69de69dee3b3c0ba5d43c5d9ef36",
+    "tree": "c343d4126d60f0d50149815ae461ab6fead79dbb"
+  },
+  "admission": {
+    "localNode": true,
+    "centralDependencies": false,
+    "provider": false,
+    "build": false,
+    "deploy": false,
+    "runtime": false,
+    "host": false,
+    "secrets": false,
+    "cron": false,
+    "watchdog": false
+  },
+  "readyStateAllowed": false,
+  "sourceOnly": true
+}
