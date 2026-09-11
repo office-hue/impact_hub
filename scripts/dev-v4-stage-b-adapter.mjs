@@ -1,28 +1,39 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { verifyStageA, maximumBastion } from './dev-v4-stage-a-verifier.mjs';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, name), 'utf8'));
+const MODULE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const STAGE_A = '5f592790aa2f69de69dee3b3c0ba5d43c5d9ef36';
+const STAGE_A_TREE = 'c343d4126d60f0d50149815ae461ab6fead79dbb';
+const CENTRAL = { repo: 'office-hue/ai-agent', numericId: 1173292974, merge: '94db78c66b21979c9511594344649a518a4d31d8', tree: '6fd0f87b40b74e74abce72caf03a48280f7659ab', operations: '229649232d28644a85321f43f0f7b266bdb8a05cc6d5329d8b40c84b154d43dd' };
+const requiredStageAFiles = ['config/dev-v4/central-contract.v1.json', 'config/dev-v4/impact-hub-capabilities.v1.json', 'config/dev-v4/negative-fixtures.v1.json', 'docs/bastion-guard-status.md', 'docs/continuity/dev/2026-09-11-dev-v4-impact-hub-stage-a.md', 'docs/dev-plans/DEV-V4-IMPACT-HUB-STAGE-A-20260911.md', 'docs/impact-hub-doc-sync-map-2026-06-23.md', 'docs/impact-hub-governance-system-plan-2026-06-16.md', 'notes.md', 'scripts/dev-delivery-v2-adapter.py', 'scripts/dev-v4-stage-a-verifier.mjs', 'system-status-snapshot.md', 'tests/dev-v4-stage-a.test.mjs'];
 const protectedResult = (reason) => ({ decision: 'protected', authoritative: false, ready: false, reason });
+const git = (root, ...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+const read = (root, rel) => { const file = path.resolve(root, rel); if (!file.startsWith(`${root}${path.sep}`) || !fs.existsSync(file) || !fs.statSync(file).isFile()) throw new Error(`required-file-missing:${rel}`); return fs.readFileSync(file, 'utf8'); };
+const json = (root, rel) => JSON.parse(read(root, rel));
 
-export function admitStageB(root = ROOT) {
-  const policy = read('config/dev-v4/stage-b-policy.v1.json');
-  if (policy.schemaVersion !== 1 || policy.contractId !== 'dev-v4.stage-b-policy' || policy.status !== 'active-source-only' || policy.authority !== 'repo-local') return protectedResult('stage-b-policy-invalid');
-  if (policy.baseStageA?.commit !== '5f592790aa2f69de69dee3b3c0ba5d43c5d9ef36' || policy.baseStageA?.tree !== 'c343d4126d60f0d50149815ae461ab6fead79dbb') return protectedResult('stage-a-base-mismatch');
-  const admission = policy.admission ?? {};
-  if (admission.localNode !== true || admission.centralDependencies !== false || Object.entries(admission).some(([k, v]) => k !== 'localNode' && k !== 'centralDependencies' && v !== false)) return protectedResult('admission-boundary-invalid');
-  if (policy.readyStateAllowed !== false || policy.sourceOnly !== true) return protectedResult('ready-or-source-boundary-invalid');
-  const stageA = verifyStageA(read('config/dev-v4/central-contract.v1.json'), read('config/dev-v4/impact-hub-capabilities.v1.json'));
-  if (stageA.decision !== 'stage-a-valid-unverified') return protectedResult(`stage-a:${stageA.reason}`);
-  const bastion = maximumBastion(root);
-  if (bastion.decision !== 'bastion-pass-unverified') return protectedResult(`bastion:${bastion.reason}`);
-  return { decision: 'stage-b-admitted-unverified', authoritative: false, ready: false, activationPending: true, localNodeOnly: true, providerMutationAllowed: false, runtimeMutationAllowed: false };
+export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null) {
+  try {
+    const canonical = path.resolve(git(process.cwd(), 'rev-parse', '--show-toplevel'));
+    const requested = path.resolve(root);
+    if (requested !== canonical) return protectedResult('foreign-or-sibling-root');
+    if (!/^https:\/\/github\.com\/office-hue\/impact_hub\.git$/.test(git(canonical, 'remote', 'get-url', 'origin'))) return protectedResult('repo-identity-invalid');
+    if (git(canonical, 'rev-parse', 'origin/main') !== STAGE_A || git(canonical, 'rev-parse', `${STAGE_A}^{tree}`) !== STAGE_A_TREE) return protectedResult('stage-a-base-unavailable');
+    const policy = injectedPolicy ?? json(canonical, 'config/dev-v4/stage-b-policy.v1.json');
+    if (policy.schemaVersion !== 1 || policy.contractId !== 'dev-v4.stage-b-policy' || policy.status !== 'active-source-only' || policy.authority !== 'repo-local') return protectedResult('stage-b-policy-invalid');
+    if (policy.baseStageA?.commit !== STAGE_A || policy.baseStageA?.tree !== STAGE_A_TREE || policy.central?.merge !== CENTRAL.merge || policy.central?.tree !== CENTRAL.tree || policy.central?.operations !== CENTRAL.operations) return protectedResult('immutable-identity-invalid');
+    if (!Array.isArray(policy.requiredStageAFiles) || policy.requiredStageAFiles.length !== requiredStageAFiles.length || policy.requiredStageAFiles.some((x, i) => x.path !== requiredStageAFiles[i] || !/^[0-9a-f]{40}$/.test(x.blob))) return protectedResult('stage-a-file-pin-shape-invalid');
+    for (const pin of policy.requiredStageAFiles) if (git(canonical, 'rev-parse', `${STAGE_A}:${pin.path}`) !== pin.blob) return protectedResult(`stage-a-file-pin-drift:${pin.path}`);
+    const central = json(canonical, 'config/dev-v4/central-contract.v1.json');
+    if (central.centralRepository?.repo !== CENTRAL.repo || central.centralRepository?.numericId !== CENTRAL.numericId || central.centralMerge?.sha !== CENTRAL.merge || central.centralMerge?.tree !== CENTRAL.tree || central.operationsPackageSha256 !== CENTRAL.operations) return protectedResult('central-snapshot-invalid');
+    if (policy.central.snapshotDigest !== '184dc4386f6330f47a1921f114aca32b0f66cd0b714a8e88af562f47b7699157') return protectedResult('central-snapshot-digest-invalid');
+    const admission = policy.admission ?? {};
+    if (admission.localNode !== true || Object.entries(admission).some(([key, value]) => key !== 'localNode' && value !== false) || policy.readyStateAllowed !== false || policy.sourceOnly !== true) return protectedResult('admission-boundary-invalid');
+    read(canonical, 'config/dev-v4/impact-hub-capabilities.v1.json'); read(canonical, 'config/dev-v4/negative-fixtures.v1.json');
+    return { decision: 'stage-b-admitted-unverified', authoritative: false, ready: false, activationPending: true, localNodeOnly: true, providerMutationAllowed: false, runtimeMutationAllowed: false };
+  } catch (error) { return protectedResult(String(error.message)); }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
-  try { const result = admitStageB(); process.stdout.write(`${JSON.stringify(result)}\n`); process.exitCode = result.decision === 'stage-b-admitted-unverified' ? 0 : 2; }
-  catch (error) { process.stdout.write(`${JSON.stringify(protectedResult(String(error.message)))}\n`); process.exitCode = 2; }
-}
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) { const result = verifyStageB(); process.stdout.write(`${JSON.stringify(result)}\n`); process.exitCode = result.decision === 'stage-b-admitted-unverified' ? 0 : 2; }

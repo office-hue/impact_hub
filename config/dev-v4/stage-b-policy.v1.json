@@ -20,5 +20,65 @@
     "watchdog": false
   },
   "readyStateAllowed": false,
-  "sourceOnly": true
+  "sourceOnly": true,
+  "central": {
+    "merge": "94db78c66b21979c9511594344649a518a4d31d8",
+    "tree": "6fd0f87b40b74e74abce72caf03a48280f7659ab",
+    "operations": "229649232d28644a85321f43f0f7b266bdb8a05cc6d5329d8b40c84b154d43dd",
+    "snapshotDigest": "184dc4386f6330f47a1921f114aca32b0f66cd0b714a8e88af562f47b7699157"
+  },
+  "requiredStageAFiles": [
+    {
+      "path": "config/dev-v4/central-contract.v1.json",
+      "blob": "808f4993b6d324fa1ec74bcdff1357d56b8c48a5"
+    },
+    {
+      "path": "config/dev-v4/impact-hub-capabilities.v1.json",
+      "blob": "a838b2c3d52e42e65f027eedf4b335214debd632"
+    },
+    {
+      "path": "config/dev-v4/negative-fixtures.v1.json",
+      "blob": "4d071657a791b9340b7d8673ee9b4d7a579c72fa"
+    },
+    {
+      "path": "docs/bastion-guard-status.md",
+      "blob": "6440aaece0a0668c3b06240754f8ac5a1be93d63"
+    },
+    {
+      "path": "docs/continuity/dev/2026-09-11-dev-v4-impact-hub-stage-a.md",
+      "blob": "0322d747688e710eb1f97c773f781247ec0e6f03"
+    },
+    {
+      "path": "docs/dev-plans/DEV-V4-IMPACT-HUB-STAGE-A-20260911.md",
+      "blob": "061150c9ac7d0b02ac1b19f7ef63de4c86ec5978"
+    },
+    {
+      "path": "docs/impact-hub-doc-sync-map-2026-06-23.md",
+      "blob": "2746da333f99927f94b9a1b4b635da8b055c3f5a"
+    },
+    {
+      "path": "docs/impact-hub-governance-system-plan-2026-06-16.md",
+      "blob": "090c6cfeacb9a974d74f343444cac90550826d47"
+    },
+    {
+      "path": "notes.md",
+      "blob": "2505d370e1fcb04d450588ad5b9ac7a619ca9b9c"
+    },
+    {
+      "path": "scripts/dev-delivery-v2-adapter.py",
+      "blob": "4d167b4051cc0a4006f4c2c0ff1e13ddeb7c497e"
+    },
+    {
+      "path": "scripts/dev-v4-stage-a-verifier.mjs",
+      "blob": "2724506c407dc139148dca2b5200402f77e9df11"
+    },
+    {
+      "path": "system-status-snapshot.md",
+      "blob": "441ce653a1ccb01fbdcca01bf1532a0ec72d698a"
+    },
+    {
+      "path": "tests/dev-v4-stage-a.test.mjs",
+      "blob": "f26122de14ebbd3ff29af8b30ab5891d2a3b5ea4"
+    }
+  ]
 }
