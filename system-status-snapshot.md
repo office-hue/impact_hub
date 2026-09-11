@@ -1,6 +1,10 @@
 
 ## 2026-09-11 DEV v4 Stage B
 
+CI correction: explicit `--ci` is a source-only, unverified self-check bound to
+the exact PR event and detached head; it cannot replace local capsule admission
+or grant merge, provider, runtime, host, secret, cron or watchdog authority.
+
 Source-only, local-Node-only adapter admission is present and remains
 `stage-b-admitted-unverified`; readiness and all external mutation authority
 remain false. Stage B is classified as protected by the DEV v2 lane.
