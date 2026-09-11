@@ -39,3 +39,11 @@ The required PR job uses the event base/head SHAs, full history, canonical Node
 negative/fixture adapter checks, the bastion/continuity check, exact-range safe
 audit and exact-range `git diff --check`. It does not depend on local continuity
 snapshots, installed hooks, local-main health or a clean-worktree audit.
+## DEV v4 Impact Hub Stage A correction receipt
+
+The inert Stage A snapshots and read-only verifier remain under DEV v2
+authority. The follow-up classifier correction places `config/dev-v4/`,
+`scripts/dev-v4-*`, `tests/dev-v4-*` and related Stage A documentation in the
+`protected` class, so CI returns `operator-review` with mandatory validation
+instead of `unknown-path-class`. No `ready` state, activation, provider,
+build, deploy, VPS, runtime, secret, cron or watchdog authority was added.
