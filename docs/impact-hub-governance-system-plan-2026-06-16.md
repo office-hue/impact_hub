@@ -172,3 +172,20 @@ the coupon harvester, provider jobs or deployment.
 - Readiness, provider, build, deploy, VPS, runtime, secret, cron, watchdog és
   shared-dependency authority továbbra sincs; a csomag a v2 protected lane-ben
   marad.
+
+## 2026-09-17 DEV v4 local context closure
+
+- A worktree starter a readiness, task-start decision es coordination lepeseket
+  a cel-worktree-ben futtatja akkor is, ha masik worktree-bol inditjak. Az
+  `impact_hub` Stage B csak a cel-worktree sajat, `--doc-sync-repo-id impact_hub`
+  opcioval kotott allowed donteset fogadja el.
+- A session vegi teljes memoria-szinkron nem rutin. Uj, igazolt dontes vagy
+  tanulsag eseten celzott kanonikus DEV-memory save es readback kell; hibas
+  recallt nem lehet sikeres nulla talalatnak nevezni. A repo-local szabaly
+  tovabbra is erossebb a globalis kontextusnal.
+- Ez a javitas local source-only governance; a Stage B kimenete tovabbra is
+  `stage-b-admitted-unverified`, live release authority nelkul.
+- Az egyszeri Stage B activation PR utan a CI gate a kovetkezo PR-eknel a
+  GitHub-esemeny pontos `main` base/head SHA-jat, target repoazonossagat es
+  `Stage A -> PR base -> checkout HEAD` osviszonyat koveteli. A Stage A
+  immutabilis fajlpinek es a source-only authority nem valtoznak.
