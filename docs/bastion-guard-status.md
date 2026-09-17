@@ -58,3 +58,14 @@ authority. The follow-up classifier correction places `config/dev-v4/`,
 `protected` class, so CI returns `operator-review` with mandatory validation
 instead of `unknown-path-class`. No `ready` state, activation, provider,
 build, deploy, VPS, runtime, secret, cron or watchdog authority was added.
+
+## 2026-09-17 DEV v4 target-worktree context correction
+
+The repo-local starter now writes its marker, readiness decision and
+coordination snapshot for the target worktree even when another checkout calls
+it. A cross-worktree `--resume --doc-sync-repo-id impact_hub` verified that the
+invoking checkout's decision hash stayed unchanged while the target's marker
+and decision matched its own root; Stage B returned only
+`stage-b-admitted-unverified`. The obsolete routine session-end full-sync rule
+was removed. This protected control change still needs the PR's full-validation
+lane and grants no provider, host, runtime or release authority.

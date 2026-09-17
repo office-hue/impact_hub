@@ -174,7 +174,7 @@ BASE_REF="origin/main"
 BASE_COMMIT="$(git -C "$WT_DIR" rev-parse "$BASE_REF")"
 if [[ -n "$MARKER_FILE" ]]; then
   python3 - <<'PY' \
-    "$MARKER_FILE" "$FEATURE_BRANCH" "$WT_DIR" "$REPO_NAME" "$REPO_ROOT" "$STARTED_AT" "$RESUME" \
+    "$MARKER_FILE" "$FEATURE_BRANCH" "$WT_DIR" "$REPO_NAME" "$WT_DIR" "$STARTED_AT" "$RESUME" \
     "$DOC_SYNC_LABEL" "$DOC_SYNC_REPO_ID" "$DOC_SYNC_PATH_PREFIX" "$CURRENT_HEAD" "$CURRENT_TREE" "$BASE_REF" "$BASE_COMMIT"
 import json
 import sys
@@ -228,17 +228,18 @@ echo "[worktree-task-start] path:   $WT_DIR"
 echo "[worktree-task-start] marker: ${MARKER_FILE:-unavailable}"
 
 echo "[worktree-task-start] readiness:"
-bash "$REPO_ROOT/scripts/worktree-readiness-check.sh"
+(cd "$WT_DIR" && bash scripts/worktree-readiness-check.sh)
 
 echo "[worktree-task-start] task-start guard:"
-bash "$REPO_ROOT/scripts/worktree-task-start-guard.sh" \
-  ${DOC_SYNC_LABEL:+--doc-sync-label "$DOC_SYNC_LABEL"} \
-  ${DOC_SYNC_REPO_ID:+--doc-sync-repo-id "$DOC_SYNC_REPO_ID"} \
-  ${DOC_SYNC_PATH_PREFIX:+--doc-sync-path-prefix "$DOC_SYNC_PATH_PREFIX"}
+GUARD_ARGS=()
+if [[ -n "$DOC_SYNC_LABEL" ]]; then GUARD_ARGS+=(--doc-sync-label "$DOC_SYNC_LABEL"); fi
+if [[ -n "$DOC_SYNC_REPO_ID" ]]; then GUARD_ARGS+=(--doc-sync-repo-id "$DOC_SYNC_REPO_ID"); fi
+if [[ -n "$DOC_SYNC_PATH_PREFIX" ]]; then GUARD_ARGS+=(--doc-sync-path-prefix "$DOC_SYNC_PATH_PREFIX"); fi
+(cd "$WT_DIR" && bash scripts/worktree-task-start-guard.sh "${GUARD_ARGS[@]}")
 
-COORD_SCRIPT="$REPO_ROOT/scripts/worktree-coordination-sync.sh"
+COORD_SCRIPT="$WT_DIR/scripts/worktree-coordination-sync.sh"
 if [[ -x "$COORD_SCRIPT" || -f "$COORD_SCRIPT" ]]; then
-  if bash "$COORD_SCRIPT" --repo-root "$REPO_ROOT" --active "$WT_DIR" >/dev/null 2>&1; then
+  if bash "$COORD_SCRIPT" --repo-root "$WT_DIR" --active "$WT_DIR" >/dev/null 2>&1; then
     echo "[worktree-task-start] coordination snapshot frissitve"
   else
     echo "[worktree-task-start] ERROR: coordination snapshot failed" >&2

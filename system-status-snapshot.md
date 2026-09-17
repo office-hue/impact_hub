@@ -3768,3 +3768,11 @@ worktree-private capsule. CI identity remains bound to the authenticated PR
 event tuple; local admission still requires the private capsule. The combined
 Stage A/Stage B suite passes 13/13 and all provider/runtime mutation flags stay
 false.
+
+# 2026-09-17 DEV v4 local context correction candidate
+
+Exact remote main `4cadf15a2ca694fba92a993d39a5e911994e5133` is the base.
+The repo-local starter and AGENTS correction is a source candidate pending
+focused validation and normal PR integration. Stage B still admits only local
+Node/source work as `stage-b-admitted-unverified`; product and host activation
+remain false.

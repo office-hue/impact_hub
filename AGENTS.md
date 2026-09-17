@@ -19,7 +19,8 @@ If any local assistant configuration conflicts with these files, treat the above
 
 ## Session Workflow
 - Session start: run `memory:pre-task` from the `ai-agent` repo.
-- Session end: run `memory:v2:session-save` and `memory:full-sync` from the `ai-agent` repo.
+- For a DEV v4 task, start the local worktree with `--doc-sync-repo-id impact_hub`; the Stage B adapter requires that bound task-start decision. Read the decision and Stage B result in the target worktree. `stage-b-admitted-unverified` is source-only, not release authority.
+- Session end: save a new verified task decision or lesson through the canonical `ai-agent` DEV-memory writer and read it back when there is one. `memory:full-sync` is a separate, explicitly scoped maintenance operation, not a routine session-end step. Report a failed or degraded recall as such.
 
 ## Language
 - All user-facing summaries and handoff notes should be Hungarian unless the task explicitly requires otherwise.
