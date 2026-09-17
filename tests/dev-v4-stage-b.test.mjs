@@ -19,6 +19,9 @@ const decision = readPrivateFixture(decisionPath);
 const verifyCurrentCheckout = () => process.env.GITHUB_ACTIONS === 'true'
   ? verifyStageB(root, null, { marker: {}, decision: {} }, { ...process.env, __ciMode: true })
   : verifyStageB(root);
+const eventBaseSha = () => process.env.GITHUB_ACTIONS === 'true'
+  ? process.env.PR_BASE_SHA
+  : execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
 
 test('Stage B admits only local source work and stays unverified', () => {
   const result = verifyCurrentCheckout();
@@ -74,25 +77,45 @@ test('end-to-end capsule fixtures fail closed for missing or tampered identity',
   }
 });
 
-test('CI accepts only the exact activation PR tuple without a private capsule', () => {
+test('CI accepts a later exact-main PR tuple without a private capsule', () => {
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const baseSha = eventBaseSha();
+  assert.match(baseSha, /^[0-9a-f]{40}$/);
   const eventPath = path.join(os.tmpdir(), `impact-hub-stage-b-event-${process.pid}.json`);
-  fs.writeFileSync(eventPath, JSON.stringify({ repository: { full_name: 'office-hue/impact_hub', id: 1080246107 }, pull_request: { base: { sha: policy.baseStageA.commit }, head: { sha: head } } }));
-  const ciEnv = { __ciMode: true, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit, PR_HEAD_SHA: head };
+  fs.writeFileSync(eventPath, JSON.stringify({ repository: { full_name: 'office-hue/impact_hub', id: 1080246107 }, pull_request: { base: { ref: 'main', sha: baseSha, repo: { full_name: 'office-hue/impact_hub', id: 1080246107 } }, head: { sha: head } } }));
+  const ciEnv = { __ciMode: true, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: baseSha, PR_HEAD_SHA: head };
   assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, ciEnv).decision, 'stage-b-admitted-unverified');
 });
 
 test('CI rejects partial, wrong-repository, wrong-base and wrong-head tuples', () => {
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const baseSha = eventBaseSha();
+  assert.match(baseSha, /^[0-9a-f]{40}$/);
   const eventPath = path.join(os.tmpdir(), `impact-hub-stage-b-event-negative-${process.pid}.json`);
-  fs.writeFileSync(eventPath, JSON.stringify({ repository: { full_name: 'office-hue/impact_hub', id: 1080246107 }, pull_request: { base: { sha: policy.baseStageA.commit }, head: { sha: head } } }));
-  const base = { __ciMode: true, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit, PR_HEAD_SHA: head };
+  const validEvent = { repository: { full_name: 'office-hue/impact_hub', id: 1080246107 }, pull_request: { base: { ref: 'main', sha: baseSha, repo: { full_name: 'office-hue/impact_hub', id: 1080246107 } }, head: { sha: head } } };
+  fs.writeFileSync(eventPath, JSON.stringify(validEvent));
+  const base = { __ciMode: true, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: baseSha, PR_HEAD_SHA: head };
   for (const variant of [
     { ...base, GITHUB_REPOSITORY: 'office-hue/other' },
     { ...base, PR_BASE_SHA: '0'.repeat(40) },
     { ...base, PR_HEAD_SHA: '0'.repeat(40) },
-    { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: policy.baseStageA.commit },
+    { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: baseSha },
   ]) assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, variant).decision, 'protected');
+  for (const changed of [
+    { ...validEvent, repository: { ...validEvent.repository, id: 0 } },
+    { ...validEvent, pull_request: { ...validEvent.pull_request, base: { ...validEvent.pull_request.base, ref: 'release' } } },
+    { ...validEvent, pull_request: { ...validEvent.pull_request, base: { ...validEvent.pull_request.base, repo: { full_name: 'office-hue/other', id: 1080246107 } } } },
+    { ...validEvent, pull_request: { ...validEvent.pull_request, base: { ...validEvent.pull_request.base, sha: head } } },
+    { ...validEvent, pull_request: { ...validEvent.pull_request, head: { sha: baseSha } } },
+  ]) {
+    fs.writeFileSync(eventPath, JSON.stringify(changed));
+    assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, base).decision, 'protected');
+  }
+  const beforeStageA = execFileSync('git', ['rev-parse', `${policy.baseStageA.commit}^`], { encoding: 'utf8' }).trim();
+  const earlyBaseEvent = { ...validEvent, pull_request: { ...validEvent.pull_request, base: { ...validEvent.pull_request.base, sha: beforeStageA } } };
+  fs.writeFileSync(eventPath, JSON.stringify(earlyBaseEvent));
+  assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, { ...base, PR_BASE_SHA: beforeStageA }).decision, 'protected');
+  fs.writeFileSync(eventPath, JSON.stringify(validEvent));
   const spoofed = { ...base };
   delete spoofed.__ciMode;
   assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, spoofed).decision, 'protected');

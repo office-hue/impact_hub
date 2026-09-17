@@ -91,7 +91,9 @@ export function verifyStageB(root = MODULE_ROOT, injectedPolicy = null, injected
       const eventPath = injectedEnv.GITHUB_EVENT_PATH;
       if (!eventPath || !path.isAbsolute(eventPath) || !fs.existsSync(eventPath) || fs.lstatSync(eventPath).isSymbolicLink() || fs.statSync(eventPath).size > 1024 * 1024) return protectedResult('ci-event-invalid');
       const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== TARGET_REPO_ID || event.pull_request?.base?.sha !== STAGE_A || event.pull_request?.head?.sha !== head || injectedEnv.PR_BASE_SHA !== event.pull_request.base.sha || injectedEnv.PR_HEAD_SHA !== event.pull_request.head.sha || injectedEnv.PR_BASE_SHA !== STAGE_A || injectedEnv.PR_HEAD_SHA !== head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD') || !isAncestor(canonical, STAGE_A, head)) return protectedResult('ci-pr-tuple-invalid');
+      const prBase = event.pull_request?.base;
+      const prHead = event.pull_request?.head;
+      if (event.repository?.full_name !== 'office-hue/impact_hub' || event.repository?.id !== TARGET_REPO_ID || prBase?.repo?.full_name !== 'office-hue/impact_hub' || prBase?.repo?.id !== TARGET_REPO_ID || prBase?.ref !== 'main' || prBase?.sha !== injectedEnv.PR_BASE_SHA || prHead?.sha !== injectedEnv.PR_HEAD_SHA || prHead?.sha !== head || prBase.sha === head || injectedEnv.PR_HEAD_SHA !== git(canonical, 'rev-parse', 'HEAD') || !objectExists(canonical, `${prBase.sha}^{commit}`) || !isAncestor(canonical, STAGE_A, prBase.sha) || !isAncestor(canonical, prBase.sha, head)) return protectedResult('ci-pr-tuple-invalid');
     } else {
       const marker = injectedCapsules?.marker ?? capsule(canonical, 'worktree-active.json');
       const decision = injectedCapsules?.decision ?? capsule(canonical, 'worktree-task-start-decision.json');

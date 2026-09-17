@@ -69,3 +69,11 @@ and decision matched its own root; Stage B returned only
 `stage-b-admitted-unverified`. The obsolete routine session-end full-sync rule
 was removed. This protected control change still needs the PR's full-validation
 lane and grants no provider, host, runtime or release authority.
+
+The first PR #50 run passed full Jest and then stopped at `ci-pr-tuple-invalid`:
+the native Stage B CI gate still required the one-time Stage A activation SHA
+as every future PR base. The corrected gate binds the authenticated event's
+`main` base and exact head to the checkout, with Stage A ancestry through the
+base; negative repo/ref/SHA/ancestry fixtures preserve fail-closed behavior.
+No Stage A pin or source-only capability bit changes. Final CI readback is
+required before calling this correction merged.

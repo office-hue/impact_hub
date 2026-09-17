@@ -185,3 +185,7 @@ the coupon harvester, provider jobs or deployment.
   tovabbra is erossebb a globalis kontextusnal.
 - Ez a javitas local source-only governance; a Stage B kimenete tovabbra is
   `stage-b-admitted-unverified`, live release authority nelkul.
+- Az egyszeri Stage B activation PR utan a CI gate a kovetkezo PR-eknel a
+  GitHub-esemeny pontos `main` base/head SHA-jat, target repoazonossagat es
+  `Stage A -> PR base -> checkout HEAD` osviszonyat koveteli. A Stage A
+  immutabilis fajlpinek es a source-only authority nem valtoznak.

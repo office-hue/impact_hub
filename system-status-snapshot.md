@@ -3776,3 +3776,9 @@ The repo-local starter and AGENTS correction is a source candidate pending
 focused validation and normal PR integration. Stage B still admits only local
 Node/source work as `stage-b-admitted-unverified`; product and host activation
 remain false.
+
+The first PR #50 run passed full Jest but failed the native Stage B CI tuple
+because the adapter still pinned every future PR base to the old Stage A
+activation commit. The bounded CI correction binds the current PR event's
+exact `main` base/head and Stage A ancestry; this is a source candidate until
+the next CI readback passes. Provider/runtime authority remains false.
