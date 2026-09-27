@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "componentId": "dev.delivery.control-plane",
+  "planId": "impact-hub-dev-v4-local-20260927",
+  "stateDirectory": "codex-delivery",
+  "permissions": {"directoryMode": "0700", "fileMode": "0600", "symlinkAllowed": false},
+  "plan": {"manifestBegin": "<!-- DEV-DELIVERY-V2-MANIFEST", "manifestEnd": "DEV-DELIVERY-V2-MANIFEST -->", "allowedModes": ["planning", "local", "ci"], "allowedRiskTiers": ["low", "medium", "high"], "allowedReleaseProfiles": ["source-only"], "defaultMode": "local"},
+  "evidence": {"schemaVersion": 2, "maximumCommandOutputBytes": 1048576, "maximumBytes": 65536, "absoluteHomePathAllowed": false, "rawProviderResponseAllowed": false, "secretMaterialAllowed": false, "requiredChecksByProfile": {}, "registeredCommands": {}},
+  "taskRequirements": {"schemaVersion": 1, "authority": "single-policy-table", "requiredDocumentSections": ["scope", "acceptance", "validation", "rollback"], "classes": {"docs-only": {"requiredChecks": []}, "governance-only": {"requiredChecks": []}, "code-local": {"requiredChecks": []}, "protected": {"requiredChecks": []}, "deploy": {"requiredChecks": []}, "unknown": {"requiredChecks": []}}, "pathRequiredChecks": {}}
+}

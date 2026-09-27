@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.activation-policy",
+  "status": "active",
+  "authority": "base-git-object",
+  "repoId": "impact_hub",
+  "requiredBaseObjects": [
+    "config/dev-v4/activation-policy.v1.json",
+    "config/dev-v4/task-selectors.v1.json",
+    "config/dev-v4/graded-delivery.v1.json",
+    "config/dev-delivery-v2-policy.json"
+  ],
+  "states": ["implementation-ready", "planning-only", "blocked", "v2-only"],
+  "precedence": ["v2-blocked", "v4-blocked", "v2-attention", "v4-degraded", "admitted"],
+  "candidateAuthority": false,
+  "providerMutationAllowed": false,
+  "hostMutationAllowed": false,
+  "runtimeMutationAllowed": false,
+  "secretMaterialAllowed": false,
+  "maximumInputBytes": 262144
+}
