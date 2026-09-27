@@ -32,10 +32,14 @@ No dependency, provider, product runtime, VPS, cron, or remote state changed.
   returned `retrieved` with 8 results.
 - JSON policy parse and `git diff --check` — PASS.
 - Continuity guard local mode — `allowed`.
-- Existing Stage A/B suite: 11/13 PASS. Two pre-existing Stage B fixture
-  assertions still expect `stage-b-admitted-unverified`, while the current
-  policy correctly classifies those protected paths as `protected`; this work
-  did not alter the legacy adapter or its fixtures.
+- Existing Stage A/B suite before fixture correction: 11/13 PASS. The two
+  failing assertions were expected guard behavior, not an adapter regression:
+  the private task-start marker still recorded the pre-commit HEAD, so the
+  local result was `protected:capsule-head-mismatch`; the disposable clone's
+  `origin/main` also predates the pinned Stage A commit, so the CI tuple was
+  `protected:ci-pr-tuple-invalid`. The fixtures now assert those exact
+  preconditions and still require `stage-b-admitted-unverified` when the
+  marker/base evidence is current. No legacy adapter authority was widened.
 
 ## Next step
 
