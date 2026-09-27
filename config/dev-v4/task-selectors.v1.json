@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.task-selectors",
+  "status": "active",
+  "authority": "base-git-object",
+  "exclusiveWriteSurfaces": [
+    {"path": "config/dev-v4/", "owner": "dev-governance-source"},
+    {"path": "config/dev-delivery-v2-policy.json", "owner": "dev-governance-source"},
+    {"path": "AGENTS.md", "owner": "dev-governance-source"},
+    {"path": "scripts/dev-v4-", "owner": "dev-governance-source"},
+    {"path": "tests/dev-v4-", "owner": "dev-governance-source"}
+  ],
+  "selectors": {
+    "standard-source-brief": {
+      "planType": "standard",
+      "riskCeiling": "medium",
+      "lane": "standard",
+      "requiresPlanId": false,
+      "requiresTaskBrief": false,
+      "writeSurface": ["apps/", "packages/", "tools/", "config/", "scripts/", "tests/", "docs/", "notes.md", "system-status-snapshot.md"],
+      "requiredCapabilities": ["node-test"]
+    },
+    "dev-governance-source": {
+      "planType": "protected",
+      "riskCeiling": "high",
+      "lane": "protected",
+      "requiresPlanId": true,
+      "writeSurface": ["AGENTS.md", "config/dev-v4/", "config/dev-delivery-v2-policy.json", "scripts/dev-v4-", "tests/dev-v4-", "docs/", "notes.md", "system-status-snapshot.md"],
+      "requiredCapabilities": ["node-test", "git-readback"]
+    }
+  },
+  "unknownDecision": "protected",
+  "candidateAuthority": false
+}

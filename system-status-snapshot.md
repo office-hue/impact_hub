@@ -3704,6 +3704,16 @@ _Manual update: 2026-03-08 14:02:00_
 ## 2026-03-09 Workflow Infra Update
 - Dev-memory workflow 1-8 aktiválva (pre-task, context-pack, memory gate, PR auto-memory, commit template/hook, incident, digest, Copilot MCP guard).
 - Hookok újratelepítve; napi digest cron aktív.
+
+## 2026-09-27 DEV v4 installed-controller adapter status
+
+- Impact Hub target adapter source candidate is review-complete after the
+  Terra/high P1 correction; the continuity wording correction is docs-only.
+- Focused evidence: Stage A/B 13/13 PASS, adapter execution-path 7/7 PASS,
+  installed CLI start/status/resume/context smoke PASS, `git diff --check`
+  PASS, continuity guard `allowed`.
+- No provider build/deploy, VPS, runtime, cron, secret, dependency or other
+  live mutation occurred. Push/PR/merge remains 0/0/0.
 2026-06-16T18:20:00Z | feat(dev-guard/local-governance-sync-enforcement): a local pre-push audit most mar fail-closed modon megkoveteli, hogy a guard/governance/policy lane valtozasai a helyi governance system plan frissitesevel egyutt menjenek ki. Erintett fajlok: `scripts/safe-repo-audit.sh`, `scripts/git-health-check.sh`, `AGENTS.md`, `docs/impact-hub-governance-system-plan-2026-06-16.md`.
 [2026-06-23T15:55:00Z] | docs(doc-sync/local-canonical-map): az `impact_hub` repo megkapta a sajat contract-kompatibilis local canonical doc-sync mapjet (`docs/impact-hub-doc-sync-map-2026-06-23.md`). A helyi map most mar egy helyen oldja fel a governance, recovery/deploy/guard, env/auth/runtime es coupon workflow doku-truthokat, es a `README.md` valamint a helyi governance hub felol is elerheto.
 ## 2026-06-24T15:15:00+0200 - local worktree runtime starter minimum added

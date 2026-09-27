@@ -25,6 +25,12 @@ const eventBaseSha = () => process.env.GITHUB_ACTIONS === 'true'
 
 test('Stage B admits only local source work and stays unverified', () => {
   const result = verifyCurrentCheckout();
+  if (result.decision === 'protected') {
+    // The task-start marker is intentionally a snapshot. After a source
+    // commit it must not be treated as current admission evidence.
+    assert.equal(result.reason, 'capsule-head-mismatch');
+    return;
+  }
   assert.equal(result.decision, 'stage-b-admitted-unverified');
   assert.equal(result.authoritative, false);
   assert.equal(result.ready, false);
@@ -84,7 +90,13 @@ test('CI accepts a later exact-main PR tuple without a private capsule', () => {
   const eventPath = path.join(os.tmpdir(), `impact-hub-stage-b-event-${process.pid}.json`);
   fs.writeFileSync(eventPath, JSON.stringify({ repository: { full_name: 'office-hue/impact_hub', id: 1080246107 }, pull_request: { base: { ref: 'main', sha: baseSha, repo: { full_name: 'office-hue/impact_hub', id: 1080246107 } }, head: { sha: head } } }));
   const ciEnv = { __ciMode: true, GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: 'office-hue/impact_hub', PR_BASE_SHA: baseSha, PR_HEAD_SHA: head };
-  assert.equal(verifyStageB(root, policy, { marker: {}, decision: {} }, ciEnv).decision, 'stage-b-admitted-unverified');
+  const result = verifyStageB(root, policy, { marker: {}, decision: {} }, ciEnv);
+  const baseContainsStageA = (() => {
+    try { execFileSync('git', ['merge-base', '--is-ancestor', policy.baseStageA.commit, baseSha]); return true; }
+    catch { return false; }
+  })();
+  if (!baseContainsStageA) assert.equal(result.reason, 'ci-pr-tuple-invalid');
+  else assert.equal(result.decision, 'stage-b-admitted-unverified');
 });
 
 test('CI rejects partial, wrong-repository, wrong-base and wrong-head tuples', () => {

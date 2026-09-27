@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "contractId": "dev-v4.graded-delivery",
+  "status": "active",
+  "defaultLane": "standard",
+  "lanes": {
+    "maintenance": {"purpose": "documentation-and-local-maintenance", "allowedRiskTiers": ["low"], "requiredCapabilities": [], "requiredEvidence": ["worktree-identity", "targeted-tests"], "model": {"id": "gpt-5.6-luna", "reasoning": "medium"}, "evidenceTtlClass": "live-prestate", "evidenceTtlSeconds": 900, "provider": {"mode": "none", "builds": 0, "deployments": 0}, "escalateOn": ["runtime", "security", "data", "provider", "unknown"]},
+    "standard": {"purpose": "bounded-source-change", "allowedRiskTiers": ["low", "medium"], "requiredCapabilities": ["node-test"], "requiredEvidence": ["worktree-identity", "targeted-tests", "diff-check", "continuity"], "model": {"id": "gpt-5.6-luna", "reasoning": "medium"}, "evidenceTtlClass": "candidate", "evidenceTtlSeconds": 86400, "provider": {"mode": "source-only", "builds": 0, "deployments": 0}, "escalateOn": ["high-risk", "security", "runtime", "data", "provider", "unknown"]},
+    "protected": {"purpose": "governance-or-cross-system-change", "allowedRiskTiers": ["low", "medium", "high"], "requiredCapabilities": ["node-test", "git-readback"], "requiredEvidence": ["worktree-identity", "full-validation", "security-review", "diff-check", "continuity"], "model": {"id": "gpt-5.6-sol", "reasoning": "high"}, "evidenceTtlClass": "immutable-toolchain", "evidenceTtlSeconds": 604800, "provider": {"mode": "source-only", "builds": 0, "deployments": 0}, "escalateOn": ["provider-mutation", "vps", "production", "operator", "unknown"]}
+  },
+  "escalation": {"order": ["maintenance", "standard", "protected"], "unknownInputDecision": "protected", "missingCapabilityDecision": "escalate", "expiredEvidenceDecision": "recollect", "providerMutationDecision": "block"},
+  "laneAuthority": "base-owned-classifier",
+  "globalGuards": {"selfApproval": false, "candidateIsAuthority": false, "liveMutationAllowed": false, "secretMaterialAllowed": false, "maximumInputBytes": 262144}
+}
