@@ -4,10 +4,12 @@
 
 - Branch: `fix/dev-v4-installed-controller-adapter-20260927`
 - Base: target `origin/main` at `007556be909bfb3612435594ffd9dea9309fd585`
-- Commits: `b0ebdf36cb601a7e1dffeb68beb3ad2238d1525c`, `964d940fc3e8a471e376cceafd8278e9aa535bb7`
-- Current HEAD: `964d940fc3e8a471e376cceafd8278e9aa535bb7`
-- Current tree: `264572ed762929c63150abb22c389d2394e603a7`
-- Worktree: Air disposable adapter worktree; clean after the checkpoint
+- Historical pre-correction tuple (superseded, not final identity): commits
+  `b0ebdf36cb601a7e1dffeb68beb3ad2238d1525c`,
+  `964d940fc3e8a471e376cceafd8278e9aa535bb7`; tree
+  `264572ed762929c63150abb22c389d2394e603a7`.
+- Final HEAD/tree are intentionally omitted from this continuity file and must
+  be reported from `git rev-parse HEAD` and `git rev-parse HEAD^{tree}` at handover.
 
 ## Change and boundary
 
@@ -16,15 +18,15 @@ DEV v4 engine. `scripts/dev-v4-installed-controller-adapter.mjs` is a thin
 target wrapper: it accepts only the target origin and the two repo selectors,
 checks the retained installed engine descriptor, rejects candidate-only policy,
 and forwards start to the installed controller. `status`, `resume`, and
-`projection` remain read-only. A legacy Stage A marker is exposed as
-`legacy-unverified` with current identity comparison; it is never rewritten or
-promoted to v3 state.
+`projection` remain read-only. A legacy Stage A marker is forwarded as the
+installed controller's `blocked:unsupported_legacy_marker` result with a
+non-zero exit; it is never rewritten or promoted to v3 state.
 
 No dependency, provider, product runtime, VPS, cron, or remote state changed.
 
 ## Evidence
 
-- Adapter tests: `node --test tests/dev-v4-installed-controller-adapter.test.mjs` — 5/5 PASS.
+- Adapter tests: `node --test tests/dev-v4-installed-controller-adapter.test.mjs` — 7/7 PASS.
 - Installed CLI isolated smoke using a local bare origin with canonical GitHub URL:
   `start -> status -> resume -> context --refresh -> context --consume` — PASS.
   The retained engine was verified at digest
