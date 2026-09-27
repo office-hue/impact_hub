@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 const TARGET_ORIGINS = new Set([
   'https://github.com/office-hue/impact_hub.git',
@@ -20,6 +20,15 @@ export function controllerPath(env = process.env) {
 
 export function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+export function installedEngineDescriptor(env = process.env) {
+  if (env.OFFICE_DEV_ENGINE_DESCRIPTOR) return readJson(env.OFFICE_DEV_ENGINE_DESCRIPTOR);
+  const root = path.dirname(path.dirname(controllerPath(env)));
+  const active = readJson(path.join(root, 'defaults', 'dev-v4.json'));
+  const descriptor = path.join(root, 'packages', 'dev-v4', active.packageDigest,
+    active.sourceCommit, 'files', 'engine-descriptor.json');
+  return readJson(descriptor);
 }
 
 export function assertTargetOrigin(repo, origin = execFileSync(
@@ -77,23 +86,6 @@ export function buildArgs(repo, operation, options = {}) {
   return args;
 }
 
-export function legacyProjection(repo) {
-  const marker = execFileSync('git', ['-C', repo, 'rev-parse', '--git-path', 'worktree-active.json'], { encoding: 'utf8' }).trim();
-  if (!fs.existsSync(marker)) return null;
-  const value = readJson(marker);
-  if (value.schemaVersion !== 2 || typeof value.branch !== 'string' || typeof value.path !== 'string') {
-    throw new Error('legacy_marker_invalid');
-  }
-  const head = execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  const tree = execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim();
-  return {
-    status: 'legacy-unverified', writes: false, source: 'repo-local-stage-a',
-    capsule: { schemaVersion: value.schemaVersion, branch: value.branch, path: value.path,
-      baseCommit: value.baseCommit || null, recordedHead: value.head || null, recordedTree: value.tree || null,
-      currentHead: head, currentTree: tree, identityCurrent: value.head === head && value.tree === tree },
-  };
-}
-
 export function run(argv = process.argv.slice(2), env = process.env) {
   const [operation, ...rest] = argv;
   const repo = env.OFFICE_DEV_REPO || process.cwd();
@@ -111,18 +103,15 @@ export function run(argv = process.argv.slice(2), env = process.env) {
   }
   const targetRepo = options.repo || repo;
   assertTargetOrigin(targetRepo);
-  if (READ_ONLY.has(operation)) {
-    const state = execFileSync('git', ['-C', targetRepo, 'rev-parse', '--git-path', 'dev-v4-lifecycle/state.json'], { encoding: 'utf8' }).trim();
-    if (!fs.existsSync(state)) {
-      const legacy = legacyProjection(targetRepo);
-      if (legacy) { console.log(JSON.stringify(legacy)); return null; }
-    }
-  }
+  assertTargetPolicy(targetRepo, options.selector || 'standard-source-brief', installedEngineDescriptor(env));
   const args = buildArgs(targetRepo, operation, options);
-  const result = spawn(controllerPath(env), args, { stdio: 'inherit', env });
-  return result;
+  const result = spawnSync(controllerPath(env), args, { stdio: ['inherit', 'pipe', 'pipe'], env });
+  if (result.stdout?.length) process.stdout.write(result.stdout);
+  if (result.stderr?.length) process.stderr.write(result.stderr);
+  if (result.error) throw result.error;
+  return result.status ?? 1;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  try { run(); } catch (error) { console.error(JSON.stringify({ status: 'blocked', error: error.message })); process.exitCode = 1; }
+  try { process.exitCode = run(); } catch (error) { console.error(JSON.stringify({ status: 'blocked', error: error.message })); process.exitCode = 1; }
 }
