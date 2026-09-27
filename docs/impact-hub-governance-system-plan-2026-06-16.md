@@ -189,3 +189,20 @@ the coupon harvester, provider jobs or deployment.
   GitHub-esemeny pontos `main` base/head SHA-jat, target repoazonossagat es
   `Stage A -> PR base -> checkout HEAD` osviszonyat koveteli. A Stage A
   immutabilis fajlpinek es a source-only authority nem valtoznak.
+
+## 2026-09-27 installed-controller adapter continuity
+
+Az `impact_hub` target repo-local DEV v4 policy bundle-t es vekony
+installed-controller adaptert tartalmaz. Az adapter a canonical origin,
+retained engine digest es a nem-candidate policy ellenorzese utan tovabbitja a
+`start` muveletet; a `status` es `resume` irasmentes. Legacy marker eseten a
+controller valodi `blocked:unsupported_legacy_marker` eredmenye marad ervenyben.
+
+A celzott Stage A/B ellenorzes 13/13, az adapter execution-path teszt 7/7,
+az izolalt installed CLI start/status/resume/context smoke PASS. Ez
+source-only continuity bizonyitek: provider, build, deploy, VPS, runtime,
+cron, secret, dependency es termekadat mutacio nem tortent.
+
+Rollback: elutasitas eseten a policy/adapter forrascommitokat egy reviewzott
+revertben kell visszavenni; runtime apply vagy live rollback ehhez a slice-hoz
+nem tartozik.

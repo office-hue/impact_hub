@@ -77,3 +77,18 @@ as every future PR base. The corrected gate binds the authenticated event's
 base; negative repo/ref/SHA/ancestry fixtures preserve fail-closed behavior.
 No Stage A pin or source-only capability bit changes. Final CI readback is
 required before calling this correction merged.
+
+## 2026-09-27 installed-controller adapter continuity
+
+The Impact Hub target now carries the DEV v4 policy bundle and a thin
+installed-controller adapter. It validates the canonical origin, retained
+engine digest and non-candidate policy before forwarding `start`; `status` and
+`resume` remain read-only. A legacy marker is forwarded as the controller's
+`blocked:unsupported_legacy_marker` result. Stage A/B validation is 13/13,
+adapter execution-path validation is 7/7, and the isolated installed CLI
+start/status/resume/context smoke passed.
+
+This is source-only evidence. No provider, build, deploy, VPS, runtime, cron,
+secret, dependency or product-data mutation occurred. If the candidate is not
+accepted, revert the policy and adapter source commits as one reviewed change;
+no runtime apply or live rollback is involved.
