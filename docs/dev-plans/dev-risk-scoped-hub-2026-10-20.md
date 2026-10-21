@@ -1,5 +1,142 @@
 # Hub DEV T1 — exact source plan and native recovery boundary
 
+## 2026-10-21 — Approved pre-T1 bootstrap amendment
+
+Arnold's explicit "jóváhagyom" approves the requested one docs-anchor native
+context exception and Hub-only five-hook transactional repair. This is scope/
+order approval, not a fabricated machine grant or proof of installed bytes.
+Current base-selector readback is narrower than the initial proposal below:
+dev-governance-source owns scripts/dev-v4-* and tests/dev-v4-*, NOT the three
+generic shell helpers. The bounded implementation therefore adds
+scripts/dev-v4-target-hooks.mjs and tests/dev-v4-hook-compatibility.test.mjs,
+and extends the existing installed-controller adapter/test. No generic shell
+helper is edited in T1; native Git invokes the reviewed installed hooks.
+Their legacy wrapper/installer corrections remain T2 with its actual policy
+admission. This supersedes only the earlier proposed T1 four-path expansion.
+No alias/config write or unchecked old guarded-push/install-hooks-all execution.
+
+The new renderer emits only the five hook images as data; no shared hook or
+Git-config write. The merged central transaction executor remains the sole
+writer. Its images call the existing adapter for v3, retain embedded native
+legacy identity checks without depending on an absent v3 adapter, and preserve
+ref/origin/exact-range/audit requirements. Post-event images perform only local
+observation and preserve checkout mismatch warning; no npm or foreign writer.
+
+The existing two local-commit exceptions are consumed and are not reused.
+The following observations are retained as the pre-implementation baseline.
+Current clean source was verified at
+`4a4aa16bea7be13da7ffb3000ac8ecf1616623ab`, tree
+`ff2f4e245477e79f40080c351a1d2347307e9d9f`; real v3 state remains revision3,
+implementation-ready, original codeBase/policyCommit
+`15d8c1a380401a167c0f3e13e54b9b8ad5f21078` and plan anchor
+`b598b0007775491ac3e6f42906a9c743afefc593`.
+
+### Complete installed-hook boundary
+
+The native common-dir pre-commit/pre-push reject missing legacy markers before
+repo-local code. Pre-push also calls a fixed foreign ai-agent memory script.
+The initial two-hook proposal was incomplete: post-commit starts foreign npm
+memory capture/sync; post-merge and post-checkout run workspace-wide refresh,
+with post-merge also saving a session. The latter two write a global refresh
+timestamp. These paths were read, NOT executed. Ten registered Hub checkouts
+share the common repository; this is not an own-worktree-only live mutation.
+
+Proposed live write set is FIVE existing common-dir hook files only:
+pre-commit, pre-push, post-commit, post-merge, post-checkout. commit-msg remains
+byte-unchanged. No Git aliases/config, installed defaults, task state, foreign
+worktree source, Notes or central hook is a target.
+
+Observed mode is0755 for all; exact preimage SHA-256:
+
+| Hook | Preimage |
+| --- | --- |
+| pre-commit | `6ba6e2a3054b888446032068a6b55db89f18933f13d9f56f7670c5347dff80a5` |
+| pre-push | `b2bff3fc858b5a02a2a2356e9cb9d7944a269f01f4550ff8d9e212dc20ba826d` |
+| post-commit | `9f133032a05f0cd57719747a0bcedd51ce2c36a5665db8f10828a9f138b55417` |
+| post-merge | `83566d97ab9561fcb262a6d9694a76fde3487796e8a4ffb5701b4820aa0f2d4b` |
+| post-checkout | `590f0a4e51af51b963ba2673eb11401c7d17598afeb90bd85d0633b12c2f18f2` |
+| unchanged commit-msg | `0da0638f6a72f4b38edea28cfc36ebc60cb21bfd1a675e9dced7a8b9c1722494` |
+
+The read-only central hook matrix observed no dependent-activation routing
+block, writes:false and authorityGranted:false. It is a routing observation,
+not trusted hook contents, freshness at apply, a lease or activation permission.
+
+### Smallest source package after amendment admission
+
+1. Existing installed-controller adapter/test: add a bounded v3 continuity read
+   of installed status, exact original task/base/policy/engine/current Git pins,
+   ready policy, safe state files and stable before/after reads. Neither HOME,
+   PATH nor other caller overrides may select the production trusted controller.
+   Validated local dirty source is allowed for a commit; clean exact HEAD is
+   required for push. No state/marker synthesis or publication permission.
+2. Add `scripts/worktree-continuity-guard.sh` to bound scope: v3-only dispatch
+   without fallback on unsafe/orphan state; unchanged legacy identity path when
+   no v3 namespace exists. Missing adapter on v3 blocks, never downgrades.
+3. Move `scripts/guarded-push.sh` and `scripts/install-hooks-all.sh` from T2-only
+   to T1 as well. Remove sibling discovery/commands; the latter becomes a
+   current-repo-only deterministic render/transaction interface, not a loop over
+   repos or an alias/config writer. No direct overwrite fallback.
+4. Five rendered hooks must retain main/master and ref protection, origin and
+   actual transport checks, exact per-ref source range, required repo-local
+   policy/audit checks, legacy identity behavior and checkout mismatch warning.
+   The old pre-push exports range variables which this repo's audit does not
+   consume: use its existing `--mode range --base <sha> --head <sha>` interface
+   for each accepted push row. Reject unsupported/unknown input before effects.
+   Post-event hooks retain local observation only, without background jobs,
+   npm, shared-memory timestamp or sibling writes. commit-msg is not regenerated.
+5. Add `tests/dev-v4-hook-compatibility.test.mjs` to T1. Private fixtures cover
+   v3 valid/blocked/stale/recovery/pin mismatch, no-v3 legacy, missing adapter,
+   dirty push, main/ref/origin/transport/actual-range errors, unknown refs,
+   all five event paths, foreign sentinel unchanged, no network/background
+   execution, alternate hook config, render determinism and postimage parity.
+   Use existing Stage B entrypoint for registration; Stage A verifier, immutable
+   snapshots and active root v1 policies remain unchanged. No test is yet run.
+6. Central exact target phases add the four new Hub source paths above;
+   existing adapter/tests already fit. DOCSYNC uses the current six allowed
+   target documents. No broad script prefix or provider permission expansion.
+
+### Non-circular bootstrap and recovery sequence
+
+Existing merged central executor `dev-v4-target-hook-install.py` and its two
+fixed siblings are sufficient; do not invent another installer. Its prepare
+does not require a merged or clean Hub candidate: it binds truthful committed
+HEAD/tree and exact approved hook bytes. It does NOT bind the uncommitted
+scripts called by those hooks. Independent review/frozen source hashes and
+staged tree comparison therefore cover those dependencies before every apply.
+Do not claim candidate hashes are a self-issued authority.
+
+Order: authorize this bounded amendment including the single initial docs-only
+checkpoint exception below → commit/bind the expanded plan → reviewed private source/hook images
+and dependency freeze → exact native host/common-dir/routing/preimages plus
+independent executor/runtime/source approval → explicit short Git/hook/config
+writer quiescence across this Hub common-dir → prepare/freeze manifest →
+fresh single-use grant/lease → apply five files with durable per-file journal →
+postimage/native/old-worktree fixture readback → finish any necessary rollback
+BEFORE native HEAD advances → native commit/bind/push under their own gates.
+
+The first plan anchor is a NEW explicitly approved docs-only native commit:
+verified own current v3 identity, exact staged plan/continuity and expanded
+finite file list, native main/integrity/commit-msg checks retained, supported
+per-command context exception only, system tools plus existing rg with npm
+absent to prevent the unchanged post-commit foreign-memory writer. Freeze and
+read back exact staged/commit tree; then supported same-task bind. It is not
+either consumed exception and permits no push, host apply or later commit
+bypass. Without approval, even this preparatory commit does not run.
+The manifest cannot be expanded/bound through a fabricated legacy marker.
+No hook-image, approved manifest, grant or lease currently exists.
+
+After commit changes HEAD/tree, the original transaction cannot restore hooks.
+Any later restore requires a separately approved fresh transaction bound to the
+new HEAD with preserved original preimages, journals and nonces. No manual
+restore or claim of unconditional rollback. Multi-file apply is not atomic.
+Uncertain mutation permits status/readback only, not replay.
+
+Final acceptance still requires native Hub T1 publication, central finite scope,
+all four merge witnesses, Air/Mini dual-reader stage, T2 policy rollout and
+both hosts' new/old-task checks. This amendment activates no root v2 policy.
+No main fetch, provider call, source commit, shared-hook mutation or new agent
+was performed for this diagnostic addendum. No quiet window is held.
+
 Status: reviewed local source candidate; native recovery explicitly approved
 by Arnold on 2026-10-21, limited to the two local commits described below.
 
@@ -19,7 +156,9 @@ by Arnold on 2026-10-21, limited to the two local commits described below.
     "changeImpact": "governance-only", "riskTier": "high", "releaseProfile": "source-only",
     "changeAllowlist": [
       "scripts/dev-v4-installed-controller-adapter.mjs",
+      "scripts/dev-v4-target-hooks.mjs",
       "tests/dev-v4-installed-controller-adapter.test.mjs",
+      "tests/dev-v4-hook-compatibility.test.mjs",
       "tests/dev-v4-stage-b.test.mjs",
       "docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md",
       "docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md",

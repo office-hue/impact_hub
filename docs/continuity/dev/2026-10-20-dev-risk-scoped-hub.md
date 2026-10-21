@@ -110,3 +110,39 @@ unstaged-WIP and memory-unavailable warnings. This local WIP checkpoint is not
 publication approval or a fabricated canonical check/review receipt.
 No active quiet window needed. Preserve SUBSTACK-HANDOVER.md as reference to
 separate author context only; no editorial load/task claimed.
+## 2026-10-21 — Complete pre-T1 hook dependency diagnosis
+
+Own source remains HEAD4a4aa16bea7be13da7ffb3000ac8ecf1616623ab,
+treeff2f4e245477e79f40080c351a1d2347307e9d9f; no code/hook/state change.
+Installed pre-commit/pre-push block before repo code; post-commit, post-merge
+and post-checkout additionally write foreign memory/global refresh state.
+Thus the previous two-hook bootstrap proposal is superseded by a pending
+five-hook, Hub-common-dir-only amendment. Ten registered checkouts are affected
+by that shared surface; none of their source trees was edited.
+
+The existing transaction executor can consume independently reviewed hook
+bytes before target merge, but not self-authorize uncommitted dependent code.
+Original rollback is valid only before target HEAD changes; later restoration
+requires a new exact-head transaction preserving original journals/preimages.
+The first bound plan-anchor/bootstrap ordering remains an explicit approval
+condition, not a reason to reuse the two consumed commit exceptions.
+Full exact paths, preimage hashes, parity tests, no-sibling-write contract and
+operation ordering are appended to the existing source plan.
+
+Operations package94e05d378a7a5b5be715d52ffa73dbce13539ca332ca1e37c53d89986f7f4b61
+was verified by installed dispatcher describe. Hook-matrix read-only observation
+had writes:false/authorityGranted:false; no hook was executed or trusted solely
+from that result. No grants, images, native commits, network/provider/CI calls,
+installs or activation. The outstanding user amendment was required at that point.
+
+## Explicit approval and source ownership correction
+
+Arnold subsequently approved the scoped docs checkpoint and five-hook repair.
+Actual base selector owns scripts/dev-v4-* and tests/dev-v4-*, not the generic
+shell scripts. T1 therefore uses new deterministic dev-v4-target-hooks.mjs and
+dev-v4-hook-compatibility.test.mjs, plus existing adapter/test. Native Git hooks
+provide the approved publication route; generic wrapper/installer edits stay
+T2. This avoids any selector expansion or fabricated source authority.
+The next docs commit consumes only this NEW one-operation context exception,
+with verified actual v3 task, exact staged tree and npm excluded. Main checks
+remain enabled. After supported bind, source implementation may proceed.
