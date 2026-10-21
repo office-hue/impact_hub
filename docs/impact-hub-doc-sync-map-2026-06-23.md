@@ -1,11 +1,14 @@
 # Impact-Hub Doc Sync Map
 
-## 2026-10-20 — DEV T1 plan, native recovery pending
+## 2026-10-21 — DEV T1 source candidate, publication pending
 
 Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; evidence/next
-docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Planning-only; SECRETARY
-engine verified/packet absent. Native marker/foreign post-commit writing needs
-safe resolution before any commit/bind. No code/policy/hook change or readiness.
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Anchor b598b000 and supported
+bind revision2/implementation-ready; adapter59/59, combined entrypoint68/68,
+independent five-axis/security review complete. Real SECRETARY render verified/
+writes:false/packet absent, state unchanged. Actual Stage B remains protected;
+pre-push registration failures remain. Native exception only for two explicitly
+approved local commits; no policy/hook/provider/runtime mutation or live readiness.
 
 Datum: 2026-06-23
 Statusz: canonical local doc-sync map

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
+import './dev-v4-installed-controller-adapter.test.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const policyPath = path.join(root, 'config/dev-v4/stage-b-policy.v1.json');
@@ -23,8 +24,19 @@ const eventBaseSha = () => process.env.GITHUB_ACTIONS === 'true'
   ? process.env.PR_BASE_SHA
   : execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
 
-test('Stage B admits only local source work and stays unverified', () => {
+test('Stage B admits local source only or explicitly refuses missing legacy identity', () => {
   const result = verifyCurrentCheckout();
+  const missingLegacy = process.env.GITHUB_ACTIONS !== 'true'
+    ? [markerPath, decisionPath].find(file => !fs.existsSync(file))
+    : null;
+  if (missingLegacy) {
+    // This is a negative guard assertion, never an admission receipt.
+    assert.equal(result.decision, 'protected');
+    assert.equal(result.authoritative, false);
+    assert.equal(result.ready, false);
+    assert.equal(result.reason, `ENOENT: no such file or directory, open '${missingLegacy}'`);
+    return;
+  }
   if (result.decision === 'protected') {
     // The task-start marker is intentionally a snapshot. After a source
     // commit it must not be treated as current admission evidence.

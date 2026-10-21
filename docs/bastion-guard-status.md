@@ -1,11 +1,14 @@
 # Bastion Guard Status
 
-## 2026-10-20 — DEV T1 plan-only WIP
+## 2026-10-21 — DEV T1 reviewed source candidate
 
 Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual ledger
-docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Native context and foreign
-post-commit writer remain hard boundaries. No shared hook, root-policy, pin,
-Stage A, product or host change; no override, fabricated capsule/Stage B PASS.
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Adapter59/59 and combined
+entrypoint68/68; independent five-axis/security review found no confirmed defect.
+Maximum bastion: pass-unverified/authoritative:false/ready:false. Actual legacy
+Stage B protected/missing marker, not PASS. User approved exactly two local
+context-exception commits without foreign npm writers; shared hooks unchanged.
+No root-policy/pin/Stage A/product/host change or fabricated capsule/admission.
 
 Status: corrective checkpoint candidate, no external mutation
 Last updated: 2026-09-04

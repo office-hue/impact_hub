@@ -38,9 +38,75 @@ No main override, hook-path redirection or shared hook change.
 Git health: WARN main behind origin/main seven; FAIL existing pre-push
 memory:gate/continuity registrations. Publication remains blocked, not PASS.
 
-Next: approved local native recovery, then
-real anchor/bind before code. Not source-ready/pushed/merged/installed/live.
-Both new drafts exist but are ignored by /docs/*; exact-path staging and
-staged-blob verification are pending native recovery, not a .gitignore edit.
+First of the two approved commits completed:
+b598b0007775491ac3e6f42906a9c743afefc593, tree
+99d1257679502473bbbbc9fbe1c65816cec6e9c5; seven exact documentation paths,
+including explicit exact-path staging/readback of both previously ignored
+drafts. No .gitignore change. Commit-msg added Memory-ID: none; native hook
+hashes unchanged. Supported bind returned bound/revision2/implementation-ready.
+Source requirements: continue, missingFacts:[], memory-unavailable advisory.
+SECRETARY rendered engine verified/writes:false/packet absent at that anchor.
+One requirements CLI spelling error (--memory-state) was corrected to the
+reported supported --memory option; it did not mutate state or grant authority.
+
+Stage B baseline: 8/9 tests; first test confused absent marker with stale HEAD.
+Diagnosis and bounded test-only repair are in the plan. Real Stage B remains
+protected/authoritative:false/ready:false with exact missing worktree-active
+ENOENT. No fixture admission is substituted for this actual result.
+Maximum bastion: bastion-pass-unverified/authoritative:false/ready:false;
+unchanged immutable Stage A source and contracts.
+
+## Reviewed source candidate — 2026-10-21
+
+Production and test ownership /root/implement_model_routing; no further edits
+after the first focused Node22 run. Adapter59/59 PASS (18.635s), syntax PASS.
+Root combined Stage B entrypoint68/68 PASS (21.214s), including real missing-
+marker negative assertions. Actual Stage B stays protected, not admission.
+The implementation makes no policy, pin, Stage A, workflow or shared-hook edit.
+
+Reviewed source SHA256:
+- scripts/dev-v4-installed-controller-adapter.mjs:
+  f8f8542a43f08fc8f2b70424e25bde95b46210897192b057f3b4d279a198b88b
+- tests/dev-v4-installed-controller-adapter.test.mjs:
+  cc643b74582b90eca5c8252b1ea44a34388f7652b91433a118a3f9385fc2f1cf
+- tests/dev-v4-stage-b.test.mjs:
+  72bb211073ead643c6506831461919808bcc9fbcc094e3699388b490136a6fa1
+
+Real new-adapter context --render: exit0/rendered/engine verified/writes:false/
+packet absent. State SHA256 before=after:
+6185fdffb58c57a46e49db8467ff4629f81bbb9290ebbe85230b81c0ffa1c2a8.
+This is actual read-only evidence for this call, not proof of native start.
+
+Independent fresh-context /root/hub_adapter_architecture reviewed architecture
+and frozen code across operability, functionality, coherence, security and
+risk. No confirmed defect/plausible security candidate. The draft targetRepo
+reference was fixed before the first test; no failed adapter test/repair run.
+Parent reviewed changed Stage B test/docs and narrow retained native load/status
+source: schema3 state and separate legacy marker routes are distinct, so the
+legacyReadSchemaVersions setting alone does not establish a regression.
+15s native timeout is bounded but recovery under timeout was not executed;
+same-user trusted install and predecessor task/plan enforcement remain explicit
+dependencies. Synthetic fixtures do not establish native acceptance.
+
+security-diff-scan fd3177ac-79d1-4086-ac9c-f4fab163712e completed/read back;
+preflight3/3, zero candidates/reportable findings, bounded coverage complete.
+Report (local, outside Git source):
+/Users/bujdosoarnold/.codex/state/plugins/codex-security/scans/impact_hub-dev-risk-scoped-hub-20261020/b598b0007775491ac3e6f42906a9c743afefc593_20261021T042459Z_gat08gmq/report.md
+Snapshot ffc642c58e11ecd6ef074ab7a71ed4f3cc7e62edd43f17dc314428ffd2492064
+precedes this factual DocSync completion; the three reviewed code hashes are
+unchanged. No shared threat-model cache or user config was changed. Daybreak
+not-granted is advisory, not an execution gate. Workbench measured owning-thread
+usage (not isolated scan-only attribution): totalTokens1523804,
+inputTokens1515650, cachedInputTokens1495808, outputTokens8154; no cost estimate.
+
+Next: second approved local source commit with the same bounded native route;
+supported reconcile/readback afterward. Then protected CENTRAL exact-path
+admission alignment, not a cross-worktree edit from this Hub lane. Existing
+pre-push registrations and legacy Stage B remain visible publication blockers.
+Not pushed/merged/installed/live; no new quiet window or provider run needed.
+Native requirements --operation checkpoint --memory unavailable returned
+continue/checkpointMode:staged-only/state:WIP, with failed-or-unrun-checks,
+unstaged-WIP and memory-unavailable warnings. This local WIP checkpoint is not
+publication approval or a fabricated canonical check/review receipt.
 No active quiet window needed. Preserve SUBSTACK-HANDOVER.md as reference to
 separate author context only; no editorial load/task claimed.

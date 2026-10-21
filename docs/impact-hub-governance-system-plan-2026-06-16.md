@@ -1,12 +1,16 @@
 # Impact Hub Governance System Plan
 
-## 2026-10-20 — DEV T1 adapter plan, pre-commit boundary
+## 2026-10-21 — DEV T1 reviewed adapter source candidate
 
 Exact plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md and continuity
 docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Three-file adapter/test
-change awaits safe native anchor and supported bind. Existing legacy context
-and foreign post-commit memory writers cannot be waived by source approval.
-No code/config/hook or runtime mutation; T1 is not T2 activation.
+change implemented after anchor b598b000/supported bind; adapter59/59, combined
+entrypoint68/68, independent five-axis/security review complete. Preserve rootv1,
+old pins, Stage A and shared hooks. User explicitly approved two local native-
+context exceptions without foreign npm writers; no source-only approval grants
+publication/live authority. Real Stage B protected; pre-push prerequisites remain.
+Next: protected central exact target-path admission, later separate release-set/
+Air-then-Mini staging and T2 authority. T1 is not T2 activation.
 
 Datum: 2026-06-16
 Statusz: canonical local governance hub

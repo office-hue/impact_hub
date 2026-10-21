@@ -1,7 +1,7 @@
 # Hub DEV T1 — exact source plan and native recovery boundary
 
-Status: approved task source scope; native recovery explicitly approved by
-Arnold on 2026-10-21, limited to the two local commits described below.
+Status: reviewed local source candidate; native recovery explicitly approved
+by Arnold on 2026-10-21, limited to the two local commits described below.
 
 <!-- DEV-DELIVERY-V2-MANIFEST
 {
@@ -42,13 +42,14 @@ DEV-DELIVERY-V2-MANIFEST -->
 
 Fix real Hub adapter selection/recovery errors. Retain root v1, old pins,
 native/Stage A protections, no product/provider/runtime/shared-hook changes.
-Own task is planning-only, treebc794c0bfa227f4ebdb332f028b6f3b588cdca5e.
+Bootstrap was planning-only, treebc794c0bfa227f4ebdb332f028b6f3b588cdca5e.
 SECRETARY actually rendered engine verified, writes:false, packet absent.
-Projection requires the not-yet-committed plan: no fake current/bind receipt.
-The new plan and continuity draft are present locally but ignored by the
-existing /docs/* rule. After native recovery is authorized, add these two
-exact allowlisted paths explicitly and verify their staged blobs before the
-anchor commit. Do not change .gitignore or broadly force-add docs/.
+The initial projection required a committed plan. Anchor b598b0007775491ac3e6f42906a9c743afefc593
+now exists; supported bind returned revision2/implementation-ready and source
+requirements returned continue/missingFacts:[], memory-unavailable advisory.
+The plan and continuity were explicitly staged by their two exact allowlisted
+paths with staged-blob readback despite the existing /docs/* ignore rule.
+No .gitignore change or broad force-add was used.
 Parent: office-hue/ai-agent dev/risk-scoped-20261020 sourced329593dfd831c97dd3b505eb1d70cbae8f88df8;
 master docs/dev-plans/dev-central-exclusive-write-surfaces-risk-scoped-20261020.md.
 Notes7f191a4c and Factlens55f6ebd are separate role evidence, not Hub tests/grants.
@@ -78,6 +79,14 @@ Notes7f191a4c and Factlens55f6ebd are separate role evidence, not Hub tests/gran
 3. tests/dev-v4-stage-b.test.mjs: one import of the adapter test into existing
    CI Node entrypoint. This test is not immutable Stage A. No .github/ change
    (out of selector), pinned Stage A test/verifier, config, hash or hook edit.
+   Baseline on the bound schema3 task was 8/9: the first test incorrectly
+   assumed any protected local result meant stale legacy HEAD; the real
+   result is ENOENT for absent worktree-active.json. Repair only this test:
+   when either exact legacy file is actually absent outside CI, assert
+   protected/authoritative:false/ready:false and that exact missing-file
+   diagnostic. Do not generate markers, widen admission or call this a real
+   Stage B pass. All other failures still fail; actual adapter exit is
+   reported separately. Register the new suite afterward, then rerun once.
 4. Six listed DocSync/continuity files: actual checks, failures, state/next and
    no false readiness. No new runtime module or UI; manual UI N/A.
 
@@ -87,8 +96,9 @@ Actual common pre-commit requires absent worktree-active.json. No safe Hub
 standalone producer exists; its legacy starter writes shared coordination and
 can run sibling memory writers. Actual common post-commit can asynchronously
 run npm memory:capture/sync in another ai-agent worktree. Both must be resolved
-before commit/bind. No shared-hook edit, manual capsule, hook-path redirection,
---no-verify or context/main override has been used.
+before commit/bind. The approved per-command context exception resolved the
+first local commit boundary without a shared-hook edit, manual capsule,
+hook-path redirection, --no-verify or main override.
 
 Explicit OPERATOR DECISION (2026-10-21: "engedélyezem, de különúton sos haladj"):
 exactly two own-branch local
@@ -127,3 +137,24 @@ Air engine-only stage/readback/canary+rollback, then Mini stage, precede separat
 T2 root-v2/hook authority, fresh witnesses/grants and final target acceptance
 Air then Mini. No old-pin migration/main chase. Rollback here: guarded source
 revert only, not host/data rollback authority. Current end state: source-only.
+
+## Source-candidate verification (2026-10-21)
+
+Three-file implementation complete: fixed dispatcher/committed-base selection,
+bound-pin delegation without candidate/default selection, normal bind and exact
+read-only render, safe files/JSON/argv/Git environment and sanitized failures.
+The existing Stage B test entrypoint imports the hermetic adapter suite.
+Focused adapter59/59 on first run; combined entrypoint68/68 after the single
+diagnosed Stage B expectation repair. Syntax and diff checks pass. Real new-
+adapter SECRETARY render exited0, verified engine/writes:false/packet absent,
+with lifecycle state bytes unchanged. Real Stage B remains protected; maximum
+bastion is pass-unverified, never ready/provider authority.
+
+Independent fresh-context architecture and five-axis code audit found no
+confirmed functional/security defect. Managed security-diff-scan
+fd3177ac-79d1-4086-ac9c-f4fab163712e completed with zero reportable findings;
+its reviewed artifact hashes and limitations are in continuity. Timeout recovery
+was not exercised; trusted predecessor enforcement and actual start/fetch are
+not replaced by successful synthetic-dispatcher tests. Source candidate is not
+published, merged, installed, activated or production-accepted. Next dependency:
+protected central exact-path admission for the three target source sets.

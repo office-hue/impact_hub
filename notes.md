@@ -81,3 +81,14 @@ Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; real SECRETARY verified,
 packet absent. Native missing-context/foreign post-commit writing blocks commits;
 no override, code, shared/foreign write, provider or activation. Bounded independent
 five-axis plan review found no new material issue; explicit safe native recovery next.
+
+## 2026-10-21 — DEV T1 reviewed source candidate
+
+Anchor b598b000/supported bind revision2; three-file adapter/test implementation.
+Node22 adapter59/59 and combined entrypoint68/68 PASS; real SECRETARY render
+verified/writes:false/packet absent/state unchanged. Independent architecture,
+five-axis code audit and managed security diff completed with no confirmed issue.
+User-approved context exception/no foreign npm writer is limited to two local
+commits. Real Stage B protected and pre-push registrations remain publication
+blockers; rootv1/pins/Stage A/shared hooks and provider/runtime untouched.
+Plan/evidence: docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md.

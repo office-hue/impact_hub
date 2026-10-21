@@ -3798,3 +3798,14 @@ the next CI readback passes. Provider/runtime authority remains false.
 Task dev-risk-scoped-hub-20261020; own separate worktree, released quiet window.
 Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; no code/commit/bind.
 SECRETARY engine verified/packet absent; native recovery unresolved, no fake PASS.
+
+## 2026-10-21 — DEV T1 reviewed local source candidate
+
+Task dev-risk-scoped-hub-20261020, anchor b598b000, supported bind revision2.
+Adapter59/59, combined entrypoint68/68; independent architecture/five-axis review
+and managed security diff complete (zero reportable findings). Actual new-adapter
+SECRETARY render verified/writes:false/state unchanged, optional packet absent.
+Actual legacy Stage B protected; maximum bastion pass-unverified, never ready.
+Explicit two-local-commit context exception/no foreign npm writer only; no
+shared hook/policy/pin/Stage A/product/provider/host/runtime change. Central
+exact-path admission and publication/activation remain separate pending work.
