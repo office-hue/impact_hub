@@ -2,6 +2,16 @@
 
 ## Aktuális forráskiadási előfeltételek — 2026-10-21
 
+A `705e6b2736ae6bb7eeb806313109cc30f3b9bc6a` DOCSYNC checkpoint után a natív
+CI-diff/strict audit ismét PASS, supported bind revision6. A regisztrált
+`git-diff-check` indítását viszont `plan_change_impact_underclassified` állította
+meg még a check végrehajtása előtt. Diagnózis: a terv gépi deklarációja
+governance-only volt; a pinned recipe protected felületet lát. Javítás: kizárólag
+a terv `changeImpact` mezője protected, a high kockázat és pontos fájlkör marad.
+Nincs gate/policy módosítás vagy átminősített PASS. Ellenőrzési sorrend: helyi
+plan-validate, natív docs commit, supported bind, regisztrált check és requirements
+visszaolvasás; a későbbi review-jogosultság ettől nem teljesül automatikusan.
+
 A forrás már commitolt: `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
 `bb510c73068b46c1fb0db996ce44a23ed030aaf9`; a támogatott feladatkötés revision5,
 eredeti base/policy `15d8c1a380401a167c0f3e13e54b9b8ad5f21078`, változatlan
@@ -253,7 +263,7 @@ by Arnold on 2026-10-21, limited to the two local commits described below.
   "decision": {"state": "approved", "summary": "Existing separate central DEV task: bounded Hub adapter source, not native-context override, publication or live authority."},
   "authorization": {"source": "task-request", "taskRequestDigest": "9eb6138c61619c713347eec89de66d36ddb8113c28757b2470cf62dda6d4548a"},
   "scope": {
-    "changeImpact": "governance-only", "riskTier": "high", "releaseProfile": "source-only",
+    "changeImpact": "protected", "riskTier": "high", "releaseProfile": "source-only",
     "changeAllowlist": [
       "scripts/dev-v4-installed-controller-adapter.mjs",
       "scripts/dev-v4-target-hooks.mjs",

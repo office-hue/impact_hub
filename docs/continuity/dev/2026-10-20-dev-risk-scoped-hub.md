@@ -2,6 +2,14 @@
 
 ## Aktuális kiadási előellenőrzés — 2026-10-21
 
+DOCSYNC commit `705e6b2736ae6bb7eeb806313109cc30f3b9bc6a`, tree
+`d2ea9d10917b5bb554d7da64fb5f77a229501483`, normál natív hookokkal; bind6.
+Pontos-delta ci-validate és strict audit PASS; Secretary writes:false,
+packet absent; maximum Bástya pass-unverified/ready:false. A regisztrált check
+nem futott: `plan_change_impact_underclassified`. A pinned recipe diagnózisa és
+a terv deklarációját protectedre igazító javítás a terv elején; ez az első
+javítás erre a hibára. Kód, root policy, hook és régi pin változatlan.
+
 Tiszta forrás HEAD `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
 `bb510c73068b46c1fb0db996ce44a23ed030aaf9`, bound revision5, eredeti policy/motor.
 Natív pontos-delta `ci-classify`: protected/operator-review, teljes validáció
