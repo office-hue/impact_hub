@@ -1,5 +1,15 @@
 # Impact Hub Governance System Plan
 
+## Aktuális T1 kiadási állapot — 2026-10-21
+
+Forrás commitolt (`9c6da42a`), az öt jóváhagyott Hub hook helyi telepítése lezárt.
+A pontos base/head CI-osztályozás protected, teljes validáció kötelező; natív
+diff/Bástya/continuity ellenőrzés PASS, de nem teljes CI vagy publikálási PASS.
+A saját Jest-függőségek hiányoznak; nincs helyi install vagy shared-cache írás.
+A teljes PR-workflow és műveleti feltételek a
+`docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md` aktuális elején szerepelnek.
+A régi állapotbejegyzések történetiek. Nincs új push, deploy vagy aktív ablak.
+
 ## Latest approved hook operation closed
 
 The exact five-hook transaction applied once and passed independent readback

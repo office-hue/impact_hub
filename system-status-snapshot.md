@@ -1,4 +1,13 @@
 
+## 2026-10-21 — Aktuális T1 forráskiadási előfeltételek
+
+Forrás commitolt9c6da42a/bind5, eredeti policy/motor megtartva; öt jóváhagyott
+hook helyi telepítése lezárt. A pontos CI-osztályozás protected/full-validation,
+natív diff/Bástya/continuity PASS, nem teljes CI vagy publikálási jogosultság.
+Saját Jest-függőségek hiányoznak, nincs install/CI/provider/harvester. A részletes
+kiadási sorrend a saját terv aktuális elején. Publikálás, Air/Mini motor és T2
+elfogadás még nincs igazolva; nincs nyugalmi ablak. A korábbi sorok történetiek.
+
 ## 2026-10-21 DEV risk-scoped bootstrap — source only
 
 Latest superseding observation: approved five-Hub-hook transaction applied and

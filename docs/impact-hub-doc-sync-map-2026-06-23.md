@@ -1,5 +1,13 @@
 # Impact-Hub Doc Sync Map
 
+## Aktuális T1 publikálási előfeltétel-térkép — 2026-10-21
+
+A saját terv/continuity, governance, Bástya, notes és snapshot együtt rögzíti a
+commitolt `9c6da42a` forrást, a lezárt helyi hooktelepítést és a tényleges
+protected/full-validation CI-utat. Natív diff/continuity ellenőrzés PASS;
+teljes CI, publikálás, Air/Mini motor és T2 elfogadás még nincs igazolva.
+A korábbi „uncommitted/not installed” szövegek történetiek, nem aktuális státusz.
+
 ## Latest hook closure
 
 Current task plan/continuity now record applied/verified five-hook transaction

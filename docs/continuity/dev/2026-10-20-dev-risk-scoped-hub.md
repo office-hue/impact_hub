@@ -1,5 +1,24 @@
 # Hub T1 continuity — native commit boundary
 
+## Aktuális kiadási előellenőrzés — 2026-10-21
+
+Tiszta forrás HEAD `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
+`bb510c73068b46c1fb0db996ce44a23ed030aaf9`, bound revision5, eredeti policy/motor.
+Natív pontos-delta `ci-classify`: protected/operator-review, teljes validáció
+kötelező. Natív `ci-validate`: PASS, Bástya/continuity/diff rendben. Ez nem teljes
+CI vagy helyi Stage B admission. A saját root/tools node_modules hiányzik;
+nem indult install/Jest/CI/provider/harvester. A korábbi kódtesztek változatlan
+forrásevidenciák, nem újrafuttatott teljes PASS-ok.
+
+A tényleges pre-commit/pre-push/post-commit és változatlan commit-msg hash
+megegyezik a jóváhagyott telepítési canaryval. Most nem történt hookírás vagy
+más worktree módosítása. Az öt hook alkalmazása és a source commit megtörtént;
+az ellenkező régi bejegyzések történetiek. Következő lépés: e DOCSYNC checkpoint,
+támogatott bind, valós helyi ellenőrzés, majd a terv publikálási előfeltételei.
+A régi grantok nem használhatók újra. Egy részleges notes-sorra illesztett patch
+írás nélkül elutasítva; a második ilyen előfordulás után privát diagnózis/repair
+plan készült, majd teljes, frissen visszaolvasott sorokra épült a javított patch.
+
 ## Latest: approved five-hook apply closed
 
 Transaction d6083b61-89a2-4b5d-996e-282713f4f178 applied once and independently

@@ -1,5 +1,41 @@
 # Hub DEV T1 — exact source plan and native recovery boundary
 
+## Aktuális forráskiadási előfeltételek — 2026-10-21
+
+A forrás már commitolt: `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
+`bb510c73068b46c1fb0db996ce44a23ed030aaf9`; a támogatott feladatkötés revision5,
+eredeti base/policy `15d8c1a380401a167c0f3e13e54b9b8ad5f21078`, változatlan
+retained motor. Az előellenőrzéskor a munkapéldány tiszta. A régebbi
+„uncommitted”, „not installed” és „shared hooks unchanged” állítások történeti
+adatok, nem az aktuális állapot. Az öt jóváhagyott hook helyi telepítése lezárt;
+forráspublikálás, új motor és T2 aktiválás még nincs igazolva.
+
+A pontos 12 fájlos base/head deltán a natív `ci-classify`: `protected`,
+`operator-review`, `fullValidationRequired=true`, `expensiveStepsRequired=true`.
+A natív `ci-validate` PASS: pontos diff, Bástya és négy continuity-fájl.
+Ez nem teljes CI-, Jest-, Stage B- vagy publikálási PASS.
+
+A tényleges PR-workflow sorrendje: eseményhez kötött base/head; osztályozás;
+context guard; Node22 és `npm ci --ignore-scripts` a CI runneren; teljes Jest;
+Stage B `--ci` és Stage A/B Node-tesztek; policy-negatívteszt és dedikált offline
+fixture; natív `ci-validate`, exact-range strict audit és diff-check; saját
+tízpontos PR checklist. A forrásváltozás nem minősíthető docs-onlynak e lépések
+megkerülésére. A korábbi 126 sikeres eset és a javított 1/1 eredménye az eredeti,
+változatlan kódhoz kötött helyi evidencia, nem új teljes futás.
+
+A saját worktree-ben sem root, sem tools Jest-függőségkészlet nincs. Nem történt
+helyi install, shared-cache javítás vagy vak teljes tesztfuttatás; a teljes Jest
+CI-eredmény még szükséges. A heti/manuális coupon-harvest nem push/PR triggerű;
+e DEV-kiadáshoz nem indítjuk. A workflow-leltár nem provider-kapcsolati bizonyíték.
+
+Publikálás előtt: végleges tiszta candidate, támogatott same-task bind, valós
+natív ellenőrzések és review, pontos remote/branch/PR és külső automatikus hatások
+visszaolvasása, a Notes-tól és központtól külön Hub műveleti jogosultság.
+A v1 régi modellkövetelményét nem helyettesíti hamis 5.6 receipt; csak tényleges
+6/6.1 review használható a külön jóváhagyott úton. A generic `guarded-push.sh`
+és `install-hooks-all.sh` T2-only; nem fut. Merge előtt tényleges teljes CI és
+friss, szűk main-ablak kell. Nincs aktív ablak vagy új provider/megosztott írás.
+
 ## Latest live boundary — five shared Hub hooks applied and verified
 
 2026-10-21: exact operator approval, matching native prepare, one apply for

@@ -1,5 +1,13 @@
 # Bastion Guard Status
 
+## Aktuális T1 forráskiadási kapu — 2026-10-21
+
+A pontos `15d8c1a3..9c6da42a` deltára a natív `ci-validate` PASS: Bástya-dokumentum,
+kötelező continuity és diff ellenőrizve. Az osztály protected, a teljes CI kell;
+ez nem Stage B ready vagy provider/live jogosultság. A jóváhagyott hooktelepítés
+nem ismétlődött. A DOCSYNC nem módosít hookot, kódot, policyt, hash-lockot,
+feladatpint vagy védelmi szabályt. A régebbi bejegyzések történetiek.
+
 ## Latest live boundary — Hub hooks only
 
 Five approved hooks now installed/exactpost; commit-msg and other routing/config
