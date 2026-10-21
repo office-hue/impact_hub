@@ -25,6 +25,15 @@ function legacyAuditSource() {
   // Reconstruct the exact historical source from the tracked range successor;
   // the digest assertion prevents this fixture from silently becoming a stub.
   let raw = fs.readFileSync(new URL('../scripts/safe-repo-audit.sh', import.meta.url), 'utf8');
+  // Reconstruct the historical buggy parser too; keep the original hash check.
+  raw = raw.replace(/if \[\[ "\$MODE" == "push" \]\]; then[\s\S]*?  PUSH_RANGE="\$\{PUSH_BASE\}\.\.HEAD"/, `if [[ "$MODE" == "push" ]]; then
+  upstream_ref="\${SAFE_REPO_AUDIT_UPSTREAM:-@{upstream}}"
+  if git rev-parse --verify "$upstream_ref" >/dev/null 2>&1; then
+    PUSH_BASE="$(git merge-base HEAD "$upstream_ref")"
+  else
+    PUSH_BASE="$(git hash-object -t tree /dev/null)"
+  fi
+  PUSH_RANGE="\${PUSH_BASE}..HEAD"`);
   raw = raw.replace('RANGE_BASE=""\nRANGE_HEAD=""\n', '')
     .replace('[--mode local|push|range] [--base <sha> --head <sha>]', '[--mode local|push]')
     .replace('  --base <sha>    Exact base commit for range mode\n  --head <sha>    Exact head commit for range mode\n', '')
@@ -64,8 +73,109 @@ function fixture(t, adapter = syntheticAdapter, auditSource = null) {
   const row=(local=head,remote=zero,remoteRef='refs/heads/dev/fixture')=>`refs/heads/dev/fixture ${local} ${remoteRef} ${remote}\n`;
   const push=(input=row(),args=['origin',origin])=>invoke('pre-push',args,input);
   const v3=(allowed=true)=>{fs.mkdirSync(path.join(repo,'.git/dev-v4-lifecycle'),{mode:0o700});fs.writeFileSync(path.join(repo,'.git/dev-v4-lifecycle/state.json'),JSON.stringify({allowed}));};
-  return {tmp,repo,git,base,head,marker,hooks,invoke,row,push,v3};
+  return {tmp,repo,git,base,head,marker,hooks,invoke,row,push,v3,env};
 }
+
+const currentAudit = () => fs.readFileSync(new URL('../scripts/safe-repo-audit.sh', import.meta.url), 'utf8');
+function auditPush(f, extra = {}) {
+  return spawnSync('/bin/bash', [path.join(f.repo,'scripts/safe-repo-audit.sh'),'--strict','--mode','push'],
+    {cwd:f.repo, env:{...f.env, SAFE_REPO_AUDIT_UPSTREAM:'', ...extra}, encoding:'utf8', timeout:7000});
+}
+test('push audit accepts an explicit commit without appending a brace', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit()),r=auditPush(f,{SAFE_REPO_AUDIT_UPSTREAM:f.base});
+  assert.equal(r.status,0,r.stderr+r.stdout);assert.ok(r.stdout.includes(`Range:   ${f.base}..HEAD`));
+});
+test('first push without upstream uses known main, not historic files', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit()),r=auditPush(f);
+  assert.equal(r.status,0,r.stderr+r.stdout);assert.match(r.stdout,/Changed: 1 files/);
+  assert.ok(r.stdout.includes(`Range:   ${f.base}..HEAD`));
+});
+test('existing upstream remains the preferred push audit base', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit());
+  f.git('update-ref','refs/remotes/origin/fixture',f.head);
+  f.git('config','branch.dev/fixture.remote','origin');f.git('config','branch.dev/fixture.merge','refs/heads/fixture');
+  const r=auditPush(f);assert.equal(r.status,0,r.stderr+r.stdout);
+  assert.ok(r.stdout.includes(`Range:   ${f.head}..HEAD`));
+});
+test('invalid explicit base never silently falls back', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit());
+  for(const base of ['missing-reference','--help',f.base+'}']) {
+    const r=auditPush(f,{SAFE_REPO_AUDIT_UPSTREAM:base});
+    assert.notEqual(r.status,0);assert.match(r.stderr,/audit base unavailable/);assert.doesNotMatch(r.stdout,/RESULT: PASS/);
+  }
+});
+test('unknown first-push base returns actionable integrity error, not broad scan', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit());f.git('update-ref','-d','refs/remotes/origin/main');f.git('branch','-D','main');
+  const r=auditPush(f);assert.notEqual(r.status,0);assert.match(r.stderr,/supply SAFE_REPO_AUDIT_UPSTREAM/);assert.doesNotMatch(r.stdout,/Range:/);
+});
+test('disconnected explicit base is rejected rather than replaced', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit());
+  const tree=f.git('rev-parse','HEAD^{tree}'), orphan=f.git('commit-tree',tree,'-m','disconnected fixture');
+  const r=auditPush(f,{SAFE_REPO_AUDIT_UPSTREAM:orphan});
+  assert.notEqual(r.status,0);assert.match(r.stderr,/no common history/);
+});
+test('push and exact-range audits reject newly introduced secret-like content', t => {
+  const f=fixture(t,syntheticAdapter,currentAudit());
+  // Recognized synthetic header, never a credential.
+  fs.writeFileSync(path.join(f.repo,'delta.txt'),['-----BEGIN','RSA','PRIVATE KEY-----'].join(' ')+'\n');
+  f.git('add','.');f.git('commit','-m','synthetic negative fixture');
+  const r=auditPush(f,{SAFE_REPO_AUDIT_UPSTREAM:f.base});assert.notEqual(r.status,0);assert.match(r.stdout,/secret-like values detected/);
+  const native=f.push(f.row(f.git('rev-parse','HEAD')));assert.notEqual(native.status,0);assert.match(native.stdout,/secret-like values detected/);
+});
+
+function guardedPushFixture(t) {
+  const f=fixture(t,syntheticAdapter,currentAudit()), bin=path.join(f.tmp,'bin');fs.mkdirSync(bin);
+  const wrapper=path.join(f.repo,'scripts/guarded-push.sh');
+  fs.writeFileSync(wrapper,fs.readFileSync(new URL('../scripts/guarded-push.sh',import.meta.url),'utf8').replaceAll(nativeNode,process.execPath));
+  const guard=path.join(f.repo,'scripts/worktree-continuity-guard.sh');
+  fs.writeFileSync(guard,'#!/bin/bash\nexit "${FIXTURE_CONTINUITY_STATUS:-0}"\n',{mode:0o644});
+  fs.writeFileSync(path.join(bin,'git'),`#!/bin/bash
+for arg in "$@"; do
+  if [[ "$arg" == push ]]; then
+    printf '%s\\n' "$@" > '${f.tmp}/push-argv'
+    exit 0
+  fi
+done
+exec /usr/bin/git "$@"
+`,{mode:0o755});
+  fs.writeFileSync(path.join(bin,'npm'),`#!/bin/bash\ntouch '${f.tmp}/foreign-memory-called'\nexit 77\n`,{mode:0o755});
+  fs.mkdirSync(path.join(f.repo,'ai-agent/scripts'),{recursive:true});fs.writeFileSync(path.join(f.repo,'ai-agent/scripts/dev-memory.ts'),'fixture');
+  const run=(extra={})=>spawnSync('/bin/bash',[wrapper,'origin','dev/fixture:dev/fixture'],{
+    cwd:f.repo,env:{...f.env,PATH:bin+':'+process.env.PATH,SAFE_REPO_AUDIT_UPSTREAM:f.base,...extra},encoding:'utf8',timeout:7000});
+  return {...f,run,guard};
+}
+test('guarded-push checks 0644 local guards and never invokes foreign memory', t => {
+  const f=guardedPushFixture(t),r=f.run();assert.equal(r.status,0,r.stderr+r.stdout);
+  assert.equal(fs.existsSync(path.join(f.tmp,'foreign-memory-called')),false);
+  assert.deepEqual(fs.readFileSync(path.join(f.tmp,'push-argv'),'utf8').trim().split('\n'),['-C',f.repo,'push','origin','dev/fixture:dev/fixture']);
+});
+test('guarded-push preserves continuity denial before publishing', t => {
+  const f=guardedPushFixture(t),r=f.run({FIXTURE_CONTINUITY_STATUS:'23'});
+  assert.equal(r.status,23);assert.equal(fs.existsSync(path.join(f.tmp,'push-argv')),false);
+});
+test('guarded-push selects v3 once, without falling back after failure or orphan state', t => {
+  const f=guardedPushFixture(t);f.v3();
+  const adapter=path.join(f.repo,'scripts/dev-v4-installed-controller-adapter.mjs');
+  fs.writeFileSync(adapter,`import fs from 'node:fs';
+fs.writeFileSync('${f.tmp}/v3-argv',JSON.stringify(process.argv.slice(2)));
+process.exit(Number(process.env.FIXTURE_CONTINUITY_STATUS || 0));\n`);
+  const allowed=f.run();assert.equal(allowed.status,0,allowed.stderr+allowed.stdout);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.tmp,'v3-argv'))),['continuity','--repo',f.repo,'--mode','push']);
+  fs.unlinkSync(path.join(f.tmp,'push-argv'));
+  assert.equal(f.run({FIXTURE_CONTINUITY_STATUS:'23'}).status,23);
+  assert.equal(fs.existsSync(path.join(f.tmp,'push-argv')),false);
+  fs.unlinkSync(adapter);assert.notEqual(f.run().status,0);
+  assert.equal(fs.existsSync(path.join(f.tmp,'push-argv')),false);
+});
+test('guarded-push preserves invalid-base audit denial before publishing', t => {
+  const f=guardedPushFixture(t),r=f.run({SAFE_REPO_AUDIT_UPSTREAM:'missing-reference'});
+  assert.notEqual(r.status,0);assert.match(r.stderr,/audit base unavailable/);assert.equal(fs.existsSync(path.join(f.tmp,'push-argv')),false);
+});
+test('guarded-push does not skip missing or symlinked required guards', t => {
+  const f=guardedPushFixture(t);fs.unlinkSync(f.guard);
+  assert.notEqual(f.run().status,0);fs.symlinkSync('/dev/null',f.guard);assert.notEqual(f.run().status,0);
+  assert.equal(fs.existsSync(path.join(f.tmp,'push-argv')),false);
+});
 
 test('renderer is deterministic data-only, owns exactly five hooks and respects image limits',()=>{
   const a=renderHookImages(),b=renderHookImages();assert.deepEqual(a,b);

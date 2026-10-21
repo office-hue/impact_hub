@@ -1,5 +1,17 @@
 # Impact Hub Governance System Plan
 
+## 2026-10-21 — Repair the developer path instead of waiving it
+
+The risk-scoped task now includes the old safe-repo-audit and guarded-push
+entrypoints. Explicit base parsing and first-push known-main resolution replace
+the accidental empty-tree scan; invalid explicit bases are not silently changed.
+The wrapper uses v3 continuity when a lifecycle namespace exists, never falls
+back after denial, retains legacy checks for old tasks and invokes no foreign
+memory gate. Secret and native Git protections stay enforced. DOCSYNC remains
+required; this repair does not weaken its existing rules. Source-only evidence:
+36/36 hook/wrapper cases; independent delta review found no new P1/P2. Deployment and final
+product-entrypoint acceptance on both hosts remain outstanding.
+
 ## Aktuális T1 kiadási állapot — 2026-10-21
 
 Forrás commitolt (`9c6da42a`), az öt jóváhagyott Hub hook helyi telepítése lezárt.

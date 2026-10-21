@@ -1,5 +1,55 @@
 # Hub DEV T1 — exact source plan and native recovery boundary
 
+## 2026-10-21 — Product-facing push repair, not a permanent exception
+
+Arnold explicitly requests fixing or replacing accidental DEV blockers for
+future product developers. This supersedes the pending proposal to leave the
+old push-audit checklist unchecked. Source scope adds exactly
+`scripts/safe-repo-audit.sh` and `scripts/guarded-push.sh` to the existing T1
+candidate; the matching central finite-scope amendment must be published before
+it is used as scope evidence. This paragraph is not a lifecycle permit.
+
+The base-owned Hub selector currently permits `scripts/dev-v4-`, not these
+generic shell paths. Publishing a central allowlist alone cannot authorize
+normal bind/publication under that immutable pin. Use the approved separate
+source-release route with independent exact-candidate evidence; do not force
+a normal PASS, edit a historical task pin or blindly retry bind. T2 must cover
+these exact maintained entrypoints in its actual selector before new task
+activation. This remaining publication dependency does not invalidate the
+isolated repair tests and does not authorize shared host writes.
+
+Diagnosis: Bash `${SAFE_REPO_AUDIT_UPSTREAM:-@{upstream}}` appends `}` to an
+explicit SHA. Without upstream the audit also scanned empty-tree..HEAD, causing
+unrelated historical-file warnings. The wrapper duplicated base resolution,
+searched other worktrees for memory writers and skipped non-executable guards.
+It also selected the old marker-based guard for v3 tasks.
+
+Repair: one audit resolver; validate explicit commit without silent fallback;
+otherwise use existing upstream or known local main reference. No fetch or
+HEAD^ shortcut. Missing/unrelated base stops with a concrete repair instruction,
+not a misleading full-repo scan. Wrapper uses the existing installed-controller
+adapter for v3 (including orphan namespace, never fallback after denial), legacy
+guard otherwise, then strict audit and ordinary Git push. No foreign memory
+writer is executed; optional Secretary absence grants no publication authority.
+Native exact-range/ref/origin/fast-forward/dirty/secret checks remain.
+
+Changed audit source legitimately changes its renderer pin; legacy source hash
+579cad7c remains unchanged and tested. Previously installed shared hooks are
+not replaced by a source edit. The first fixture run stopped at the old
+audit-render source pin, before behavioral cases ran; diagnosed, matching new
+source pin updated, affected hook/wrapper suite then passed 36/36. No claim of
+fresh complete CI or live activation. Independent `hub_product_push_repair_review`
+invoked with 6.1 Sol/high found no concrete new P1/P2 in the four-file delta;
+this is invocation evidence, not independent runtime attestation. T2 installation
+must verify real product entrypoints, not only canaries
+that call a different hook path. No active main window or remote mutation.
+
+Additional final checks: local strict audit, Bash syntax and diff hygiene PASS;
+central scope tests 4/4 PASS. One selected Stage B negative-identity assertion
+PASS is not a Stage B admission claim. Secretary context render: retained
+engine verified, writes:false, packet absent advisory. The repo's committed
+inspect report still describes 71e8699e, not the uncommitted repair candidate.
+
 ## Aktuális forráskiadási előfeltételek — 2026-10-21
 
 A `705e6b2736ae6bb7eeb806313109cc30f3b9bc6a` DOCSYNC checkpoint után a natív
@@ -279,6 +329,8 @@ by Arnold on 2026-10-21, limited to the two local commits described below.
   "scope": {
     "changeImpact": "protected", "riskTier": "high", "releaseProfile": "source-only",
     "changeAllowlist": [
+      "scripts/safe-repo-audit.sh",
+      "scripts/guarded-push.sh",
       "scripts/dev-v4-installed-controller-adapter.mjs",
       "scripts/dev-v4-target-hooks.mjs",
       "tests/dev-v4-installed-controller-adapter.test.mjs",

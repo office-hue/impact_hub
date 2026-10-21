@@ -1,5 +1,14 @@
 # Bastion Guard Status
 
+## Product-facing audit repair — 2026-10-21
+
+Local source: push-base parser/fallback and wrapper repaired; 36/36 isolated
+hook/wrapper cases passed, including actual audit rejection of synthetic secret
+content and preserved native identity/ref/dirty protections. No foreign memory
+writer or optional-service gate. Independent source review found no new P1/P2;
+deployed hooks unchanged.
+Missing or unrelated audit base is an actionable integrity error, never PASS.
+
 ## Aktuális T1 forráskiadási kapu — 2026-10-21
 
 A pontos `15d8c1a3..9c6da42a` deltára a natív `ci-validate` PASS: Bástya-dokumentum,

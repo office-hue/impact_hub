@@ -1,5 +1,25 @@
 # Hub T1 continuity — native commit boundary
 
+## Product entrypoint repair — 2026-10-21
+
+User rejected leaving future developers stuck on the old audit route. Local
+source now repairs explicit/no-upstream audit resolution and the guarded-push
+entrypoint (v3/legacy separation, no foreign memory gate, no executable-bit skip).
+The exact T1 delta gains two shell files, recorded in the task plan and central
+finite-scope amendment. Old immutable task pins/installed hook images unchanged.
+36/36 affected hook/wrapper cases pass after diagnosing the outdated renderer
+pin. Independent requested 6.1 Sol/high delta review found no concrete P1/P2;
+no new commit/push/PR/installation yet. Reviewed hashes:
+
+- audit: d2597be9e71d723271f270a3ff9de667cc039a14825b0db9b2cb4232c8b33f96;
+- guarded-push: bbde1d9c40ac6e4aa7870c51847dd1321f7fef6e4d3721537ce5e87d603bc854;
+- renderer: 0e52d73297655f42ecbdc9d6c77b7a72ebb86b40c56e40bc19d3a96b82012541;
+- test: 32362960fa5ae2e9ce7b2f9b14f301ef4abeb1bf16ae346f8e535e3e9013408c.
+
+Invocation choice is recorded; independent serving-model attestation is not.
+The earlier 71e8699e review/publication packet does not cover this new content.
+Secretary packet absence remains advisory; no fabricated receipt or old grant.
+
 ## Aktuális kiadási előellenőrzés — 2026-10-21
 
 DOCSYNC commit `705e6b2736ae6bb7eeb806313109cc30f3b9bc6a`, tree

@@ -35,12 +35,13 @@ HUB_LEGACY_IDENTITY
 export function renderHookImages(adapterSource = fs.readFileSync(new URL('./dev-v4-installed-controller-adapter.mjs', import.meta.url), 'utf8')) {
   if (typeof adapterSource !== 'string' || adapterSource.includes('\nHUB_FROZEN_ADAPTER\n')) throw new Error('adapter_source_invalid');
   // Four existing registered checkouts have precisely this pre-range audit.
-  // Its only successor changes are exact-range plumbing and the corresponding
-  // env-diff correction. Freeze that reviewed successor rather than modifying
+  // The successor preserves strict checks and adds exact-range plumbing,
+  // committed env-diff inspection and explicit push-base resolution. Freeze
+  // that reviewed successor rather than modifying
   // old worktree source or silently auditing a different upstream range.
   const legacyAuditDigest = '579cad7c22cf952c712f14e7d2a4b1c57d964ba4425b95a4c79e2222083b842d';
   const auditSource = fs.readFileSync(new URL('./safe-repo-audit.sh', import.meta.url));
-  if (crypto.createHash('sha256').update(auditSource).digest('hex') !== '1cf208707753cb6fbfae93af37a0b21ce3c5b5de5639de676693bc47ae6d9d9f') throw new Error('audit_render_source_changed');
+  if (crypto.createHash('sha256').update(auditSource).digest('hex') !== 'd2597be9e71d723271f270a3ff9de667cc039a14825b0db9b2cb4232c8b33f96') throw new Error('audit_render_source_changed');
   const context = `${legacy}
 continuity() {
   local namespace

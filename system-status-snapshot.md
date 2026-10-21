@@ -1,4 +1,12 @@
 
+## 2026-10-21 — Product-facing push repair, source only
+
+Uncommitted Hub repair: explicit/known-main audit base, v3-aware guarded-push,
+no foreign memory gate, guards checked despite mode0644. Hook/wrapper suite
+36/36 passed after diagnosed renderer-pin update. Independent delta review found no new P1/P2;
+71e8699e remains committed HEAD, installed hooks/task pins unchanged. No new
+publication/engine/T2 activation; no quiet window held. Details in task plan.
+
 ## 2026-10-21 — Aktuális T1 forráskiadási előfeltételek
 
 Forrás commitolt9c6da42a/bind5, eredeti policy/motor megtartva; öt jóváhagyott

@@ -1,5 +1,13 @@
 # Impact-Hub Doc Sync Map
 
+## 2026-10-21 — Product push repair map
+
+`scripts/safe-repo-audit.sh`, `scripts/guarded-push.sh` and the renderer pin map
+to `tests/dev-v4-hook-compatibility.test.mjs` (already imported by Stage B CI).
+Plan, continuity, governance, Bástya, notes and snapshot record the same local
+repair. Prior source review does not cover the revised candidate; no runtime
+activation or shared-hook replacement is implied by these source changes.
+
 ## Aktuális T1 publikálási előfeltétel-térkép — 2026-10-21
 
 A saját terv/continuity, governance, Bástya, notes és snapshot együtt rögzíti a

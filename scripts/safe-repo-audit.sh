@@ -102,11 +102,25 @@ GOVERNANCE_LANE_HITS="$TMP_DIR/governance-lane-hits.txt"
 GOVERNANCE_PLAN_HITS="$TMP_DIR/governance-plan-hits.txt"
 
 if [[ "$MODE" == "push" ]]; then
-  upstream_ref="${SAFE_REPO_AUDIT_UPSTREAM:-@{upstream}}"
-  if git rev-parse --verify "$upstream_ref" >/dev/null 2>&1; then
-    PUSH_BASE="$(git merge-base HEAD "$upstream_ref")"
-  else
-    PUSH_BASE="$(git hash-object -t tree /dev/null)"
+  # An explicit base is a binding, never a hint to silently replace.
+  # Keep @{upstream} outside parameter expansion: its closing brace used to
+  # append an extra '}' to every explicit override.
+  upstream_ref="${SAFE_REPO_AUDIT_UPSTREAM:-}"
+  if [[ -z "$upstream_ref" ]]; then
+    for candidate in '@{upstream}' refs/remotes/origin/HEAD refs/remotes/origin/main refs/remotes/origin/master refs/heads/main refs/heads/master; do
+      if git rev-parse --verify --end-of-options "${candidate}^{commit}" >/dev/null 2>&1; then
+        upstream_ref="$candidate"
+        break
+      fi
+    done
+  fi
+  if [[ -z "$upstream_ref" ]] || ! upstream_commit="$(git rev-parse --verify --end-of-options "${upstream_ref}^{commit}" 2>/dev/null)"; then
+    echo "ERROR: audit base unavailable; supply SAFE_REPO_AUDIT_UPSTREAM=<verified-base-commit> or use --mode range --base <sha> --head <sha>." >&2
+    exit 1
+  fi
+  if ! PUSH_BASE="$(git merge-base HEAD "$upstream_commit")"; then
+    echo "ERROR: audit base has no common history with HEAD; verify the intended base before publishing." >&2
+    exit 1
   fi
   PUSH_RANGE="${PUSH_BASE}..HEAD"
 elif [[ "$MODE" == "range" ]]; then
