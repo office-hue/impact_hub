@@ -5,12 +5,26 @@
 A `705e6b2736ae6bb7eeb806313109cc30f3b9bc6a` DOCSYNC checkpoint után a natív
 CI-diff/strict audit ismét PASS, supported bind revision6. A regisztrált
 `git-diff-check` indítását viszont `plan_change_impact_underclassified` állította
-meg még a check végrehajtása előtt. Diagnózis: a terv gépi deklarációja
-governance-only volt; a pinned recipe protected felületet lát. Javítás: kizárólag
+meg még a check végrehajtása előtt. Első diagnózis: a terv gépi deklarációja
+governance-only volt; a repo-natív CI protected felületet lát. Javítás: kizárólag
 a terv `changeImpact` mezője protected, a high kockázat és pontos fájlkör marad.
 Nincs gate/policy módosítás vagy átminősített PASS. Ellenőrzési sorrend: helyi
 plan-validate, natív docs commit, supported bind, regisztrált check és requirements
 visszaolvasás; a későbbi review-jogosultság ettől nem teljesül automatikusan.
+
+A protected deklaráció commitja `473d60575c0afa26f0674fb79262ceb990841649`,
+supported bind revision7. A regisztrált check indítása ugyanazzal az előfeltétel-
+hibával megállt, maga a check továbbra sem futott. Pontosított diagnózis:
+a retained `15d8c1a3:config/dev-delivery-v2-policy.json` nem tartalmaz
+`changeImpact` osztályozási térképet, és üres a `requiredChecksByProfile` illetve
+`registeredCommands`. A telepített recipe ezért unknown osztályt lát; egy
+unknown deklaráció csak elfedné az első hibát, a hiányzó checktáblákat nem pótolná.
+Ez nem ugyanaz az adapter, mint a valóban sikeres repo-natív ci-validate.
+A protected deklaráció marad a valós CI-hatásnak megfelelően. Nincs további
+vak rerun, kitalált check/review receipt, korai policy-migráció vagy root-policy
+írás. A policytáblák javítása az eredeti T2-csomag része; T1 kiadásához a Hub
+saját, pontosan jóváhagyott különutas publikálási döntése szükséges. A már
+meglévő v1 modellrouting emellett 5.6 review-t vár; annak hiánya sem lesz PASS.
 
 A forrás már commitolt: `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
 `bb510c73068b46c1fb0db996ce44a23ed030aaf9`; a támogatott feladatkötés revision5,

@@ -10,6 +10,15 @@ nem futott: `plan_change_impact_underclassified`. A pinned recipe diagnózisa é
 a terv deklarációját protectedre igazító javítás a terv elején; ez az első
 javítás erre a hibára. Kód, root policy, hook és régi pin változatlan.
 
+Pontosított diagnózis a protected-deklaráció `473d6057` commitja/bind7 után:
+a check indítása ismét előfeltételnél állt meg. A pinelt régi delivery policy
+osztályozási térképe hiányzik, profile/command táblái üresek; a v3 recipe ezért
+unknown értéket lát, nem a natív CI protected döntését. A javított protected
+tervdeklaráció helyes marad, de normál lifecycle publikálást nem állítunk.
+Egy ismert sikertelen repair után részletes diagnózis és következő lépés a terv
+elején: T2-policy előrehozása nélkül, saját Hub kiadási jogosultság rendezése.
+Nem következett újabb check/review futás vagy hamis 5.6 receipt.
+
 Tiszta forrás HEAD `9c6da42aee72c50e47804a33bf17e547c0136e9e`, tree
 `bb510c73068b46c1fb0db996ce44a23ed030aaf9`, bound revision5, eredeti policy/motor.
 Natív pontos-delta `ci-classify`: protected/operator-review, teljes validáció
