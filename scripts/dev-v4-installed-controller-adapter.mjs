@@ -79,7 +79,16 @@ function installedPath(file, env) {
 }
 function childEnvironment(env) {
   return { ...Object.fromEntries(Object.entries(env).filter(([key]) => !key.startsWith('GIT_'))),
-    GIT_TERMINAL_PROMPT: '0', GIT_NO_REPLACE_OBJECTS: '1' };
+    GIT_TERMINAL_PROMPT: '0', GIT_NO_REPLACE_OBJECTS: '1', GIT_OPTIONAL_LOCKS: '0' };
+}
+function continuityEnvironment(env) {
+  // Explicit JS callers can inject a disposable runtime. CLI/stdin-module calls
+  // always use the OS account, never HOME/PATH or runtime-loader overrides.
+  if (env !== process.env) return env;
+  const native = Object.fromEntries(Object.entries(env).filter(([key]) =>
+    !['NODE_OPTIONS', 'NODE_PATH', 'PYTHONPATH', 'PYTHONHOME', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME'].includes(key)
+    && !key.startsWith('LD_') && !key.startsWith('DYLD_')));
+  return { ...native, HOME: os.userInfo().homedir, PATH: '/usr/bin:/bin:/usr/sbin:/sbin' };
 }
 function git(repo, args, env) {
   const result = spawnSync('/usr/bin/git', ['-c', 'core.fsmonitor=false', '-C', repo, ...args],
@@ -159,11 +168,15 @@ export function assertTargetPolicy(repo, selector, engineDescriptor, base, env =
 export function buildArgs(repo, operation, options = {}) {
   const keys = {
     start: ['taskId', 'selector', 'branch', 'brief'], bind: ['taskId', 'planAnchor'], context: ['render'],
-    status: [], resume: [], projection: [],
+    status: [], resume: [], projection: [], continuity: ['mode'],
   };
   if (!Object.hasOwn(keys, operation) || !object(options) || Object.keys(options).some(key => !keys[operation].includes(key))) reject('operation_arguments_invalid');
   if (READ_ONLY.has(operation)) {
     return ['--repo', repo, operation];
+  }
+  if (operation === 'continuity') {
+    if (!['local', 'push'].includes(options.mode)) reject('continuity_arguments_invalid');
+    return ['--repo', repo, 'status'];
   }
   if (operation === 'context') {
     if (options.render !== true) reject('context_arguments_invalid');
@@ -189,16 +202,61 @@ function bound(repo, env) {
   const dir = path.join(gitDir, 'dev-v4-lifecycle'); let stat;
   try { stat = fs.lstatSync(dir); } catch (error) { if (error.code === 'ENOENT') return false; reject('lifecycle_state_unsafe'); }
   if (!stat.isDirectory() || stat.isSymbolicLink() || stat.uid !== process.getuid() || (stat.mode & 0o077)) reject('lifecycle_state_unsafe');
-  const state = json(regular(path.join(dir, 'state.json'), true));
+  const file = path.join(dir, 'state.json'), raw = regular(file, true), state = json(raw);
   if (state.schemaVersion !== 3 || state.repoId !== 'impact_hub' || !object(state.engine) || !sha40(state.engine.sourceCommit) || !sha64(state.engine.digest)) reject('lifecycle_state_invalid');
-  return true;
+  return { file, raw, state };
+}
+
+function continuityObservation(repo, task, observation, mode, env) {
+  const state = task.state, identity = state.identity;
+  const branch = git(repo, ['branch', '--show-current'], env), head = git(repo, ['rev-parse', 'HEAD'], env), tree = git(repo, ['rev-parse', 'HEAD^{tree}'], env);
+  const dirty = git(repo, ['status', '--porcelain', '--untracked-files=all'], env) !== '';
+  if (!branch || ['main', 'master'].includes(branch) || state.branch !== branch ||
+      !text(state.taskId) || !text(state.selectorId) || !object(identity) ||
+      state.base?.ref !== 'origin/main' || !sha40(state.base.commit) ||
+      ['codeBase', 'policyCommit', 'integrationBase', 'head', 'tree'].some(key => !sha40(identity[key])) ||
+      (identity.planAnchorCommit !== null && !sha40(identity.planAnchorCommit)) || identity.head !== head || identity.tree !== tree) reject('continuity_identity_mismatch');
+  for (const commit of [state.base.commit, identity.codeBase, identity.integrationBase]) git(repo, ['merge-base', '--is-ancestor', commit, head], env);
+  git(repo, ['cat-file', '-e', `${identity.policyCommit}^{commit}`], env);
+  if (identity.planAnchorCommit !== null) git(repo, ['merge-base', '--is-ancestor', identity.planAnchorCommit, head], env);
+  if (state.policyState !== 'implementation-ready') reject('continuity_policy_not_ready');
+  const sameFields = (a, b, keys) => object(a) && object(b) && keys.every(key => a[key] === b[key]);
+  if (observation.status !== 'current' || observation.writes !== false || observation.dirty !== dirty ||
+      !sameFields(observation, state, ['taskId', 'selectorId', 'policyState', 'revision', 'branch']) || observation.head !== head || observation.tree !== tree ||
+      !sameFields(observation.identity, identity, ['codeBase', 'policyCommit', 'integrationBase', 'planAnchorCommit', 'head', 'tree']) ||
+      observation.engine?.state !== 'verified' || state.engine.sourceRepo !== 'office-hue/ai-agent' ||
+      state.engine.capsuleSchemaVersion !== 3 || state.engine.engineContractVersion !== 1 ||
+      !sameFields(observation.engine.expected, state.engine, ['sourceRepo', 'sourceCommit', 'digest', 'engineContractVersion', 'capsuleSchemaVersion']) ||
+      observation.sourceMergeHandoff?.recoveryRequired === true) reject('continuity_unverified');
+  const marker = path.resolve(repo, git(repo, ['rev-parse', '--git-path', 'worktree-active.json'], env));
+  let markerExists = false, markerRaw = null;
+  try { fs.lstatSync(marker); markerExists = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  if (markerExists) {
+    markerRaw = regular(marker); const legacy = json(markerRaw);
+    if (legacy.branch !== branch || legacy.path !== repo || legacy.repo !== state.repoId ||
+        (legacy.selector !== undefined && legacy.selector !== state.selectorId) ||
+        (legacy.base !== undefined && (legacy.base.ref !== 'origin/main' || legacy.base.commit !== identity.codeBase)) ||
+        (legacy.head !== undefined && legacy.head !== head) || (legacy.tree !== undefined && legacy.tree !== tree) ||
+        (legacy.current !== undefined && (legacy.current.head !== head || legacy.current.tree !== tree))) reject('continuity_legacy_conflict');
+  }
+  for (const file of ['docs/impact-hub-doc-sync-map-2026-06-23.md', 'docs/impact-hub-governance-system-plan-2026-06-16.md', 'notes.md', 'system-status-snapshot.md']) {
+    if (!fs.lstatSync(path.join(repo, file)).isFile()) reject('continuity_document_missing');
+  }
+  if (markerExists ? regular(marker) !== markerRaw : fs.existsSync(marker)) reject('continuity_changed');
+  if (regular(task.file, true) !== task.raw || git(repo, ['branch', '--show-current'], env) !== branch || git(repo, ['rev-parse', 'HEAD'], env) !== head ||
+      git(repo, ['rev-parse', 'HEAD^{tree}'], env) !== tree || (git(repo, ['status', '--porcelain', '--untracked-files=all'], env) !== '') !== dirty) reject('continuity_changed');
+  if (mode === 'push' && dirty) reject('continuity_dirty_push');
+  return { status: 'allowed', decision: 'allowed', authority: 'installed-v3-continuity-only', mode, repoRoot: repo,
+    taskId: state.taskId, selectorId: state.selectorId, branch, head, tree, lifecycle: identity, engine: state.engine,
+    writes: false, publicationAuthorized: false, warnings: [] };
 }
 
 export function run(argv = process.argv.slice(2), env = process.env) {
   const [operation, ...rest] = argv;
+  if (operation === 'continuity') env = continuityEnvironment(env);
   noOverrides(env);
   const options = {}, seen = new Set(); let repo = env.OFFICE_DEV_REPO || process.cwd();
-  const names = { '--task-id': 'taskId', '--selector': 'selector', '--branch': 'branch', '--brief': 'brief', '--plan-anchor': 'planAnchor' };
+  const names = { '--task-id': 'taskId', '--selector': 'selector', '--branch': 'branch', '--brief': 'brief', '--plan-anchor': 'planAnchor', '--mode': 'mode' };
   for (let i = 0; i < rest.length; i += 1) {
     const key = rest[i];
     if (seen.has(key)) reject('argument_duplicate'); seen.add(key);
@@ -212,6 +270,7 @@ export function run(argv = process.argv.slice(2), env = process.env) {
   if (git(repo, ['rev-parse', '--show-toplevel'], env) !== repo) reject('exact_repository_root_required');
   assertTargetOrigin(repo, undefined, env);
   const hasBoundTask = bound(repo, env);
+  if (operation === 'continuity' && !hasBoundTask) reject('lifecycle_state_missing');
   if (operation === 'start' && !hasBoundTask) {
     if (git(repo, ['rev-parse', '--absolute-git-dir'], env) !== path.resolve(repo, git(repo, ['rev-parse', '--git-common-dir'], env)) ||
         git(repo, ['symbolic-ref', '--quiet', 'HEAD'], env) !== 'refs/heads/main') reject('start_requires_canonical_primary_main_checkout');
@@ -230,7 +289,8 @@ export function run(argv = process.argv.slice(2), env = process.env) {
     process.stderr.write(JSON.stringify({ status: 'blocked', error: output?.status === 'blocked' && SAFE_NATIVE_ERRORS.has(output.error) ? output.error : 'controller_failed' }) + '\n');
     return 1;
   }
-  process.stdout.write(JSON.stringify(json(result.stdout || '')) + '\n'); return 0;
+  const observation = json(result.stdout || '');
+  process.stdout.write(JSON.stringify(operation === 'continuity' ? continuityObservation(repo, hasBoundTask, observation, options.mode, env) : observation) + '\n'); return 0;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

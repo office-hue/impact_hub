@@ -1,5 +1,23 @@
 # Impact Hub Governance System Plan
 
+## Latest approved hook operation closed
+
+The exact five-hook transaction applied once and passed independent readback
+and installed local canaries. Ten worktrees share the hooks, but their sources,
+pins, routing/config and commit-msg were not changed. Operator writer window
+released; no source publication or engine/T2 activation. Retain the consumed
+grant/journal and follow the current task plan's HEAD-bound rollback limits.
+
+## Latest risk-scoped bootstrap — not live
+
+Current task plan permits one consumed docs-anchor exception then separately
+bound five-hook Hub transaction. T1 uses only dev-v4-prefixed source/tests and
+DOCSYNC; generic installers/wrappers remain T2. Frozen adapter and exact-hash
+legacy audit compatibility preserve older worktrees without source edits.
+Source review/continuity is not shared-apply/publication permission. Exact
+images, independent executor/runtime approval, native CAS, one-use grant and
+a short writer window remain live prerequisites. No window currently held.
+
 ## 2026-10-21 — DEV T1 reviewed adapter source candidate
 
 Exact plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md and continuity

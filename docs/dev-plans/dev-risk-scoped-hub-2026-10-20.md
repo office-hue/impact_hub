@@ -1,5 +1,69 @@
 # Hub DEV T1 — exact source plan and native recovery boundary
 
+## Latest live boundary — five shared Hub hooks applied and verified
+
+2026-10-21: exact operator approval, matching native prepare, one apply for
+transaction d6083b61-89a2-4b5d-996e-282713f4f178; all five exactpost/verified,
+terminal applied. Independent routing/config/source/executor/host readback
+matched across ten worktrees; commit-msg unchanged. Installed own pre-commit
+allowed with state bytes unchanged, dirty push rejected, three post-events
+exit0 without foreign memory writes. Private packet83Y0tM/CLOSURE.md owns the
+receipts/preimages/grant. Window released and work stops at the approved bound.
+This is local Hub hook activation only; no source commit/publication, engine,
+T2 or product deployment. Earlier source/installation forecasts are historical.
+These closure notes are uncommitted DOCSYNC, outside the earlier frozen stage.
+
+## Current implementation checkpoint — approved bootstrap, not installed
+
+Approved docs-only anchor `641b665cede097c5c30f98b8152a37e37364504e`, tree
+`23384467c916cc4aa3f629d2a3445076792b2a07`; supported bind revision4 retains
+original base/policy and engine. This context exception is consumed.
+Actual uncommitted T1 source: existing adapter/test, new
+`scripts/dev-v4-target-hooks.mjs`, `tests/dev-v4-hook-compatibility.test.mjs`
+and Stage B registration. Generic shell helpers remain T2-only.
+
+Frozen hooks embed the adapter, so older worktrees need no new local adapter.
+Continuity requires exact installed-status/state/Git agreement and ready policy,
+allows dirty local work but not dirty push, and grants no publication authority.
+Matched historical selectors are preserved without widening new-task start.
+Real own CLI local-continuity was allowed/writes:false at the above anchor.
+
+Independent five-axis review identified selector and Linux fixture portability
+defects; both are corrected. Only disposable fixtures substitute their Node
+runtime; real images retain the fixed Mac runtime. Reviewer runtime model and
+reasoning are not independently observable, so no model receipt is asserted.
+Review also exposed four older audits among ten registered Hub checkouts.
+Only exact old audit hash
+`579cad7c22cf952c712f14e7d2a4b1c57d964ba4425b95a4c79e2222083b842d`
+selects frozen range successor
+`1cf208707753cb6fbfae93af37a0b21ce3c5b5de5639de676693bc47ae6d9d9f`.
+The diff adds exact-range plumbing and committed env-diff inspection, not rule
+removal. Other versions execute their local exact-range audit without retry or
+fallback. No foreign source modification. The reviewer separately accepted
+this bounded compatibility design; fixtures exercise real audit allow/denial.
+
+Evidence: initial hook21/21 and targeted continuity34/34. Combined final-source
+entrypoint ran127 cases:126 PASS, one fixture asserted an error on stdout though
+the real audit emits it on stderr. Diagnosed assertion-only correction passed
+its focused1/1 rerun; unchanged126 results are reused, not called a fresh full
+127-case PASS. The same failing assertion appeared in an already-started full
+run; no further whole-suite rerun. An atomic DOCSYNC patch matched a partial
+notes line and was rejected without writes; repair uses complete known headings.
+
+Shared hooks/commit-msg/config/pins remain unchanged. Before apply: freeze exact
+source/images/executor/native prestate, independent approval, fresh one-use
+grant and short common-dir Git/hook/config writer window. Canary/rollback must
+precede native HEAD advancement. No current quiet window, new source commit,
+push, PR, merge, host install or T2 activation.
+
+Final independent delta review closed the findings with no remaining concrete
+P1/P2. Native strict local audit of the exact12 staged paths PASS. The actual
+rendered pre-commit was run as a read-only candidate canary in the own worktree:
+exit0/allowed/writes:false/publicationAuthorized:false, state SHA unchanged.
+This did not install or invoke any old shared hook. Images: pre-commit22612,
+pre-push37526 bytes; all five below65536. Exact image/source/executor bindings
+are kept in the private next-operation approval packet, not self-issued grants.
+
 ## 2026-10-21 — Approved pre-T1 bootstrap amendment
 
 Arnold's explicit "jóváhagyom" approves the requested one docs-anchor native
@@ -61,7 +125,7 @@ The read-only central hook matrix observed no dependent-activation routing
 block, writes:false and authorityGranted:false. It is a routing observation,
 not trusted hook contents, freshness at apply, a lease or activation permission.
 
-### Smallest source package after amendment admission
+### Historical proposal — superseded by the current checkpoint above
 
 1. Existing installed-controller adapter/test: add a bounded v3 continuity read
    of installed status, exact original task/base/policy/engine/current Git pins,

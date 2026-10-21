@@ -1,4 +1,17 @@
 
+## 2026-10-21 DEV risk-scoped bootstrap — source only
+
+Latest superseding observation: approved five-Hub-hook transaction applied and
+independently verified; own installed canaries passed, task pins/config unchanged.
+Window released. Local hook activation only; source publication/engine/T2 remain
+pending. Current plan/continuity and private packet83Y0tM carry exact evidence.
+
+Approved anchor641b665/bind4; original pins retained. Five-hook renderer and
+installed-v3 continuity implemented; review fixes and exact-hash old-audit
+compatibility recorded in the current task plan. Combined126/127 then repaired
+focused1/1; no invented whole-suite or live PASS. Shared hooks unchanged,
+publication/host install/T2 pending, no quiet window held.
+
 ## 2026-09-11 DEV v4 Stage B
 
 Repository identity correction: CI binds `office-hue/impact_hub` to numeric ID

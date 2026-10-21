@@ -1,5 +1,30 @@
 # Hub T1 continuity — native commit boundary
 
+## Latest: approved five-hook apply closed
+
+Transaction d6083b61-89a2-4b5d-996e-282713f4f178 applied once and independently
+verified: five exactpost, unchanged commit-msg/config/routing/pins, installed
+own canary allowed and dirty push blocked. Private packet83Y0tM/CLOSURE.md
+retains evidence and recovery bounds. Writer window released; stop requested.
+No source commit/publication/engine/T2 activation. Next source work must include
+these uncommitted DOCSYNC notes and preserve the consumed operation records.
+
+## Latest checkpoint — source implementation, shared hooks unchanged
+
+Docs anchor641b665cede097c5c30f98b8152a37e37364504e/bind4 retains original pins.
+Adapter, embedded hook renderer, real legacy-audit compatibility and tests are
+implemented locally. Current plan records independent review/fixes, ten-tree
+read-only compatibility inventory and evidence126/127 plus focused repaired1/1.
+Real own CLI continuity is allowed/writes:false/publicationAuthorized:false.
+Shared apply, source commit/publication and activation remain pending; short
+writer window is not held. Secretary packet absence remains advisory. Historical
+forecasts below are retained, not current execution claims.
+
+Final independent delta review closed with no concrete remaining P1/P2. Native
+strict staged12-path audit PASS; actual rendered pre-commit candidate canary
+exit0 with state bytes unchanged. No shared installation. Next boundary is the
+private exact-source/image/executor approval packet and short writer window.
+
 Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; task/branch
 dev-risk-scoped-hub-20261020 / dev/risk-scoped-hub-20261020.
 Base/policy15d8c1a380401a167c0f3e13e54b9b8ad5f21078;

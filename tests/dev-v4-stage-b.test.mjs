@@ -6,6 +6,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import './dev-v4-installed-controller-adapter.test.mjs';
+import './dev-v4-hook-compatibility.test.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const policyPath = path.join(root, 'config/dev-v4/stage-b-policy.v1.json');

@@ -1,5 +1,21 @@
 # Bastion Guard Status
 
+## Latest live boundary — Hub hooks only
+
+Five approved hooks now installed/exactpost; commit-msg and other routing/config
+unchanged. Real local continuity allowed, dirty push rejected, post-event memory
+writes removed. Transaction83Y0tM closure evidence is in the current task plan/
+continuity. Window released; no full-rollout, source publication or T2 PASS.
+
+## Latest bootstrap implementation — not installed
+
+Current task plan/continuity supersede forecasts below. Five-hook renderer
+preserves main/ref/origin/exact-range/audit controls and verified-v3 identity,
+never falls back after v3 denial, and removes foreign memory writes.
+Exact-hash legacy audit compatibility preserves strict denial; commit-msg and
+shared hooks unchanged. Review corrections and126/127 plus repaired1/1 evidence
+are recorded in the plan, not a fresh full PASS or live/Stage B authorization.
+
 ## 2026-10-21 — DEV T1 reviewed source candidate
 
 Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual ledger

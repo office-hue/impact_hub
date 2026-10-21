@@ -1,5 +1,21 @@
 # Impact-Hub Doc Sync Map
 
+## Latest hook closure
+
+Current task plan/continuity now record applied/verified five-hook transaction
+d6083b61-89a2-4b5d-996e-282713f4f178, private packet83Y0tM. Bastion/governance/
+notes/snapshot synchronized as local uncommitted closure. Window released;
+source publication and engine/T2 acceptance remain separate and incomplete.
+
+## Latest risk-scoped bootstrap mapping
+
+Current plan: docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual evidence:
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. New source/test: frozen
+dev-v4-target-hooks renderer and dev-v4-hook-compatibility suite, registered by
+Stage B alongside the updated installed adapter. Governance/Bastion/notes/
+snapshot are synchronized. Anchor641b665/bind4; original pins retained.
+Shared-hook apply/publication pending; no fabricated Secretary receipt.
+
 ## 2026-10-21 — DEV T1 source candidate, publication pending
 
 Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; evidence/next

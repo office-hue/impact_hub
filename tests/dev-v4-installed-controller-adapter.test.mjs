@@ -199,3 +199,119 @@ for (const [name, body, error] of [
   ['unknown JSON error', 'process.stderr.write(JSON.stringify({status:"blocked",error:"SECRET /private/secret"}));process.exit(1);', 'controller_failed'],
   ['duplicate error', 'process.stderr.write("{\\"status\\":\\"blocked\\",\\"error\\":\\"task_identity_mismatch\\",\\"error\\":\\"SECRET\\"}");process.exit(1);', 'controller_failed'],
 ]) test(`sanitizes ${name} output`, t => { const f = fixture(t); f.loaderBody(body); f.blocked(['status'], error); });
+
+function continuityFixture(t) {
+  const f = fixture(t), base = f.git('rev-parse', 'HEAD');
+  f.git('checkout', '-b', 'dev/fixture-task');
+  for (const file of ['docs/impact-hub-doc-sync-map-2026-06-23.md', 'docs/impact-hub-governance-system-plan-2026-06-16.md', 'notes.md', 'system-status-snapshot.md']) {
+    fs.mkdirSync(path.dirname(path.join(f.root, file)), { recursive: true });
+    fs.writeFileSync(path.join(f.root, file), 'Synthetic continuity document\n');
+  }
+  f.git('add', '.'); f.git('commit', '-m', 'synthetic task delta');
+  const head = f.git('rev-parse', 'HEAD'), tree = f.git('rev-parse', 'HEAD^{tree}');
+  const engine = { ...accepted, capsuleSchemaVersion: 3 };
+  const state = { schemaVersion: 3, repoId: 'impact_hub', taskId: 'fixture-task', selectorId: 'dev-governance-source',
+    policyState: 'implementation-ready', revision: 4, branch: 'dev/fixture-task', engine,
+    base: { ref: 'origin/main', commit: base }, identity: { codeBase: base, policyCommit: base, integrationBase: base, planAnchorCommit: head, head, tree } };
+  f.bind(); fs.writeFileSync(f.stateFile, JSON.stringify(state));
+  const observation = { status: 'current', taskId: state.taskId, selectorId: state.selectorId, policyState: state.policyState,
+    revision: state.revision, branch: state.branch, head, tree, dirty: false, identity: structuredClone(state.identity),
+    engine: { state: 'verified', expected: engine }, writes: false };
+  function respond(value = observation, prefix = '') {
+    f.loaderBody(`${prefix}\nif (JSON.stringify(process.argv.slice(2)) !== ${JSON.stringify(JSON.stringify(['--repo', f.root, 'status']))}) process.exit(9); process.stdout.write(${JSON.stringify(JSON.stringify(value))});`);
+  }
+  function run(mode = 'push', options = {}) {
+    const args = options.args ?? ['continuity', '--repo', f.root, '--mode', mode];
+    const injected = { ...f.env, ...options.env };
+    // Injection is a JS library call in this disposable subprocess, never a CLI flag.
+    const source = `import os from 'node:os'; import {run} from ${JSON.stringify(new URL('../scripts/dev-v4-installed-controller-adapter.mjs', import.meta.url).href)};
+      ${options.native ? `os.userInfo=()=>({homedir:${JSON.stringify(f.home)}});` : ''}
+      try { process.exitCode=run(${JSON.stringify(args)}${options.native ? '' : `,${JSON.stringify(injected)}`}); }
+      catch(error) {process.stderr.write(JSON.stringify({status:'blocked',error:error.message})+'\\n');process.exitCode=1;}`;
+    return spawnSync(process.execPath, ['--input-type=module', '-e', source], { cwd: f.root, env: injected, encoding: 'utf8', timeout: 10000 });
+  }
+  function blocked(mode, code, options) {
+    const result = run(mode, options); assert.equal(result.status, 1, result.stdout);
+    assert.equal(result.stdout, ''); const value = JSON.parse(result.stderr); assert.equal(value.status, 'blocked');
+    if (code) assert.equal(value.error, code); assert.ok(!result.stderr.includes('SECRET')); assert.ok(!result.stderr.includes(path.dirname(f.root)));
+  }
+  respond(); return { ...f, state, observation, respond, continuity: run, continuityBlocked: blocked };
+}
+
+test('continuity preserves a historical selector verified by installed status without widening start', t => {
+  const f = continuityFixture(t);
+  f.state.selectorId = f.observation.selectorId = 'historical-source-task';
+  fs.writeFileSync(f.stateFile, JSON.stringify(f.state)); f.respond();
+  const result = f.continuity();
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).selectorId, 'historical-source-task');
+  assert.throws(() => buildArgs(f.root, 'start', { taskId: 'fixture-task', selector: 'historical-source-task' }));
+  f.state.selectorId = f.observation.selectorId = '';
+  fs.writeFileSync(f.stateFile, JSON.stringify(f.state)); f.respond();
+  f.continuityBlocked('push', 'continuity_identity_mismatch');
+});
+
+test('continuity observes installed v3 pins without legacy or lifecycle writes', t => {
+  const f = continuityFixture(t), before = snapshot(f.root), result = f.continuity();
+  assert.equal(result.status, 0, result.stderr); const value = JSON.parse(result.stdout);
+  assert.equal(value.authority, 'installed-v3-continuity-only'); assert.equal(value.publicationAuthorized, false); assert.equal(value.writes, false);
+  assert.deepEqual(value.lifecycle, f.state.identity); assert.notEqual(value.head, value.lifecycle.codeBase);
+  assert.equal(value.selectorId, 'dev-governance-source'); assert.equal(fs.existsSync(path.join(f.root, '.git/worktree-active.json')), false);
+  assert.deepEqual(snapshot(f.root), before);
+});
+for (const [label, mutate] of [
+  ['stale status', o => o.status = 'stale'], ['recovery state', o => o.status = 'recovery'],
+  ['pending handoff', o => o.sourceMergeHandoff = { recoveryRequired: true }],
+  ['unverified engine', o => o.engine.state = 'unverified'], ['wrong pin', o => o.engine.expected.digest = 'd'.repeat(64)],
+  ['wrong task', o => o.taskId = 'other'], ['wrong selector', o => o.selectorId = 'standard-source-brief'],
+  ['wrong branch', o => o.branch = 'dev/other'], ['wrong head', o => o.head = '1'.repeat(40)],
+  ['wrong tree', o => o.tree = '1'.repeat(40)], ['wrong base', o => o.identity.codeBase = o.head],
+  ['wrong policy', o => o.identity.policyCommit = o.head], ['wrong anchor', o => o.identity.planAnchorCommit = null],
+  ['wrong revision', o => o.revision++], ['write claim', o => o.writes = true], ['dirty mismatch', o => o.dirty = true],
+]) test(`continuity refuses ${label}`, t => {
+  const f = continuityFixture(t); mutate(f.observation); f.respond(); f.continuityBlocked('push', 'continuity_unverified');
+});
+for (const policyState of ['blocked', 'planning-only', 'stale', 'unknown']) test(`continuity rejects matching non-ready policy ${policyState}`, t => {
+  const f = continuityFixture(t); f.state.policyState = policyState; f.observation.policyState = policyState;
+  fs.writeFileSync(f.stateFile, JSON.stringify(f.state)); f.respond(); const before = fs.readFileSync(f.stateFile);
+  for (const mode of ['local', 'push']) f.continuityBlocked(mode, 'continuity_policy_not_ready');
+  assert.deepEqual(fs.readFileSync(f.stateFile), before);
+});
+test('continuity allows dirty local observation but requires clean push', t => {
+  const f = continuityFixture(t); fs.writeFileSync(path.join(f.root, 'untracked'), 'fixture'); f.observation.dirty = true; f.respond();
+  assert.equal(f.continuity('local').status, 0); f.continuityBlocked('push', 'continuity_dirty_push');
+});
+test('continuity rejects state mutation during installed observation', t => {
+  const f = continuityFixture(t); f.respond(f.observation, `require('node:fs').appendFileSync(${JSON.stringify(f.stateFile)},' ');`);
+  f.continuityBlocked('push', 'continuity_changed');
+});
+test('continuity preserves a compatible existing legacy marker', t => {
+  const f = continuityFixture(t), file = path.join(f.root, '.git/worktree-active.json');
+  const raw = JSON.stringify({ branch: f.state.branch, path: f.root, repo: 'impact_hub', selector: f.state.selectorId, base: f.state.base });
+  fs.writeFileSync(file, raw, { mode: 0o600 }); assert.equal(f.continuity().status, 0); assert.equal(fs.readFileSync(file, 'utf8'), raw);
+});
+for (const kind of ['foreign branch', 'wrong base', 'wrong selector', 'symlink']) test(`continuity rejects ${kind} legacy marker`, t => {
+  const f = continuityFixture(t), file = path.join(f.root, '.git/worktree-active.json');
+  const marker = { branch: f.state.branch, path: f.root, repo: 'impact_hub', selector: f.state.selectorId, base: f.state.base };
+  if (kind === 'foreign branch') marker.branch = 'dev/other';
+  if (kind === 'wrong base') marker.base = { ref: 'origin/main', commit: f.state.identity.head };
+  if (kind === 'wrong selector') marker.selector = 'standard-source-brief';
+  if (kind === 'symlink') fs.symlinkSync(f.stateFile, file); else fs.writeFileSync(file, JSON.stringify(marker), { mode: 0o600 });
+  const before = fs.lstatSync(file).isSymbolicLink() ? fs.readlinkSync(file) : fs.readFileSync(file, 'utf8');
+  f.continuityBlocked('push', kind === 'symlink' ? 'controller_file_unsafe_or_missing' : 'continuity_legacy_conflict');
+  assert.equal(fs.lstatSync(file).isSymbolicLink() ? fs.readlinkSync(file) : fs.readFileSync(file, 'utf8'), before);
+});
+test('continuity rejects absent and orphan v3 without legacy fallback', t => {
+  const f = continuityFixture(t); fs.unlinkSync(f.stateFile); f.continuityBlocked('push', 'controller_file_unsafe_or_missing');
+  fs.rmdirSync(f.stateDir); f.continuityBlocked('push', 'lifecycle_state_missing');
+});
+for (const args of [['continuity'], ['continuity', '--mode', 'release'], ['continuity', '--mode', 'push', '--mode', 'local'], ['continuity', '--mode', 'push', '--selector', 'dev-governance-source']]) test(`continuity rejects argv ${args.join(' ')}`, t => {
+  const f = continuityFixture(t); f.continuityBlocked('push', undefined, { args });
+});
+test('continuity production invocation ignores caller HOME PATH and runtime injections', t => {
+  const f = continuityFixture(t), foreignHome = path.join(f.home, 'foreign'); fs.mkdirSync(foreignHome);
+  const checks = `if(process.env.HOME!==${JSON.stringify(f.home)}||process.env.PATH!=='/usr/bin:/bin:/usr/sbin:/sbin'||['NODE_OPTIONS','NODE_PATH','PYTHONPATH','PYTHONHOME','XDG_CONFIG_HOME','DYLD_INSERT_LIBRARIES'].some(key=>key in process.env))process.exit(9);`;
+  f.respond(f.observation, checks);
+  const result = f.continuity('push', { native: true, env: { HOME: foreignHome, PATH: foreignHome, NODE_OPTIONS: '', NODE_PATH: foreignHome, PYTHONPATH: foreignHome, PYTHONHOME: foreignHome, XDG_CONFIG_HOME: foreignHome, DYLD_INSERT_LIBRARIES: '' } });
+  assert.equal(result.status, 0, result.stderr); assert.equal(JSON.parse(result.stdout).publicationAuthorized, false);
+});
