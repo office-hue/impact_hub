@@ -1,5 +1,47 @@
 # Impact-Hub Doc Sync Map
 
+## 2026-10-21 — Product push repair map
+
+`scripts/safe-repo-audit.sh`, `scripts/guarded-push.sh` and the renderer pin map
+to `tests/dev-v4-hook-compatibility.test.mjs` (already imported by Stage B CI).
+Plan, continuity, governance, Bástya, notes and snapshot record the same local
+repair. Prior source review does not cover the revised candidate; no runtime
+activation or shared-hook replacement is implied by these source changes.
+
+## Aktuális T1 publikálási előfeltétel-térkép — 2026-10-21
+
+A saját terv/continuity, governance, Bástya, notes és snapshot együtt rögzíti a
+commitolt `9c6da42a` forrást, a lezárt helyi hooktelepítést és a tényleges
+protected/full-validation CI-utat. Natív diff/continuity ellenőrzés PASS;
+teljes CI, publikálás, Air/Mini motor és T2 elfogadás még nincs igazolva.
+A korábbi „uncommitted/not installed” szövegek történetiek, nem aktuális státusz.
+
+## Latest hook closure
+
+Current task plan/continuity now record applied/verified five-hook transaction
+d6083b61-89a2-4b5d-996e-282713f4f178, private packet83Y0tM. Bastion/governance/
+notes/snapshot synchronized as local uncommitted closure. Window released;
+source publication and engine/T2 acceptance remain separate and incomplete.
+
+## Latest risk-scoped bootstrap mapping
+
+Current plan: docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual evidence:
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. New source/test: frozen
+dev-v4-target-hooks renderer and dev-v4-hook-compatibility suite, registered by
+Stage B alongside the updated installed adapter. Governance/Bastion/notes/
+snapshot are synchronized. Anchor641b665/bind4; original pins retained.
+Shared-hook apply/publication pending; no fabricated Secretary receipt.
+
+## 2026-10-21 — DEV T1 source candidate, publication pending
+
+Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; evidence/next
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Anchor b598b000 and supported
+bind revision2/implementation-ready; adapter59/59, combined entrypoint68/68,
+independent five-axis/security review complete. Real SECRETARY render verified/
+writes:false/packet absent, state unchanged. Actual Stage B remains protected;
+pre-push registration failures remain. Native exception only for two explicitly
+approved local commits; no policy/hook/provider/runtime mutation or live readiness.
+
 Datum: 2026-06-23
 Statusz: canonical local doc-sync map
 RepoId: `impact_hub`

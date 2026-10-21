@@ -1,5 +1,48 @@
 # Bastion Guard Status
 
+## Product-facing audit repair — 2026-10-21
+
+Local source: push-base parser/fallback and wrapper repaired; 36/36 isolated
+hook/wrapper cases passed, including actual audit rejection of synthetic secret
+content and preserved native identity/ref/dirty protections. No foreign memory
+writer or optional-service gate. Independent source review found no new P1/P2;
+deployed hooks unchanged.
+Missing or unrelated audit base is an actionable integrity error, never PASS.
+
+## Aktuális T1 forráskiadási kapu — 2026-10-21
+
+A pontos `15d8c1a3..9c6da42a` deltára a natív `ci-validate` PASS: Bástya-dokumentum,
+kötelező continuity és diff ellenőrizve. Az osztály protected, a teljes CI kell;
+ez nem Stage B ready vagy provider/live jogosultság. A jóváhagyott hooktelepítés
+nem ismétlődött. A DOCSYNC nem módosít hookot, kódot, policyt, hash-lockot,
+feladatpint vagy védelmi szabályt. A régebbi bejegyzések történetiek.
+
+## Latest live boundary — Hub hooks only
+
+Five approved hooks now installed/exactpost; commit-msg and other routing/config
+unchanged. Real local continuity allowed, dirty push rejected, post-event memory
+writes removed. Transaction83Y0tM closure evidence is in the current task plan/
+continuity. Window released; no full-rollout, source publication or T2 PASS.
+
+## Latest bootstrap implementation — not installed
+
+Current task plan/continuity supersede forecasts below. Five-hook renderer
+preserves main/ref/origin/exact-range/audit controls and verified-v3 identity,
+never falls back after v3 denial, and removes foreign memory writes.
+Exact-hash legacy audit compatibility preserves strict denial; commit-msg and
+shared hooks unchanged. Review corrections and126/127 plus repaired1/1 evidence
+are recorded in the plan, not a fresh full PASS or live/Stage B authorization.
+
+## 2026-10-21 — DEV T1 reviewed source candidate
+
+Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual ledger
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Adapter59/59 and combined
+entrypoint68/68; independent five-axis/security review found no confirmed defect.
+Maximum bastion: pass-unverified/authoritative:false/ready:false. Actual legacy
+Stage B protected/missing marker, not PASS. User approved exactly two local
+context-exception commits without foreign npm writers; shared hooks unchanged.
+No root-policy/pin/Stage A/product/host change or fabricated capsule/admission.
+
 Status: corrective checkpoint candidate, no external mutation
 Last updated: 2026-09-04
 

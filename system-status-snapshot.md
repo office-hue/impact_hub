@@ -1,4 +1,34 @@
 
+## 2026-10-21 — Product-facing push repair, source only
+
+Uncommitted Hub repair: explicit/known-main audit base, v3-aware guarded-push,
+no foreign memory gate, guards checked despite mode0644. Hook/wrapper suite
+36/36 passed after diagnosed renderer-pin update. Independent delta review found no new P1/P2;
+71e8699e remains committed HEAD, installed hooks/task pins unchanged. No new
+publication/engine/T2 activation; no quiet window held. Details in task plan.
+
+## 2026-10-21 — Aktuális T1 forráskiadási előfeltételek
+
+Forrás commitolt9c6da42a/bind5, eredeti policy/motor megtartva; öt jóváhagyott
+hook helyi telepítése lezárt. A pontos CI-osztályozás protected/full-validation,
+natív diff/Bástya/continuity PASS, nem teljes CI vagy publikálási jogosultság.
+Saját Jest-függőségek hiányoznak, nincs install/CI/provider/harvester. A részletes
+kiadási sorrend a saját terv aktuális elején. Publikálás, Air/Mini motor és T2
+elfogadás még nincs igazolva; nincs nyugalmi ablak. A korábbi sorok történetiek.
+
+## 2026-10-21 DEV risk-scoped bootstrap — source only
+
+Latest superseding observation: approved five-Hub-hook transaction applied and
+independently verified; own installed canaries passed, task pins/config unchanged.
+Window released. Local hook activation only; source publication/engine/T2 remain
+pending. Current plan/continuity and private packet83Y0tM carry exact evidence.
+
+Approved anchor641b665/bind4; original pins retained. Five-hook renderer and
+installed-v3 continuity implemented; review fixes and exact-hash old-audit
+compatibility recorded in the current task plan. Combined126/127 then repaired
+focused1/1; no invented whole-suite or live PASS. Shared hooks unchanged,
+publication/host install/T2 pending, no quiet window held.
+
 ## 2026-09-11 DEV v4 Stage B
 
 Repository identity correction: CI binds `office-hue/impact_hub` to numeric ID
@@ -3792,3 +3822,20 @@ because the adapter still pinned every future PR base to the old Stage A
 activation commit. The bounded CI correction binds the current PR event's
 exact `main` base/head and Stage A ancestry; this is a source candidate until
 the next CI readback passes. Provider/runtime authority remains false.
+
+## 2026-10-20 — DEV T1 planning-only local WIP
+
+Task dev-risk-scoped-hub-20261020; own separate worktree, released quiet window.
+Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; no code/commit/bind.
+SECRETARY engine verified/packet absent; native recovery unresolved, no fake PASS.
+
+## 2026-10-21 — DEV T1 reviewed local source candidate
+
+Task dev-risk-scoped-hub-20261020, anchor b598b000, supported bind revision2.
+Adapter59/59, combined entrypoint68/68; independent architecture/five-axis review
+and managed security diff complete (zero reportable findings). Actual new-adapter
+SECRETARY render verified/writes:false/state unchanged, optional packet absent.
+Actual legacy Stage B protected; maximum bastion pass-unverified, never ready.
+Explicit two-local-commit context exception/no foreign npm writer only; no
+shared hook/policy/pin/Stage A/product/provider/host/runtime change. Central
+exact-path admission and publication/activation remain separate pending work.

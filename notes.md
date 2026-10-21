@@ -1,4 +1,8 @@
+[2026-10-21] | Product-facing push repair: local audit base parser/known-main fallback and v3-aware guarded-push repaired, no foreign memory gate or executable-bit skip. 36/36 affected fixture cases passed; independent requested 6.1 Sol/high source review found no new P1/P2. Two exact shell paths added to proposed T1 scope, central publication still needed. No new commit/push/shared-hook change/engine/T2 activation; old notes below are historical.
+[2026-10-21] | Aktuális T1: forrás commitolt9c6da42a/bind5; öt jóváhagyott hook helyben telepítve. Pontos CI-osztályozás protected/full-validation; natív ci-validate PASS, nem teljes CI. Saját Jest-függőségek hiányoznak, nincs install/CI/provider/harvester. A terv/continuity/governance/map/Bástya/snapshot összehangolva; a korábbi eltérő állítások történetiek. Publikálás, Air/Mini motor és T2 még nincs igazolva; nincs aktív nyugalmi ablak.
 [2026-09-11T00:00:00Z] | DEV v4 Stage A CI correction receipt: az existing DEV v2 classifier a Stage A utvonalakat `protected` osztalyba sorolja; a correction-range CI igy `operator-review`, kotelezo teljes validacioval, nem `unknown-path-class`. Authority widening, provider/runtime vagy egyeb live mutation nem tortent.
+[2026-10-21] | Latest: approved Hub five-hook transaction d6083b61 applied once, independently verified with installed local canaries; commit-msg/config/task pins unchanged. Window released, stop at agreed boundary. No source publication, engine/T2 or product deployment. Exact closure in task plan/continuity and private packet83Y0tM; Secretary receipt not fabricated.
+[2026-10-21] | Risk-scoped bootstrap: approved docs anchor641b665/bind4, original pins retained. Embedded five-hook source/continuity and exact-hash legacy audit compatibility implemented; independent review corrections and126/127 plus repaired1/1 evidence in task plan/continuity. Shared hooks unchanged; no source publication, activation or quiet window. Optional Secretary packet absent, no fabricated receipt.
 [2026-09-11T00:00:00Z] | DEV v4 Stage B source-only receipt: a natív adapter csak local Node ellenőrzést és `stage-b-admitted-unverified` döntést ad; ready/provider/build/deploy/VPS/runtime/secret/cron/watchdog és shared-dependency authority nincs. A Stage B v2 protected lane-ben marad.
 [2026-09-11T00:00:00Z] | DEV v4 Stage B Terra P1: a Stage A verifier exact Stage A blobra állt vissza; a Stage B adapter ellenőrzi a canonical capsule/decision/branch/HEAD/tree és immutable Stage A/central digest állapotot.
 
@@ -73,3 +77,22 @@ target-contract snapshot and root lockfile are intentionally unchanged.
 [2026-09-17T16:59:00Z] | PR #50 CI passed full Jest then failed Stage B `ci-pr-tuple-invalid` because the adapter requires every PR base to equal the old one-time activation SHA. Sol/high read-only QA confirmed a bounded event main-base/head + Stage A ancestry correction without live authority expansion. A new candidate and exact CI readback are pending; failed run 35249814622 is not PASS.
 
 [2026-09-27T00:00:00Z] | DEV v4 Impact Hub installed-controller adapter: target policy bundle and thin adapter are source-only and review-complete after the Terra/high P1 correction. Stage A/B 13/13, adapter execution-path 7/7, installed CLI start/status/resume/context smoke, diff-check and continuity guard passed. No deploy, provider/VPS/runtime/cron/secret/dependency mutation occurred; push/PR/merge remains 0/0/0.
+
+## 2026-10-20 — DEV T1 exact plan, native recovery pending
+
+Own planning-only task dev-risk-scoped-hub-20261020, base15d8c1a380401a167c0f3e13e54b9b8ad5f21078.
+Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; real SECRETARY verified,
+packet absent. Native missing-context/foreign post-commit writing blocks commits;
+no override, code, shared/foreign write, provider or activation. Bounded independent
+five-axis plan review found no new material issue; explicit safe native recovery next.
+
+## 2026-10-21 — DEV T1 reviewed source candidate
+
+Anchor b598b000/supported bind revision2; three-file adapter/test implementation.
+Node22 adapter59/59 and combined entrypoint68/68 PASS; real SECRETARY render
+verified/writes:false/packet absent/state unchanged. Independent architecture,
+five-axis code audit and managed security diff completed with no confirmed issue.
+User-approved context exception/no foreign npm writer is limited to two local
+commits. Real Stage B protected and pre-push registrations remain publication
+blockers; rootv1/pins/Stage A/shared hooks and provider/runtime untouched.
+Plan/evidence: docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md.

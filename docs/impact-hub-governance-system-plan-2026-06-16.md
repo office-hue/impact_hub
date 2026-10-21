@@ -1,5 +1,57 @@
 # Impact Hub Governance System Plan
 
+## 2026-10-21 — Repair the developer path instead of waiving it
+
+The risk-scoped task now includes the old safe-repo-audit and guarded-push
+entrypoints. Explicit base parsing and first-push known-main resolution replace
+the accidental empty-tree scan; invalid explicit bases are not silently changed.
+The wrapper uses v3 continuity when a lifecycle namespace exists, never falls
+back after denial, retains legacy checks for old tasks and invokes no foreign
+memory gate. Secret and native Git protections stay enforced. DOCSYNC remains
+required; this repair does not weaken its existing rules. Source-only evidence:
+36/36 hook/wrapper cases; independent delta review found no new P1/P2. Deployment and final
+product-entrypoint acceptance on both hosts remain outstanding.
+
+## Aktuális T1 kiadási állapot — 2026-10-21
+
+Forrás commitolt (`9c6da42a`), az öt jóváhagyott Hub hook helyi telepítése lezárt.
+A pontos base/head CI-osztályozás protected, teljes validáció kötelező; natív
+diff/Bástya/continuity ellenőrzés PASS, de nem teljes CI vagy publikálási PASS.
+A saját Jest-függőségek hiányoznak; nincs helyi install vagy shared-cache írás.
+A teljes PR-workflow és műveleti feltételek a
+`docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md` aktuális elején szerepelnek.
+A régi állapotbejegyzések történetiek. Nincs új push, deploy vagy aktív ablak.
+
+## Latest approved hook operation closed
+
+The exact five-hook transaction applied once and passed independent readback
+and installed local canaries. Ten worktrees share the hooks, but their sources,
+pins, routing/config and commit-msg were not changed. Operator writer window
+released; no source publication or engine/T2 activation. Retain the consumed
+grant/journal and follow the current task plan's HEAD-bound rollback limits.
+
+## Latest risk-scoped bootstrap — not live
+
+Current task plan permits one consumed docs-anchor exception then separately
+bound five-hook Hub transaction. T1 uses only dev-v4-prefixed source/tests and
+DOCSYNC; generic installers/wrappers remain T2. Frozen adapter and exact-hash
+legacy audit compatibility preserve older worktrees without source edits.
+Source review/continuity is not shared-apply/publication permission. Exact
+images, independent executor/runtime approval, native CAS, one-use grant and
+a short writer window remain live prerequisites. No window currently held.
+
+## 2026-10-21 — DEV T1 reviewed adapter source candidate
+
+Exact plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md and continuity
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Three-file adapter/test
+change implemented after anchor b598b000/supported bind; adapter59/59, combined
+entrypoint68/68, independent five-axis/security review complete. Preserve rootv1,
+old pins, Stage A and shared hooks. User explicitly approved two local native-
+context exceptions without foreign npm writers; no source-only approval grants
+publication/live authority. Real Stage B protected; pre-push prerequisites remain.
+Next: protected central exact target-path admission, later separate release-set/
+Air-then-Mini staging and T2 authority. T1 is not T2 activation.
+
 Datum: 2026-06-16
 Statusz: canonical local governance hub
 Scope: rovid, repo-helyi belepesi pont az `impact_hub` governance, review, continuity es deploy/guard szabalyaihoz.
