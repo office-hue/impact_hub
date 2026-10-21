@@ -1,5 +1,12 @@
 # Bastion Guard Status
 
+## 2026-10-20 — DEV T1 plan-only WIP
+
+Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; actual ledger
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Native context and foreign
+post-commit writer remain hard boundaries. No shared hook, root-policy, pin,
+Stage A, product or host change; no override, fabricated capsule/Stage B PASS.
+
 Status: corrective checkpoint candidate, no external mutation
 Last updated: 2026-09-04
 

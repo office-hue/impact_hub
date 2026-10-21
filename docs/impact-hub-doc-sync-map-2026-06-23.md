@@ -1,5 +1,12 @@
 # Impact-Hub Doc Sync Map
 
+## 2026-10-20 — DEV T1 plan, native recovery pending
+
+Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; evidence/next
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Planning-only; SECRETARY
+engine verified/packet absent. Native marker/foreign post-commit writing needs
+safe resolution before any commit/bind. No code/policy/hook change or readiness.
+
 Datum: 2026-06-23
 Statusz: canonical local doc-sync map
 RepoId: `impact_hub`

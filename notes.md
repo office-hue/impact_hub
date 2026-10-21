@@ -73,3 +73,11 @@ target-contract snapshot and root lockfile are intentionally unchanged.
 [2026-09-17T16:59:00Z] | PR #50 CI passed full Jest then failed Stage B `ci-pr-tuple-invalid` because the adapter requires every PR base to equal the old one-time activation SHA. Sol/high read-only QA confirmed a bounded event main-base/head + Stage A ancestry correction without live authority expansion. A new candidate and exact CI readback are pending; failed run 35249814622 is not PASS.
 
 [2026-09-27T00:00:00Z] | DEV v4 Impact Hub installed-controller adapter: target policy bundle and thin adapter are source-only and review-complete after the Terra/high P1 correction. Stage A/B 13/13, adapter execution-path 7/7, installed CLI start/status/resume/context smoke, diff-check and continuity guard passed. No deploy, provider/VPS/runtime/cron/secret/dependency mutation occurred; push/PR/merge remains 0/0/0.
+
+## 2026-10-20 — DEV T1 exact plan, native recovery pending
+
+Own planning-only task dev-risk-scoped-hub-20261020, base15d8c1a380401a167c0f3e13e54b9b8ad5f21078.
+Plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; real SECRETARY verified,
+packet absent. Native missing-context/foreign post-commit writing blocks commits;
+no override, code, shared/foreign write, provider or activation. Bounded independent
+five-axis plan review found no new material issue; explicit safe native recovery next.

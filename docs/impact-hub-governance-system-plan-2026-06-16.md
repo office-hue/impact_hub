@@ -1,5 +1,13 @@
 # Impact Hub Governance System Plan
 
+## 2026-10-20 — DEV T1 adapter plan, pre-commit boundary
+
+Exact plan docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md and continuity
+docs/continuity/dev/2026-10-20-dev-risk-scoped-hub.md. Three-file adapter/test
+change awaits safe native anchor and supported bind. Existing legacy context
+and foreign post-commit memory writers cannot be waived by source approval.
+No code/config/hook or runtime mutation; T1 is not T2 activation.
+
 Datum: 2026-06-16
 Statusz: canonical local governance hub
 Scope: rovid, repo-helyi belepesi pont az `impact_hub` governance, review, continuity es deploy/guard szabalyaihoz.

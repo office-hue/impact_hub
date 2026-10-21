@@ -3792,3 +3792,9 @@ because the adapter still pinned every future PR base to the old Stage A
 activation commit. The bounded CI correction binds the current PR event's
 exact `main` base/head and Stage A ancestry; this is a source candidate until
 the next CI readback passes. Provider/runtime authority remains false.
+
+## 2026-10-20 — DEV T1 planning-only local WIP
+
+Task dev-risk-scoped-hub-20261020; own separate worktree, released quiet window.
+Master docs/dev-plans/dev-risk-scoped-hub-2026-10-20.md; no code/commit/bind.
+SECRETARY engine verified/packet absent; native recovery unresolved, no fake PASS.
