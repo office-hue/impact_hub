@@ -342,3 +342,29 @@ Az exact commit/tree és natív eredmények a saját gitdir kiadási naplójába
 Nincs hook-, konfiguráció-, taskpin-, provider- vagy más worktree-módosítás.
 Rollback: saját forrás-revert; a régi motorcsomagok és taskpinek megmaradnak.
 A T2 PR/merge, mindkét host hooktranzakciói és új/régi canaryk még hátravannak.
+
+## 2026-10-23 — Risk-scoped DEV: Air és Mini aktiválva, élőben ellenőrizve
+
+Ez új állapotbejegyzés; a fenti korábbi kiadási/engedélyezési státuszok
+történeti tények maradnak. A T1/T2 forráskiadás és a kétgép-es aktiválás
+lezárult; termékdeploy vagy adatbázis-migráció nem történt. A PR1708 motor
+megmaradt, T2 miatt nem készült második motorcsomag.
+
+A részletes forrás-/host-/hook-/canary-bizonyíték és a pontos indítási,
+visszaállítási, illetve ismert advisory feltételek:
+[központi aktiválási záróbejegyzés](https://github.com/office-hue/ai-agent/blob/main/docs/continuity/dev/2026-10-20-risk-scoped-target-bootstrap.md).
+Az opcionális memóriahiány nem forrásmunka-blokk; hiányzó kötelező tény,
+azonosság-, jogosultság- vagy integritáskockázat továbbra is blokkol.
+Új feladat routingja v2 (explicit 6/6.1 + reasoning); régi feladatpin nem változott.
+Secretary context-render mindkét hoston valós; hiányzó opcionális packet nem
+PASS és nem engedély. A záró öt-tengelyű, külön kért 6.1 Sol/high review nem
+talált blokkoló hibát; nem natív modell-végrehajtási vagy lifecycle receipt.
+
+A jelen DOCSYNC csak a már ellenőrzött aktiválást rögzíti. Saját
+commit/push/PR/merge állapotát a kiadási visszaolvasás igazolja, nem ez a szöveg.
+
+T2 #53 / 9e064f3e8fb7d20b6ad6d559d331a96e7c7486ad. Air: pre-push; Mini: 5 saját hook tranzakciósan települt. Új standard-source-brief feladatot a jelen requiresTaskBrief:false policy szerint --brief nélkül indítsunk; a hibás briefes canary és javítása külön naplózott.
+
+Mini új feladatok támogatott, saját main indítási gyökere:
+`Developer/GitHub/.worktrees/ai-agent-dev-risk-scoped-host-20261023/primary-t2/impact_hub`.
+A régi primary munkáját/ágát ne alakítsuk át; új default nem régi taskmigráció.
