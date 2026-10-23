@@ -77,6 +77,31 @@ function fixture(t, adapter = syntheticAdapter, auditSource = null) {
 }
 
 const currentAudit = () => fs.readFileSync(new URL('../scripts/safe-repo-audit.sh', import.meta.url), 'utf8');
+
+test('renderer rejects all delimiter boundaries and NUL source', () => {
+  for (const source of ['HUB_FROZEN_ADAPTER', 'HUB_FROZEN_ADAPTER\nignored',
+    'ignored\nHUB_FROZEN_ADAPTER', 'ignored\nHUB_FROZEN_ADAPTER\nignored',
+    'ignored\0source']) {
+    assert.throws(() => renderHookImages(source), /adapter_source_invalid/);
+  }
+});
+
+test('rendered push refuses symlinked scripts before executing foreign audit', t => {
+  const f = fixture(t), foreign = path.join(f.tmp, 'foreign-scripts');
+  const sentinel = path.join(f.tmp, 'foreign-audit-executed');
+  fs.renameSync(path.join(f.repo, 'scripts'), foreign);
+  fs.writeFileSync(path.join(foreign, 'safe-repo-audit.sh'),
+    "#!/bin/bash\nprintf executed > '" + sentinel + "'\n");
+  fs.symlinkSync(foreign, path.join(f.repo, 'scripts'));
+  f.git('add', '-A'); f.git('commit', '-m', 'symlinked scripts negative fixture');
+  const commit = f.invoke('pre-commit');
+  assert.equal(commit.status, 0, commit.stderr + commit.stdout);
+  const result = f.push(f.row(f.git('rev-parse', 'HEAD')));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unsafe-scripts-directory/);
+  assert.equal(fs.existsSync(sentinel), false);
+});
+
 function auditPush(f, extra = {}) {
   return spawnSync('/bin/bash', [path.join(f.repo,'scripts/safe-repo-audit.sh'),'--strict','--mode','push'],
     {cwd:f.repo, env:{...f.env, SAFE_REPO_AUDIT_UPSTREAM:'', ...extra}, encoding:'utf8', timeout:7000});
@@ -244,4 +269,149 @@ test('post events never launch foreign memory or mutate source; checkout warning
   }
   assert.equal(f.git('status','--porcelain'),before);assert.equal(fs.readFileSync(sentinel,'utf8'),'unchanged');
   assert.equal(fs.existsSync(path.join(f.tmp,'.local/state/ai-agent/hooks')),false);
+});
+
+const hookEntrypointFixtureHarness = String.raw`
+import contextlib, hashlib, io, json, os, pathlib, sys, tempfile, unittest
+from unittest.mock import patch
+from types import SimpleNamespace
+source = pathlib.Path(sys.argv[1]).read_text()
+python = source.split("<<'OFFICE_DEV_TARGET_HOOK_ENTRYPOINT'\n", 1)[1].rsplit("\nOFFICE_DEV_TARGET_HOOK_ENTRYPOINT", 1)[0]
+scope = {"__name__": "fixture"}
+exec(compile(python, "reviewed-wrapper-fixture", "exec"), scope)
+
+class EntrypointTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = pathlib.Path(self.tmp.name).resolve()
+        self.home = self.root / "native-home"
+        self.home.mkdir()
+        self.repo = self.root / "own repo"
+        self.script = self.repo / "scripts" / scope["SCRIPT_NAME"]
+        self.script.parent.mkdir(parents=True)
+        self.script.write_text(source)
+        self.loader = self.home / "Library/Application Support/office-dev/bin/dev-v4-target-hooks"
+        self.loader.parent.mkdir(parents=True, mode=0o700)
+        self.payload = b'import json,sys\nprint(json.dumps({"argv":sys.argv,"file":__file__}))\nraise SystemExit(17)\n'
+        self.set_loader(self.payload)
+        self.base = ["--transaction-id", "22222222-2222-4222-8222-222222222222",
+                     "--expected-bootstrap-digest", "b"*64,
+                     "--expected-launcher-digest", hashlib.sha256(self.payload).hexdigest()]
+    def set_loader(self, raw):
+        if self.loader.exists():
+            self.loader.chmod(0o600)
+        self.loader.write_bytes(raw)
+        self.loader.chmod(0o500)
+    def invoke(self, operation="status", arguments=None, environment=None):
+        output = io.StringIO()
+        with patch.object(scope["sys"], "platform", "darwin"), patch.object(scope["pwd"], "getpwuid",
+                return_value=SimpleNamespace(pw_dir=str(self.home))), patch.dict(os.environ,
+                {"HOME":str(self.home), **(environment or {})}, clear=True), contextlib.redirect_stdout(output):
+            previous = sys.argv[:]
+            try:
+                try:
+                    code = scope["run"](str(self.script), [operation, *(self.base if arguments is None else arguments)])
+                except SystemExit as error:
+                    code = error.code
+            finally:
+                sys.argv = previous
+        lines = output.getvalue().splitlines()
+        return code, json.loads(lines[-1]) if lines else None
+    def denied(self, **kwargs):
+        code, result = self.invoke(**kwargs)
+        self.assertEqual(code, 2)
+        self.assertIs(result["writes"], False)
+        self.assertFalse(result["authorityGranted"])
+    def test_every_operation_binds_own_root_and_literal_target(self):
+        previous = pathlib.Path.cwd()
+        try:
+            os.chdir(self.root)
+            for operation in ("prepare","status","apply","recover","rollback"):
+                code, result = self.invoke(operation)
+                self.assertEqual(code,17)
+                argv = result["argv"]
+                self.assertEqual(argv[:6], [str(self.loader),operation,"--expected-target",scope["TARGET"],"--expected-repo",str(self.repo)])
+                self.assertNotIn("--expected-launcher-digest",argv)
+                self.assertEqual(result["file"],str(self.loader))
+                self.assertIn("b"*64,argv)
+        finally:
+            os.chdir(previous)
+    def test_environment_selection_is_rejected(self):
+        for env in ({"HOME":str(self.root)},{"OFFICE_DEV_CONTROLLER":"/foreign"},
+                    {"GIT_DIR":"/foreign"},{"PYTHONPATH":"/foreign"},{"CODEX_HOME":"/foreign"}):
+            self.denied(environment=env)
+    def test_bad_hash_and_bad_input_are_denied_before_dispatch(self):
+        for args in (self.base[:-1]+["a"*64], self.base+["--request","relative"],
+                     self.base+["--expected-manifest-digest","bad"],
+                     ["--transaction-id","bad",*self.base[2:]], self.base+self.base[:2]):
+            self.denied(arguments=args)
+    def test_caller_cannot_supply_scope_unknown_or_abbreviated_flag(self):
+        for extra in (["--expected-target","foreign"],["--expected-repo","/foreign"],
+                      ["--expected-launcher-dig","a"*64],["--foreign","anything"]):
+            code,result=self.invoke(arguments=self.base+extra)
+            self.assertEqual(code,2)
+            self.assertIsNone(result)
+    def test_missing_symlink_hardlink_and_writable_loader_are_denied(self):
+        self.loader.unlink()
+        self.denied()
+        other=self.root/"other.py"; other.write_bytes(self.payload);other.chmod(0o500)
+        self.loader.symlink_to(other)
+        self.denied()
+        self.loader.unlink();os.link(other,self.loader)
+        self.denied()
+        self.loader.unlink();self.set_loader(self.payload);self.loader.chmod(0o700)
+        self.denied()
+    def test_ancestor_symlink_is_denied(self):
+        parent=self.loader.parent
+        destination=parent.with_name("other-bin")
+        parent.rename(destination);parent.symlink_to(destination,target_is_directory=True)
+        self.denied()
+    def test_exact_snapshot_executes_even_if_path_changes_after_read(self):
+        original=scope["snapshot"]
+        def raced(file):
+            raw=original(file)
+            self.set_loader(b'raise RuntimeError("unverified bytes executed")\n')
+            return raw
+        with patch.dict(scope, {"snapshot":raced}):
+            code,result=self.invoke()
+        self.assertEqual(code,17)
+        self.assertEqual(result["argv"][3],scope["TARGET"])
+    def test_dispatch_exception_never_claims_no_effect(self):
+        payload=b'raise ValueError("simulated post-dispatch uncertainty")\n'
+        self.set_loader(payload)
+        code,result=self.invoke(arguments=self.base[:-1]+[hashlib.sha256(payload).hexdigest()])
+        self.assertEqual(code,2)
+        self.assertIsNone(result["writes"])
+        self.assertTrue(result["recoveryRequired"])
+        self.assertEqual(result["nextAction"],"status")
+    def test_symlink_script_cannot_redirect_repo_identity(self):
+        other=self.script.with_name("other.sh");self.script.rename(other);self.script.symlink_to(other)
+        self.denied()
+
+unittest.main(argv=["fixture"], verbosity=1)
+`;
+
+test('T2 hook installer entrypoint freezes its loader and binds only its own repo', () => {
+  const script = new URL('../scripts/install-hooks-all.sh', import.meta.url);
+  const python = process.platform === 'darwin' ? '/usr/bin/python3' : 'python3';
+  const result = spawnSync(python, ['-I', '-B', '-c', hookEntrypointFixtureHarness, script.pathname],
+    { encoding: 'utf8', timeout: 15000 });
+  assert.equal(result.status, 0, result.stderr + result.stdout);
+  assert.match(result.stderr, /Ran 9 tests/);
+});
+
+test('T2 hook installer help is non-mutating and has no automatic legacy fallback', t => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'hook-entrypoint-help-'));
+  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  const script = new URL('../scripts/install-hooks-all.sh', import.meta.url);
+  const source = fs.readFileSync(script, 'utf8');
+  assert.doesNotMatch(source, /install_hook\s*\(|git .*config|WORKSPACE_ROOT|mkdir -p|cat >|memory:|coordination-sync/);
+  for (const argv of [[], ['--help']]) {
+    const result = spawnSync('/bin/bash', [script.pathname, ...argv],
+      { cwd: temporary, env: { HOME: temporary, PATH: '/usr/bin:/bin' }, encoding: 'utf8', timeout: 5000 });
+    assert.equal(result.status, 0, result.stderr + result.stdout);
+    assert.match(result.stdout, /--expected-launcher-digest/);
+    assert.deepEqual(fs.readdirSync(temporary), []);
+  }
 });

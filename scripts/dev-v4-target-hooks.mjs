@@ -33,7 +33,8 @@ HUB_LEGACY_IDENTITY
 // Injection is an in-process fixture seam, never a CLI/env-selected executable.
 // The real renderer always reads its fixed sibling; frozen output is independently reviewed.
 export function renderHookImages(adapterSource = fs.readFileSync(new URL('./dev-v4-installed-controller-adapter.mjs', import.meta.url), 'utf8')) {
-  if (typeof adapterSource !== 'string' || adapterSource.includes('\nHUB_FROZEN_ADAPTER\n')) throw new Error('adapter_source_invalid');
+  if (typeof adapterSource !== 'string' || adapterSource.includes('\0')
+    || /^HUB_FROZEN_ADAPTER\r?$/m.test(adapterSource)) throw new Error('adapter_source_invalid');
   // Four existing registered checkouts have precisely this pre-range audit.
   // The successor preserves strict checks and adds exact-range plumbing,
   // committed env-diff inspection and explicit push-base resolution. Freeze
@@ -66,6 +67,7 @@ continuity local
 [[ "${'${1:-}'}" == origin && "${'${2:-}'}" == https://github.com/office-hue/impact_hub.git ]] || deny transport-mismatch
 [[ "$(git_read config --local --get-all remote.origin.url)" == https://github.com/office-hue/impact_hub.git ]] || deny origin-mismatch
 [[ -z "$(git_read status --porcelain --untracked-files=all)" ]] || deny dirty-push
+[[ -d "$REPO_ROOT/scripts" && ! -L "$REPO_ROOT/scripts" ]] || deny unsafe-scripts-directory
 for rel in scripts/start-feature-worktree.sh scripts/git-health-check.sh docs/pr-policy.md .github/pull_request_template.md PR-EXIT-CHECKLIST.md scripts/safe-repo-audit.sh; do
   [[ -f "$REPO_ROOT/$rel" && ! -L "$REPO_ROOT/$rel" ]] || deny missing-or-unsafe-policy-file
 done

@@ -8,10 +8,142 @@ import test from 'node:test';
 import { assertTargetOrigin, assertTargetPolicy, buildArgs, controllerPath, installedEngineDescriptor, readJson } from '../scripts/dev-v4-installed-controller-adapter.mjs';
 
 const adapter = fileURLToPath(new URL('../scripts/dev-v4-installed-controller-adapter.mjs', import.meta.url));
+
+test('T2 Hub policy binds the verified engine and explicit v2 models without live authority', () => {
+  const load = relative => JSON.parse(fs.readFileSync(new URL('../config/dev-v4/' + relative, import.meta.url)));
+  const life = load('lifecycle-contract.v1.json'), graded = load('graded-delivery.v1.json');
+  assert.deepEqual(life.acceptedRetainedEngines, [{
+    sourceRepo: 'office-hue/ai-agent', sourceCommit: 'fcd987b5fc842419e01df2ea07ebcb21f6b4d931',
+    digest: '4252eacfb65d65cf9a25f96d7e962336eaf23acfd91ec6d09fcc6a4cca39cc9d',
+    engineContractVersion: 1, capsuleSchemaVersion: 3,
+  }]);
+  assert.deepEqual(life.reviewRouting, {
+    schemaVersion: 2, contractId: 'dev-v4.review-routing', routeAuthority: 'task-policy-commit',
+    runtimeProvenance: 'actual-model-and-reasoning-required', fallback: { state: 'unavailable', automatic: false },
+    boundedImplementation: { model: 'gpt-6-luna', reasoning: 'medium' },
+    planning: { model: 'gpt-6-astra', reasoning: 'high' },
+    sourceReview: { model: 'gpt-6.1-sol', reasoning: 'high', minimumCount: 1 },
+    authoritySecurityProduction: { model: 'gpt-6.1-sol', reasoning: 'high' },
+    boundedSystemicProblem: { model: 'gpt-6-astra', reasoning: 'high' },
+    maximumOrUltra: 'explicit-runtime-supported-choice-only',
+    independentPlanQa: { minimumCount: 2, onlyPlanIds: ['dev-lifecycle-recovery-20260922', 'dev-lifecycle-simplification-20260922'] },
+  });
+  for (const name of ['maintenance', 'standard', 'protected']) {
+    const route = life.reviewRouting[name === 'protected' ? 'authoritySecurityProduction' : 'boundedImplementation'];
+    assert.deepEqual(graded.lanes[name].model, { id: route.model, reasoning: route.reasoning });
+    assert.equal(graded.lanes[name].provider.deployments, 0);
+  }
+  for (const key of ['candidateAuthority', 'providerMutationAllowed', 'hostMutationAllowed', 'runtimeMutationAllowed', 'secretMaterialAllowed']) assert.equal(life[key], false);
+  assert.equal(graded.globalGuards.liveMutationAllowed, false);
+  assert.deepEqual(life.readOnlyCommands, ['status', 'resume']);
+});
+
+test('T2 Hub policy scopes guidance to actual hard risks and never turns warnings into permission', () => {
+  const life = JSON.parse(fs.readFileSync(new URL('../config/dev-v4/lifecycle-contract.v1.json', import.meta.url)));
+  assert.deepEqual(life.decisionModel, {
+    schemaVersion: 1,
+    hardRiskClasses: ['identity', 'foreign-work', 'secret', 'authority', 'applicable-check-risk', 'required-dependency', 'integrity', 'live-prestate', 'cas', 'uncertain-mutation'],
+    advisoryDefault: true, diagnosisAfterFailedRepairs: 2, warningRationaleAuthorizesMutation: false,
+    rawFailureCanBecomePass: false, futurePrerequisiteBlocksCurrentOperation: false,
+  });
+  assert.deepEqual(Object.keys(life.operationProfiles).sort(), ['acceptance', 'merge', 'pr-check', 'pr-create', 'provider-release', 'push', 'vps-release']);
+  for (const [name, profile] of Object.entries(life.operationProfiles)) {
+    assert.ok(life.operations.includes(name));
+    assert.equal(profile.advisoryOnly, true); assert.equal(profile.authorityGranted, false);
+    assert.ok(profile.hardBlockers.includes('identity'));
+    assert.ok(profile.hardBlockers.every(value => life.decisionModel.hardRiskClasses.includes(value)));
+    assert.ok(!profile.hardBlockers.includes('required-check'));
+  }
+});
+
+test('T2 Hub check mapping preserves inherited policy and registers exact bounded argv', () => {
+  const policy = JSON.parse(fs.readFileSync(new URL('../config/dev-delivery-v2-policy.json', import.meta.url)));
+  assert.deepEqual(policy.evidence.registeredCommands, {
+    "dev-hub-installed-controller": [{"runner":"node","args":["--test","--test-name-pattern=^(?!T2 Hub (?:check mapping|policy) )","tests/dev-v4-installed-controller-adapter.test.mjs"]}],
+    "dev-hub-hook-compatibility": [{"runner":"node","args":["--test","--test-name-pattern=^(?!T2 hook installer )","tests/dev-v4-hook-compatibility.test.mjs"]}],
+    "dev-hub-hook-entrypoint": [{"runner":"node","args":["--test","--test-name-pattern=^T2 hook installer ","tests/dev-v4-hook-compatibility.test.mjs"]}],
+    "dev-hub-stage-b": [{"runner":"node","args":["--test","--test-name-pattern=^(Stage B |foreign, missing and old-worktree|immutable file pins|pre-merge fixture|post-merge fixture|end-to-end capsule fixtures|CI accepts|CI rejects)","tests/dev-v4-stage-b.test.mjs"]}],
+    "dev-hub-check-map": [{"runner":"node","args":["--test","--test-name-pattern=^T2 Hub check mapping ","tests/dev-v4-installed-controller-adapter.test.mjs"]}],
+    "dev-hub-policy-routing": [{"runner":"node","args":["--test","--test-name-pattern=^T2 Hub policy ","tests/dev-v4-installed-controller-adapter.test.mjs"]}]
+  });
+  const inherited = structuredClone(policy);
+  inherited.evidence.registeredCommands = {};
+  inherited.taskRequirements.pathRequiredChecks = {};
+  assert.deepEqual(inherited, {"schemaVersion":2,"componentId":"dev.delivery.control-plane","planId":"impact-hub-dev-v4-local-20260927","stateDirectory":"codex-delivery","permissions":{"directoryMode":"0700","fileMode":"0600","symlinkAllowed":false},"plan":{"manifestBegin":"<!-- DEV-DELIVERY-V2-MANIFEST","manifestEnd":"DEV-DELIVERY-V2-MANIFEST -->","allowedModes":["planning","local","ci"],"allowedRiskTiers":["low","medium","high"],"allowedReleaseProfiles":["source-only"],"defaultMode":"local"},"evidence":{"schemaVersion":2,"maximumCommandOutputBytes":1048576,"maximumBytes":65536,"absoluteHomePathAllowed":false,"rawProviderResponseAllowed":false,"secretMaterialAllowed":false,"requiredChecksByProfile":{},"registeredCommands":{}},"taskRequirements":{"schemaVersion":1,"authority":"single-policy-table","requiredDocumentSections":["scope","acceptance","validation","rollback"],"classes":{"docs-only":{"requiredChecks":[]},"governance-only":{"requiredChecks":[]},"code-local":{"requiredChecks":[]},"protected":{"requiredChecks":[]},"deploy":{"requiredChecks":[]},"unknown":{"requiredChecks":[]}},"pathRequiredChecks":{}}});
+});
+
+test('T2 Hub check mapping selects finite dependency paths and partitions imported fixture groups', () => {
+  const policy = JSON.parse(fs.readFileSync(new URL('../config/dev-delivery-v2-policy.json', import.meta.url)));
+  assert.deepEqual(policy.taskRequirements.pathRequiredChecks, {
+    "hub-installed-controller": {"paths":["scripts/dev-v4-installed-controller-adapter.mjs","config/dev-v4/lifecycle-contract.v1.json","config/dev-v4/task-selectors.v1.json","tests/dev-v4-installed-controller-adapter.test.mjs"],"checks":["dev-hub-installed-controller"]},
+    "hub-hook-compatibility": {"paths":["scripts/dev-v4-target-hooks.mjs","scripts/dev-v4-installed-controller-adapter.mjs","scripts/safe-repo-audit.sh","scripts/guarded-push.sh","tests/dev-v4-hook-compatibility.test.mjs"],"checks":["dev-hub-hook-compatibility"]},
+    "hub-hook-entrypoint": {"paths":["scripts/install-hooks-all.sh","tests/dev-v4-hook-compatibility.test.mjs"],"checks":["dev-hub-hook-entrypoint"]},
+    "hub-stage-b": {"paths":["scripts/dev-v4-stage-b-adapter.mjs","scripts/dev-v4-stage-a-verifier.mjs","config/dev-v4/stage-b-policy.v1.json","config/dev-v4/central-contract.v1.json","config/dev-v4/impact-hub-capabilities.v1.json","config/dev-v4/negative-fixtures.v1.json"],"checks":["dev-hub-stage-b"]},
+    "hub-check-map": {"paths":["config/dev-delivery-v2-policy.json","tests/dev-v4-installed-controller-adapter.test.mjs"],"checks":["dev-hub-check-map"]},
+    "hub-policy-routing": {"paths":["config/dev-v4/lifecycle-contract.v1.json","config/dev-v4/graded-delivery.v1.json","tests/dev-v4-installed-controller-adapter.test.mjs"],"checks":["dev-hub-policy-routing"]},
+    "hub-stage-b-test-entrypoint": {"paths":["tests/dev-v4-stage-b.test.mjs"],"checks":["dev-hub-installed-controller","dev-hub-hook-compatibility","dev-hub-hook-entrypoint","dev-hub-stage-b","dev-hub-check-map","dev-hub-policy-routing"]}
+  });
+  const files = ['tests/dev-v4-installed-controller-adapter.test.mjs',
+    'tests/dev-v4-hook-compatibility.test.mjs', 'tests/dev-v4-stage-b.test.mjs'];
+  const titles = new Map(files.map(relative => [relative,
+    [...fs.readFileSync(new URL('../' + relative, import.meta.url), 'utf8')
+      .matchAll(/^test\('([^']+)'/gm)].map(match => match[1])]));
+  const commands = Object.values(policy.evidence.registeredCommands).flat();
+  const pattern = entry => new RegExp(entry.args[1].slice('--test-name-pattern='.length));
+  for (const [file, names] of titles) {
+    assert.ok(names.length >= 9, file);
+    const direct = commands.filter(entry => entry.args.at(-1) === file);
+    for (const name of names) {
+      assert.equal(direct.filter(entry => pattern(entry).test(name)).length, 1, file + ': ' + name);
+    }
+    for (const entry of direct) assert.ok(names.some(name => pattern(entry).test(name)), entry.args[1]);
+  }
+  // Stage B imports both other suites. Its own filtered command must NOT run
+  // any imported top-level test again, while selecting all native tests.
+  const stage = commands.find(entry => entry.args.at(-1) === files[2]);
+  for (const file of files.slice(0, 2)) {
+    for (const name of titles.get(file)) assert.equal(pattern(stage).test(name), false, name);
+  }
+  for (const rule of Object.values(policy.taskRequirements.pathRequiredChecks)) {
+    assert.equal(new Set(rule.paths).size, rule.paths.length);
+    for (const relative of rule.paths) {
+      assert.ok(!relative.includes('*') && !relative.endsWith('/') && !relative.includes('..'));
+      const info = fs.lstatSync(new URL('../' + relative, import.meta.url));
+      assert.ok(info.isFile() && !info.isSymbolicLink(), relative);
+    }
+    for (const check of rule.checks) assert.ok(Object.hasOwn(policy.evidence.registeredCommands, check));
+  }
+});
 const start = ['start', '--task-id', 'fixture-task', '--selector', 'dev-governance-source', '--branch', 'dev/fixture-task'];
 const accepted = { sourceRepo: 'office-hue/ai-agent', sourceCommit: '8'.repeat(40), digest: 'a'.repeat(64), engineContractVersion: 1 };
 const descriptorValue = { schemaVersion: 1, ...accepted, capsuleSchemaVersion: 3 };
 const origins = ['https://github.com/office-hue/impact_hub.git', 'git@github.com:office-hue/impact_hub.git', 'ssh://git@github.com/office-hue/impact_hub.git'];
+
+test('T2 maintained entrypoints use the committed selector, not an uncommitted policy or old task pin', t => {
+  const f = fixture(t);
+  const relative = 'config/dev-v4/task-selectors.v1.json';
+  const oldBase = f.git('rev-parse', 'HEAD');
+  const read = base => assertTargetPolicy(f.root, 'dev-governance-source', descriptorValue, base, f.env);
+  const oldPolicy = read(oldBase);
+  const candidate = JSON.parse(fs.readFileSync(new URL('../config/dev-v4/task-selectors.v1.json', import.meta.url), 'utf8'));
+  const maintained = ['scripts/guarded-push.sh', 'scripts/safe-repo-audit.sh', 'scripts/install-hooks-all.sh'];
+  const priorSurface = ['AGENTS.md', 'config/dev-v4/', 'config/dev-delivery-v2-policy.json',
+    'scripts/dev-v4-', 'tests/dev-v4-', 'docs/', 'notes.md', 'system-status-snapshot.md'];
+  assert.deepEqual([...candidate.selectors['dev-governance-source'].writeSurface].sort(), [...priorSurface, ...maintained].sort());
+  f.write(relative, candidate);
+  assert.deepEqual(read(oldBase), oldPolicy, 'working-tree edits cannot authorize a task');
+  f.commit();
+  const current = read(f.git('rev-parse', 'HEAD'));
+  for (const file of maintained) {
+    assert.ok(current.selected.writeSurface.includes(file));
+    assert.equal(current.selected.writeSurface.includes(file + '.copy'), false);
+    assert.equal(oldPolicy.selected.writeSurface.includes(file), false);
+  }
+  assert.equal(current.selected.writeSurface.includes('scripts/'), false);
+  assert.deepEqual(read(oldBase), oldPolicy, 'retained policy commit remains unchanged');
+  assert.equal(current.selectors.candidateAuthority, false);
+});
+
 function snapshot(dir) {
   return fs.readdirSync(dir).sort().flatMap(name => {
     const file = path.join(dir, name), stat = fs.lstatSync(file);
