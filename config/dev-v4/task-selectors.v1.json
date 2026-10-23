@@ -25,7 +25,7 @@
       "riskCeiling": "high",
       "lane": "protected",
       "requiresPlanId": true,
-      "writeSurface": ["AGENTS.md", "config/dev-v4/", "config/dev-delivery-v2-policy.json", "scripts/dev-v4-", "tests/dev-v4-", "docs/", "notes.md", "system-status-snapshot.md"],
+      "writeSurface": ["AGENTS.md", "config/dev-v4/", "config/dev-delivery-v2-policy.json", "scripts/dev-v4-", "scripts/guarded-push.sh", "scripts/safe-repo-audit.sh", "scripts/install-hooks-all.sh", "tests/dev-v4-", "docs/", "notes.md", "system-status-snapshot.md"],
       "requiredCapabilities": ["node-test", "git-readback"]
     }
   },

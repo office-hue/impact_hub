@@ -1,4 +1,204 @@
+## 2026-10-23 — T2 policy forrása és független review kész
+
+Pontos végső SHA-256:
+
+- lifecycle: 0126b530ca9809d0cdb134c603a4b62633bcdcfabc0a1188b1071e4a107cc2f6
+- graded: d41b747774e5ba8232282d3bde4c5158937d3616b91ea44f985640df370fb520
+- delivery: 6bd1a0ce12dc395d57fe5134e5d16bb1e57259d03c2049da1d90380db4afa3f1
+- adapter-test: 7ccf5f2965b07135639eb13f1030cb21c9468ef114e6db4aa470354385be4647
+
+Végrehajtó /root/t2_policy_final_review külön implementation-szeletben;
+független reviewer /root/target_entrypoint_review, nem saját source review.
+Mappinghiba: az új policycheck tévesen hub-check-map alá került az importáló
+hub-stage-b-test-entrypoint helyett. Egy javítás, célzott2/2 recheck55ms.
+Régi osztályok/profile, provider-mutáció tiltás, evidence TTL és Hub-specifikus
+mezők változatlanok. A policy-tesztek külön mintát kapnak, a Stage B importált
+suite-okat nem futtatja ismét. Régi taskok régi policyCommit alapján működnek.
+
+Rollback: saját source-delta/guarded revert; csomag/pin törlése nincs.
+Éles hook rollback csak tranzakciós saját postimage-CAS alapján. A mainen
+lévő központi policy4099c5a4 nem cserélhető össze a motorfcd987b5 commitjával.
+
+A Hub új feladatpolicyja egyetlen PR1708 motort fogad el: fcd987b5 /
+4252eacf, engineContractVersion1, capsuleSchemaVersion3. Explicit v2 routing,
+6/6.1 modellek, műveletenkénti risk/advisory szabályok; jogosultságot nem ad.
+A meglévő T2-WIP érintetlenül megmaradt, négy policy/tesztfájl egészült ki.
+A teljes adapterteszt első futása98/99; egy téves mapping-elhelyezést
+diagnosztizáltunk és javítottunk, utána csak a mapping2/2 sikeres. Ez nem új
+teljes-suite PASS. Független /root/target_entrypoint_review, explicit
+6.1 Sol/high, öt tengely: nincs konkrét P1/P2.
+Valódi Secretary context --render: writes:false, verified régi8487bcc2 motor,
+implementation-ready saját task, packet absent advisory. Régi policyCommit
+15d8c1a3 és taskpin változatlan. Nincs commit/push/PR/host/hook-aktiválás.
+Következő: natív Stage B/Bástya és exact candidate-kiadás, majd Air/Mini
+hooktranzakciók és új/régi task-canary. Teljes elfogadás még hátravan.
+
+## 2026-10-21 — Renderer két negatívja javítva, source-only
+
+A heredoc-határ/NUL és a köztes scripts-symlink negatívja régi kóddal 0/2,
+a tervezett javítás után az érintett hookágak + mapping együtt 14/14 PASS
+(2.876s). Független kért 6.1 Sol/high review: nincs nyitott P1/P2.
+A legacy pre-commit működik; az idegen audit-sentinel nem jön létre.
+Fix audit-kötés, taskpin és élő hook változatlan; nincs telepítés vagy teljes-suite PASS.
+
+
+Renderer SHA256: 735c5e41ceee91c92bc95ef80c883d6e5506bff06246acd90a003fc3d02f030a;
+hookteszt SHA256: 3366df3714c6db8692a91afccf20caceedefdec003776aa61ddd9a2feed2c976.
+Failure ID-k: hub.render.adapter-source-boundary, hub.hook.scripts-parent-symlink.
+Mindkettő előre diagnosztizált, egyszer reprodukált, egy javítással lezárt.
+A 14-es futás nem ismételte meg a nem érintett push-wrapper/audit teszteket;
+azok korábbi változatlan tartalmi eredménye külön evidence marad.
+
+## 2026-10-21 — Hub renderer célzott biztonsági javítás
+
+Forrásdiagnózis: a pre-push csak a guard végső fájlját ellenőrzi symlinkre;
+symlinkelt scripts könyvtáron át idegen auditot futtathat. A frozen adapter
+heredoc-validálása csak belső delimiter-sort tilt, első/utolsó sort és NUL-t nem.
+Javítás kizárólag scripts/dev-v4-target-hooks.mjs-ben és a meglévő
+tests/dev-v4-hook-compatibility.test.mjs-ben: a pre-push közvetlenül végrehajtás
+előtt valódi scripts könyvtárat követel; a renderinput teljes delimiter-sort és
+NUL-t minden pozícióban elutasít. A fix hashű audit-utód tartalma változatlan.
+Sem alapértelmezett fallback, sem idegen symlinkcél olvasása/futtatása nem kell.
+
+Két negatív fixture előbb reprodukálja az eredeti hibát, majd ugyanazon bemeneten
+ellenőrzi a javítást. A saját temp-fixture-ben idegen audit-sentinel nem jöhet
+létre; a scripts könyvtárat nem használó legacy pre-commit továbbra is működjön.
+Utána csak az érintett rendered-hook ágak és új mapping-szűrőpartíció futnak;
+független 6.1 Sol/high review zárja a javítást. Nincs live hiba vagy hooktelepítés.
+Kockázat/rollback: csak saját renderer-delta, sem guardhash-/pin-/hostátírás;
+éles visszaállítás továbbra a külön eredeti hooktranzakció része. UI nincs.
+
+## 2026-10-21 — T2 célzott check mapping: helyi source-ready
+
+Öt additív tesztcsoport került a tényleges delivery-policy véges path-táblájába.
+Két új contract fixture PASS (36.482 ms), valódi motor-resolver 18 eset PASS;
+a Stage B importjai nem okoznak duplikált csoportfutást. Kért független
+6.1 Sol/high review: nincs konkrét P1/P2. Régi baseline és taskpinek változatlanok.
+Valós Stage B readback továbbra protected/hiányzó legacy marker, nem PASS;
+maximumBastion: bastion-pass-unverified, authoritative:false, ready:false.
+Ez nem publikálás, telepítés vagy aktiválás. Secretary tool továbbra unavailable;
+korábbi read-only packet-absent megfigyelés történeti, új receipt nincs.
+
+Binding: policy f75ff97d86479ecb4004127f53d63c5e94d681c2c7c1a3b7eb30699a7c8d440b;
+teszt a68a7c93c50633008cc5472ca97edb54b2fdec4101d2cf1e8389133260273d50.
+A két új Node-teszt csak az exact policy/argv/dependency és a top-level címek
+szűrőpartíciójának bizonyítéka. A 18 külön eset a tényleges központi
+recipe._path_checks függvényt használta; idegen termék/suffix/rename-old-side
+is lefedett. Változatlan korábbi funkcionális teszteket nem futtattunk újra.
+A valós Stage B exit2 oka a saját worktree worktree-active.json hiánya;
+kézi marker, context override, native-hook átírás vagy újrafuttatás nem történt.
+Az új mapping nem írja felül e readbacket és nem ad normál publication PASS-t.
+Nincs új javítási hiba ebben a szeletben. Következő: tényleges végleges motorhoz
+kötött T2 policy, source publication és Air/Mini tranzakciók/canaryk. A központi
+15-fájlos fagyasztott candidate változatlan; nyugalmi ablakot nem tartunk ehhez.
+
+
+## 2026-10-21 — T2 tényleges check mapping: szűk implementáció
+
+A root delivery-policy üres path/command tábláját additív, véges kapcsolások
+egészítik ki. Öt elkülönített csoport: installed adapter, hook/push kompatibilitás,
+installer-belépő, natív Stage B regressziók és mapping-contract. A Stage B
+tesztfájl importálja a másik kettőt; az explicit névszűrés megelőzi ugyanazon
+esetek többszöri futását. A teszt-entrypoint módosítása mindhárom fájl csoportjait
+kiválasztja; idegen termékfájlok és suffix-egyezések nem választják a DEV-suite-ot.
+
+Fájlok: config/dev-delivery-v2-policy.json és a meglévő
+tests/dev-v4-installed-controller-adapter.test.mjs; saját DOCSYNC változik.
+A régi class/profile/permission/plan baseline és a natív adapter kódja változatlan.
+Nincs új platform, külső parancs vagy policy/motor/task-pin aktiválás.
+Kockázat: kihagyott dependency vagy túl széles tesztválasztás; exact táblateszt,
+fixture-title/szűrő-partíció és a valódi motor resolverének pozitív/negatív
+esetei ellenőrzik. Kért 6.1 Sol/high független delta-review szükséges.
+Rollback: csak e saját mapping-delta visszavonása; nincs élő állapot.
+UI/adat/provider/cron nem érintett; a natív Stage B/Bástya kiadási readbackje
+külön marad, a fixture nem gyárt forrás- vagy live-jogosultságot.
+
+## 2026-10-21 — T2 saját hook-telepítőbelépő: helyi forrás
+
+A három repóba író régi installer helyett kizárólag saját fizikai repo-roothoz és
+literal impact_hub targethez kötött wrapper készült. A natív fix loader pontos
+bájtjai külön jóváhagyott digesttel, izolált Pythonnal futnak; nincs default
+fallback, önengedélyezés vagy Git-config írás. Két célzott teszt PASS, bennük
+9 Python-negatív/dispatch fixture és valódi shell help. Független kért 6.1
+Sol/high forrásreview nem talált P1/P2-t. Éles telepítés nem történt; a már
+meglévő hook-renderer és a régi task-/motorpinek nem változtak.
+T2 policy/check mapping, publikálás és Air/Mini host-canary még hátravan.
+Secretary advisory megmarad, nincs új receipt vagy Bástya/aktiválási PASS.
+
+Forrás-SHA256: wrapper ee57e35582ad28c4c11920ad2f9a81ca0752a33de3a4bf0811ad30e7213e99f6;
+fixture-fájl b25e34e64a769c343b848a0540f86b4f90e4ff3a50dd5dae38bbbfb6caafc891.
+Review kizárólag az új entrypoint-blokkokra és wrapperre vonatkozik.
+
+## 2026-10-21 — T2 saját telepítőbelépő: végrehajtási szerződés
+
+A jóváhagyott különutas scope-ban a `scripts/install-hooks-all.sh` régi
+közvetlen íróját repo-only wrapper váltja. Nem telepít magától, nem keres
+sibling repót, nem módosít Git-konfigurációt vagy aliasokat. Saját fizikai
+script-root és literal `impact_hub` cél kerül az ellenőrzött loaderhez.
+A natív account fix loaderét izolált stdlib Python olvassa: pontos argv,
+symlinkmentes ancestorok, stabil FD-bájtok, owner/mode és külön jóváhagyott
+`--expected-launcher-digest` szükséges. Ez binding, nem engedély.
+A wrapperflag nem jut tovább; az eredeti bootstrap/transaction/grant út marad.
+Hiba dispatch után nem jelenthető igazolt writes:false-ként.
+
+Érintett funkció: kizárólag installer belépés; nincs termék-UI vagy adatírás.
+Backup: saját T1 HEAD-beli scriptblob; rollback forráskiadás előtt célzott
+patch-visszavonás, utána guarded revert. Ez nem von vissza élő hooktranzakciót.
+Fixture: `tests/dev-v4-hook-compatibility.test.mjs`; segítség és hibás argv valós shellből,
+fagyasztott loaderbetöltés/páros target/idegen cwd/home/mód/hash/symlink
+negatívok kizárólag disposable környezetben, nincs CLI/env tesztbypass.
+Független 6.1 Sol/high architecture sanity-check ezt a szűk utat megfelelőnek
+találta; implementációreview és pontos teszteredmény később kerül ide.
+A render/paritás és régi worktree-kompatibilitás kiadás előtti külön feltétel;
+az új entrypoint önmagában nem jelent kész telepítést. Kézi UI checklist: N/A;
+valós CLI/hook-canary csak a későbbi jóváhagyott host-aktiválás része.
+
+## 2026-10-21 — T1 forrásmerge igazolva, T2 még nem aktív
+
+[PR52](https://github.com/office-hue/impact_hub/pull/52) merge-elve: `a56af4a7b700d0379e64a353bfbc48e78345dfe4`,
+tree `19195d52234ab90021ac38eb36305af7d7a00960`; a candidate és a squash fa egyezik.
+A kötelező candidate-CI sikeres, a teljes natív main-védelem változatlan;
+nem történt bypass, kézi CI-újrafuttatás vagy termékdeploy. A központi pontos
+fájlkör-kiegészítés PR1703-ban szintén merge-elve. A helyi T2-forrásmunka megmaradt,
+a régi task-/motor-/policypinek nem változtak. Secretary context: writes:false,
+verified motor, hiányzó packet advisory; normál lifecycle-publication PASS nincs.
+Az új motor telepítése, T2 policy/hook/canary és teljes Bástya-elfogadás még hátra van.
+Ez a lezáró DOCSYNC-bejegyzés helyi T2-WIP, még nem publikált dokumentációfrissítés.
+A korábbi nyitott PR-ra vonatkozó sorok történetiek; a main-ablak felszabadult.
+
 # Hub DEV T1 — exact source plan and native recovery boundary
+
+## 2026-10-21 — T1 published; bounded T2 selector source preparation
+
+Bounded independent requested 6.1 Sol/high review found no concrete P1/P2 in
+selector f12a21263ecdbd1afaecdb7b78af3b60dd2e82fc8756369aadcf3342f404e08b
+and test434d5e85569de663c2fa8a20fc1d8d23481ea3ba1bd738028f29b30b79783e6b.
+This is source review, not full bind/install acceptance. The installer needs a
+fixed independently authenticated installed launcher for the existing frozen
+target-hook closure; no caller-selected executor/runtime or render-only PASS.
+Such a launcher is not yet implemented or verified installed.
+
+T1 Hub PR52 publishes bdac2499d36a1813c46a3847313fd30339f750c1;
+the real repaired guarded-push/native hooks and full required CI run39591788159
+succeeded. Not merged, not engine/T2 activated. Older status entries below
+remain historical. The central five-file follow-up is frozen pending exact
+publication approval, not authority for this candidate.
+
+Uncommitted T2 source adds exactly guarded-push.sh, safe-repo-audit.sh and
+install-hooks-all.sh to the DEV selector's writeSurface, without a scripts/
+wildcard, product-selector change, new exclusive surface or historical repin.
+The real adapter fixture verifies committed-policy-only reading and retained
+old-policy behavior: 1/1 PASS. The selected Stage B missing-legacy-identity
+negative case also PASS, not Stage B admission or full new CI.
+Secretary context render returned writes:false, verified retained engine and
+packet absent advisory. The observed HEAD remains the published T1 candidate;
+these working-tree changes must not be pushed into that PR.
+
+The legacy installer still writes three repositories and must not be run.
+Its replacement must use the separate independently approved target-hook
+transaction, not an untrusted caller-selected executor. Renderer output alone
+is not installation. Actual T2 engine binding, policy/check-table completion,
+installer replacement, review and both-host canaries remain required.
 
 ## 2026-10-21 — Product-facing push repair, not a permanent exception
 
@@ -329,6 +529,11 @@ by Arnold on 2026-10-21, limited to the two local commits described below.
   "scope": {
     "changeImpact": "protected", "riskTier": "high", "releaseProfile": "source-only",
     "changeAllowlist": [
+      "config/dev-delivery-v2-policy.json",
+      "config/dev-v4/graded-delivery.v1.json",
+      "config/dev-v4/lifecycle-contract.v1.json",
+      "config/dev-v4/task-selectors.v1.json",
+      "scripts/install-hooks-all.sh",
       "scripts/safe-repo-audit.sh",
       "scripts/guarded-push.sh",
       "scripts/dev-v4-installed-controller-adapter.mjs",
@@ -473,3 +678,26 @@ was not exercised; trusted predecessor enforcement and actual start/fetch are
 not replaced by successful synthetic-dispatcher tests. Source candidate is not
 published, merged, installed, activated or production-accepted. Next dependency:
 protected central exact-path admission for the three target source sets.
+## 2026-10-23 — Hub T2 natív forrás-checkpoint előkészítve
+
+A saját 15 fájlos T2-delta a már jóváhagyott központi véges fájlkörön belül
+marad. A hat ellenőrzött policy/renderer/teszt SHA-256 változatlanul egyezik
+a fenti független review-k bizonyítékával; nincs indok változatlan tesztismétlésre.
+Friss maximum Bástya: bastion-pass-unverified, authoritative:false, ready:false.
+Friss Secretary: rendered, writes:false, verified régi8487bcc2 motor,
+implementation-ready, packet absent advisory. A helyi Stage B korábban igazolt
+hiányzó legacy markerét nem gyártjuk le; ez továbbra sem Stage B PASS.
+
+A natív pre-commit a tényleges v3 continuityt ellenőrzi, a post-commit nem ír
+idegen memóriába. A commit után a támogatott reconcile csak az új HEAD/tree-t
+követheti: policyCommit15d8c1a3, engine8487bcc2 és planAnchor71e8699e megmarad.
+A bővített tervmanifest nem jelent régi selector-admissiont; ismerten hibás bind
+vagy normál lifecycle-publication PASS nincs. A natív exact-range audit és
+ci-validate az elkészült commitra fut. Ismeretlen eltérés megállítja a műveletet.
+A git-health régi memory:gate-elvárása ismert, külön advisory; nem kerül PASS-ra.
+
+Ez a bejegyzés commit előtti forrásállapot, nem távoli kiadás vagy aktiválás.
+Az exact commit/tree és natív eredmények a saját gitdir kiadási naplójába kerülnek.
+Nincs hook-, konfiguráció-, taskpin-, provider- vagy más worktree-módosítás.
+Rollback: saját forrás-revert; a régi motorcsomagok és taskpinek megmaradnak.
+A T2 PR/merge, mindkét host hooktranzakciói és új/régi canaryk még hátravannak.

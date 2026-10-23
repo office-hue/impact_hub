@@ -3,8 +3,207 @@
   "componentId": "dev.delivery.control-plane",
   "planId": "impact-hub-dev-v4-local-20260927",
   "stateDirectory": "codex-delivery",
-  "permissions": {"directoryMode": "0700", "fileMode": "0600", "symlinkAllowed": false},
-  "plan": {"manifestBegin": "<!-- DEV-DELIVERY-V2-MANIFEST", "manifestEnd": "DEV-DELIVERY-V2-MANIFEST -->", "allowedModes": ["planning", "local", "ci"], "allowedRiskTiers": ["low", "medium", "high"], "allowedReleaseProfiles": ["source-only"], "defaultMode": "local"},
-  "evidence": {"schemaVersion": 2, "maximumCommandOutputBytes": 1048576, "maximumBytes": 65536, "absoluteHomePathAllowed": false, "rawProviderResponseAllowed": false, "secretMaterialAllowed": false, "requiredChecksByProfile": {}, "registeredCommands": {}},
-  "taskRequirements": {"schemaVersion": 1, "authority": "single-policy-table", "requiredDocumentSections": ["scope", "acceptance", "validation", "rollback"], "classes": {"docs-only": {"requiredChecks": []}, "governance-only": {"requiredChecks": []}, "code-local": {"requiredChecks": []}, "protected": {"requiredChecks": []}, "deploy": {"requiredChecks": []}, "unknown": {"requiredChecks": []}}, "pathRequiredChecks": {}}
+  "permissions": {
+    "directoryMode": "0700",
+    "fileMode": "0600",
+    "symlinkAllowed": false
+  },
+  "plan": {
+    "manifestBegin": "<!-- DEV-DELIVERY-V2-MANIFEST",
+    "manifestEnd": "DEV-DELIVERY-V2-MANIFEST -->",
+    "allowedModes": [
+      "planning",
+      "local",
+      "ci"
+    ],
+    "allowedRiskTiers": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "allowedReleaseProfiles": [
+      "source-only"
+    ],
+    "defaultMode": "local"
+  },
+  "evidence": {
+    "schemaVersion": 2,
+    "maximumCommandOutputBytes": 1048576,
+    "maximumBytes": 65536,
+    "absoluteHomePathAllowed": false,
+    "rawProviderResponseAllowed": false,
+    "secretMaterialAllowed": false,
+    "requiredChecksByProfile": {},
+    "registeredCommands": {
+      "dev-hub-installed-controller": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^(?!T2 Hub (?:check mapping|policy) )",
+            "tests/dev-v4-installed-controller-adapter.test.mjs"
+          ]
+        }
+      ],
+      "dev-hub-hook-compatibility": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^(?!T2 hook installer )",
+            "tests/dev-v4-hook-compatibility.test.mjs"
+          ]
+        }
+      ],
+      "dev-hub-hook-entrypoint": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^T2 hook installer ",
+            "tests/dev-v4-hook-compatibility.test.mjs"
+          ]
+        }
+      ],
+      "dev-hub-stage-b": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^(Stage B |foreign, missing and old-worktree|immutable file pins|pre-merge fixture|post-merge fixture|end-to-end capsule fixtures|CI accepts|CI rejects)",
+            "tests/dev-v4-stage-b.test.mjs"
+          ]
+        }
+      ],
+      "dev-hub-policy-routing": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^T2 Hub policy ",
+            "tests/dev-v4-installed-controller-adapter.test.mjs"
+          ]
+        }
+      ],
+      "dev-hub-check-map": [
+        {
+          "runner": "node",
+          "args": [
+            "--test",
+            "--test-name-pattern=^T2 Hub check mapping ",
+            "tests/dev-v4-installed-controller-adapter.test.mjs"
+          ]
+        }
+      ]
+    }
+  },
+  "taskRequirements": {
+    "schemaVersion": 1,
+    "authority": "single-policy-table",
+    "requiredDocumentSections": [
+      "scope",
+      "acceptance",
+      "validation",
+      "rollback"
+    ],
+    "classes": {
+      "docs-only": {
+        "requiredChecks": []
+      },
+      "governance-only": {
+        "requiredChecks": []
+      },
+      "code-local": {
+        "requiredChecks": []
+      },
+      "protected": {
+        "requiredChecks": []
+      },
+      "deploy": {
+        "requiredChecks": []
+      },
+      "unknown": {
+        "requiredChecks": []
+      }
+    },
+    "pathRequiredChecks": {
+      "hub-installed-controller": {
+        "paths": [
+          "scripts/dev-v4-installed-controller-adapter.mjs",
+          "config/dev-v4/lifecycle-contract.v1.json",
+          "config/dev-v4/task-selectors.v1.json",
+          "tests/dev-v4-installed-controller-adapter.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-installed-controller"
+        ]
+      },
+      "hub-hook-compatibility": {
+        "paths": [
+          "scripts/dev-v4-target-hooks.mjs",
+          "scripts/dev-v4-installed-controller-adapter.mjs",
+          "scripts/safe-repo-audit.sh",
+          "scripts/guarded-push.sh",
+          "tests/dev-v4-hook-compatibility.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-hook-compatibility"
+        ]
+      },
+      "hub-hook-entrypoint": {
+        "paths": [
+          "scripts/install-hooks-all.sh",
+          "tests/dev-v4-hook-compatibility.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-hook-entrypoint"
+        ]
+      },
+      "hub-stage-b": {
+        "paths": [
+          "scripts/dev-v4-stage-b-adapter.mjs",
+          "scripts/dev-v4-stage-a-verifier.mjs",
+          "config/dev-v4/stage-b-policy.v1.json",
+          "config/dev-v4/central-contract.v1.json",
+          "config/dev-v4/impact-hub-capabilities.v1.json",
+          "config/dev-v4/negative-fixtures.v1.json"
+        ],
+        "checks": [
+          "dev-hub-stage-b"
+        ]
+      },
+      "hub-policy-routing": {
+        "paths": [
+          "config/dev-v4/lifecycle-contract.v1.json",
+          "config/dev-v4/graded-delivery.v1.json",
+          "tests/dev-v4-installed-controller-adapter.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-policy-routing"
+        ]
+      },
+      "hub-check-map": {
+        "paths": [
+          "config/dev-delivery-v2-policy.json",
+          "tests/dev-v4-installed-controller-adapter.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-check-map"
+        ]
+      },
+      "hub-stage-b-test-entrypoint": {
+        "paths": [
+          "tests/dev-v4-stage-b.test.mjs"
+        ],
+        "checks": [
+          "dev-hub-installed-controller",
+          "dev-hub-hook-compatibility",
+          "dev-hub-hook-entrypoint",
+          "dev-hub-stage-b",
+          "dev-hub-check-map",
+          "dev-hub-policy-routing"
+        ]
+      }
+    }
+  }
 }
