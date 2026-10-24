@@ -11,7 +11,6 @@ permissions:
 jobs:
   checklist:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.draft == false }}
     env:
       PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -20,97 +19,34 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Bind PR base and head commits
+      - name: Bind exact native PR commits
         run: |
-          git fetch --no-tags origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
           test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
           test "$(git rev-parse "$PR_BASE_SHA^{commit}")" = "$PR_BASE_SHA"
           test "$(git rev-parse "$PR_HEAD_SHA^{commit}")" = "$PR_HEAD_SHA"
-      - name: Classify DEV delivery impact
-        id: dev_impact
-        run: |
-          report="$(python3 scripts/dev-delivery-v2-adapter.py ci-classify --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json)"
-          echo "$report"
-          python3 - "$report" >> "$GITHUB_OUTPUT" <<'PY'
-          import json
-          import sys
-          report = json.loads(sys.argv[1])
-          print(f"impact_class={report['changedPathClass']}")
-          print(f"provider_build_decision={report['providerBuildDecision']}")
-          print("expensive_steps_required=" + str(report['expensiveStepsRequired']).lower())
-          print("full_validation_required=" + str(report['fullValidationRequired']).lower())
-          PY
-      - name: DEV context policy guard
-        run: bash scripts/dev-context-policy-guard.sh --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json
+      - name: Source and secret audit for exact PR history
+        run: bash scripts/safe-repo-audit.sh --strict --mode range --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA"
+      - name: Workspace retirement negative regression
+        run: python3 -B tests/workspace-retirement.test.py
       - uses: actions/setup-node@v4
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
         with:
           node-version: 22
-          cache: npm
-      - name: Install exact locked dependencies
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
-        run: npm ci --ignore-scripts
-      - name: Full Jest validation
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
-        run: npm test -- --runInBand
-      - name: DEV v4 Stage B native adapter validation
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
+      - name: Explicit retired compatibility contracts
+        run: node --test tests/dev-v4-stage-a.test.mjs tests/dev-v4-stage-b.test.mjs tests/dev-v4-installed-controller-adapter.test.mjs tests/dev-v4-hook-compatibility.test.mjs
+      - name: Determine affected native product tests
+        id: native_scope
         run: |
-          node scripts/dev-v4-stage-b-adapter.mjs --ci
-          node --test tests/dev-v4-stage-a.test.mjs tests/dev-v4-stage-b.test.mjs
-      - name: Adapter negative and dedicated-fixture validation
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
-        run: |
-          bash tests/dev-context-policy-guard.test.sh
-          python3 scripts/dev-delivery-v2-adapter.py fixture --fixture-root tools/fixtures/dev-delivery-v2 --json
-      - name: Bastion and exact PR-diff validation
-        if: ${{ steps.dev_impact.outputs.full_validation_required == 'true' }}
-        run: |
-          python3 scripts/dev-delivery-v2-adapter.py ci-validate --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" --json
-          bash scripts/safe-repo-audit.sh --strict --mode range --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA"
-          git diff --check "$PR_BASE_SHA..$PR_HEAD_SHA"
-      - name: Known docs/governance not-affected decision
-        if: ${{ steps.dev_impact.outputs.full_validation_required != 'true' }}
-        run: echo "not-affected; full validation is skipped only for known docs/governance paths"
-      - name: Validate required checklist in PR body
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          python3 - <<'PY'
-          import os
-          import re
-          import sys
-
-          body = os.getenv("PR_BODY", "") or ""
-
-          if "PR Exit Checklist (Required)" not in body:
-              print("Missing section: PR Exit Checklist (Required)", file=sys.stderr)
-              sys.exit(1)
-
-          required = [
-              "1. Work was done on dedicated branch/worktree (not `main`)",
-              "2. Relevant build/tests ran and are green",
-              "3. `safe-repo-audit.sh --strict --mode push` is green",
-              "4. `system-status-snapshot.md` updated for module change",
-              "5. At least one `docs/*.md` updated for module change",
-              "6. `notes.md` or `conversation-summaries/*` updated (notes-context repos)",
-              "7. `docs/bastion-guard-status.md` updated when new module file was added",
-              "8. Deploy guard + smoke checks are logged (if deploy happened)",
-              "9. Backup/rollback path is recorded",
-              "10. PR description includes scope, risk, validation, deploy/rollback notes",
-          ]
-
-          missing = []
-          for item in required:
-              pattern = re.compile(r"- \[(?: |x|X)\] " + re.escape(item))
-              if not pattern.search(body):
-                  missing.append(item)
-
-          if missing:
-              print("Missing checklist items:", file=sys.stderr)
-              for m in missing:
-                  print(f"- {m}", file=sys.stderr)
-              sys.exit(1)
-
-          print("Checklist guard PASS")
+          python3 -B scripts/workspace-ci.py --base "$PR_BASE_SHA" --head "$PR_HEAD_SHA" > "$RUNNER_TEMP/native-check-scope.json"
+          python3 - "$RUNNER_TEMP/native-check-scope.json" >> "$GITHUB_OUTPUT" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1]))
+          print("product_tests=" + str(report["productTestsRequired"]).lower())
           PY
+      - name: Install existing locked project dependencies
+        if: ${{ steps.native_scope.outputs.product_tests == 'true' }}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Affected native Jest product validation
+        if: ${{ steps.native_scope.outputs.product_tests == 'true' }}
+        run: npm test -- --runInBand
+      - name: PR prose guidance is advisory
+        run: echo 'Describe scope, actual validation, risk and rollback. PR prose is not test or release evidence.'

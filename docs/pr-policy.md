@@ -1,57 +1,39 @@
-# PR Policy (Enforced One-Path)
+# Native Git source and release policy
 
-Ez a repo **kötelező, egyetlen útvonalú** commit/push/PR/deploy policyt követ.
+The approved 2026-10-24 DEV retirement removes mandatory controller, capsule,
+selector, Plan-ID, prescribed model routing, memory gate and PR-body admission.
+Native Git remains usable without installing workspace support or hooks.
 
-## Kötelező útvonal (minden munka)
+Use a dedicated branch/worktree and affected native project checks. State scope,
+risk, validation and rollback in the PR. Documentation and continuity are review
+guidance, not a mechanical source admission test. An optional checklist is not
+proof of testing, permission, deployment or acceptance.
 
-1. Új klón vagy új worktree után futtasd:
-   - `bash scripts/install-hooks-all.sh`
-2. Új fejlesztés csak `origin/main` alapról indulhat:
-   - `bash scripts/start-feature-worktree.sh <feature-branch>`
-   - automatikusan fut: `memory:pre-task` + branch context pack (`.codex/context/<branch>.md`)
-3. Módosítás után kötelező helyi állapotellenőrzés:
-   - `bash scripts/git-health-check.sh`
-4. Push csak feature/worktree ágról mehet, `main/master` közvetlen push tiltott.
-5. PR nyitás javasolt parancsa:
-   - `npm run pr:create-with-memory -- --fill` (PR + auto memory capture)
-6. PR csak kötelező checklist blokkal nyitható (`PR-EXIT-CHECKLIST.md`).
-7. Napi zárás ajánlott:
-   - `npm run memory:digest` (digest markdown, opcionális email)
-8. Deploy csak guardolt útvonalon mehet, és csak merge-elt főágból.
+Optional commands:
 
-## Hard enforce (technikailag beállítva)
+- `python3 -B scripts/workspace.py doctor --repo .`
+- `bash scripts/start-feature-worktree.sh feat/name --path /explicit/new/path --base HEAD`
+- `bash scripts/install-hooks-all.sh --repo /explicit/repo` prepares only.
+- Apply only after reviewing the exact target: `--apply --repo /explicit/repo --expect <beforeDigest>`.
+- `bash scripts/safe-repo-audit.sh --strict --mode range --base <sha> --head <sha>`.
+- `bash scripts/guarded-push.sh <native git push args>` checks Git's actual ref
+  updates, including multiple refs/new branches/renames, without persistent
+  hook/config writes. Exact known old DEV hooks are retired for that one push;
+  unknown executable custom pre-push hooks remain in the chain.
 
-- `pre-commit` hook: blokkolja a commitot `main/master` ágon.
-- `commit-msg` hook: automatikusan hozzáadja a `Memory-ID: none` sort, ha hiányzik.
-- `pre-push` hook: blokkolja a közvetlen `main/master` push-t.
-- `pre-push` hook: kötelező policy fájlok meglétét ellenőrzi.
-- `pre-push` hook: `safe-repo-audit.sh --strict --mode push` futtatása kötelező.
-- `pre-push` hook: memory gate (`memory:gate`) kötelező.
-- `pre-push` hook: PR auto-memory sync (`memory:sync-pr`) fail-open módban.
-- `post-commit` hook: automatikusan memóriába rögzíti a commit kontextust (fail-open).
-- `post-merge` + `post-checkout` hook: automatikus memóriafrissítés throttlinggal (fail-open).
-- CI: PR Checklist Guard kötelező PR body ellenőrzéssel.
+Real secret/content findings fail. Missing optional checker evidence is reported
+as unavailable; native hooks/wrapper continue with an advisory. Whitespace is
+advice in optional hooks; explicit source audit reports its actual failure.
+No automatic fetch, shared registry update or foreign memory write occurs.
 
-## Workflow kiegészítők (dev-memory)
+Publishing, protected mainline integration, provider/deploy/runtime/host changes
+still need authority for that concrete operation and its applicable product
+verification/rollback. Remote branch protection is preserved. Recovery and
+env/auth/runtime rules remain in docs/system-recovery-map.md and the local
+env/auth/runtime adapter. Coupon harvesting and deployment are separate product
+operations; their workflow and credentials are unchanged by this source change.
 
-- `memory:pre-task`: task-indítási brief mentése `tmp/state/dev-memory/last-brief.json`-ba.
-- `memory:context-pack`: branch-specifikus `.codex/context/<branch>.md` generálás.
-- `memory:incident`: gyors incident capture + rollback checklist.
-- `memory:digest`: napi markdown digest (`tmp/state/dev-memory/daily/`).
-- `memory:install-digest-cron`: napi digest cron telepítés.
-- `memory:install-copilot-cron`: Copilot chat ingest napi cron telepítés.
-
-## Kötelező policy fájlok
-
-- `docs/pr-policy.md`
-- `PR-EXIT-CHECKLIST.md`
-- `.github/pull_request_template.md`
-- `scripts/start-feature-worktree.sh`
-- `scripts/git-health-check.sh`
-
-## Vészhelyzeti bypass (csak jóváhagyással)
-
-- commit bypass: `IMPACT_POLICY_ALLOW_MAIN_COMMIT=1`
-- push bypass: `IMPACT_POLICY_ALLOW_MAIN_PUSH=1`
-
-A bypass használata csak ideiglenesen engedett, és PR-ben kötelező dokumentálni.
+Hook rollback accepts only this target's backup and unchanged own installed
+poststate; it preserves intervening custom edits. Source code can be reverted
+through a reviewed ordinary Git revert after publication. No live installation,
+commit, push or deployment is implied here.
