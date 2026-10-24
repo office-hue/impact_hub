@@ -1,3 +1,41 @@
+## 2026-10-24 — DEV kivezetés, source-only
+
+Az explicit jóváhagyott kivezetés alapján a Hub DEV v2/Stage A/B/installed
+controller és engine/capsule/selector/model/admission kapuk retired állapotúak.
+A natív Githez nincs registry/memória/Plan-ID követelmény. A continuity/readiness/
+repin/coordination read-only natív identity; start explicit új útvonal és helyi
+base alapján, automatikus fetch és idegen memóriaírás nélkül működik.
+Hookinstaller alapból prepare; explicit target+digest, backup/CAS és own-state
+rollback. Guarded-push egy műveletre ideiglenes exact-ref auditot láncol, az egyedi
+hookokat és azok hibáját megtartja; tartós Git-config/hook írás nincs.
+
+Valós bizonyíték: Python workspace-retirement 46/46 (14.152 s), Node retired
+kompatibilitási negatív 5/5 (135.845 ms). Izolált repo/bare-remote fixture: titok
+index/local/untracked/root/merge/history/rename/multi-ref, custom hook, natív
+worktree és controllerhiány, CAS/rollback/partial-failure, dependency parent-
+symlink no-read és tényleges AGENTS.override elsőbbség. Scanner gyökérokjavítás:
+lexikális kulcshatár, páros idézett assignment-key, minden literal találat vizsgálata;
+tesztkód/redacted példa nem titok, későbbi valódi titok nem bújhat placeholder mögé.
+Git-private0700 backup/0600 manifest, stdout privátbyte-redakció, megszakított
+rollback saját mixed-state resume és drift-refusal; linked checker nem fut.
+Újref: actualremoteURL read-only snapshot, régi remotehistory kizárva, új titok
+blokkol; hiányos proof unavailable/advisory, nem PASS és nem implicit fullhistory.
+Explicit audit-repót GIT_DIR/WORK_TREE/COMMON nem irányíthat idegen clean repóra;
+a natív részleges commit GIT_INDEX_FILE indexét továbbra is ténylegesen auditálja.
+A titok- és termék/
+deploy határok megmaradnak; procedurális dokumentum-/memóriahiány advisory.
+A termék/harvester/WordPress/embedded/.codex/package-lock forrás a base-szel
+egyező; helyi npm/Jest telepítés és termékfuttatás nem történt. Teljes Jest és
+távoli CI eredmény nincs állítva. Korábbi alábbi bejegyzések történetiek.
+
+Állapot: saját clone, dev/retirement-20261024,
+base 571cdcd394f7d71743de151f79071c8f08668685; source-only publikálási kandidát.
+A tényleges commit/push/PR állapotot külön GitHub-readback igazolja; merge/deploy
+nem része ennek a lépésnek. Éles hook/client/host módosítás nincs.
+A viselkedési tesztek commitjai/pushai izolált helyi fixture-repókban történtek.
+Részletes scope/rollback/kockázat: docs/dev-retirement-2026-10-24.md.
+A régi config/DEV metadata történeti, nem aktív authority vagy lifecycle-PASS.
+
 ## 2026-10-23 — T2 policy forrása és független review kész
 
 A Hub új feladatpolicyja egyetlen PR1708 motort fogad el: fcd987b5 /

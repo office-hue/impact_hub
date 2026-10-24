@@ -1,5 +1,12 @@
 # Impact Hub Local Assistant Policy
 
+2026-10-24 current source note: the approved DEV retirement supersedes former
+one-path/controller/capsule/selector/model/Plan-ID admission requirements.
+Native Git and affected checks are sufficient for source work; old DEV metadata
+is historical. Recovery/env/auth/product/deploy scope and honest actual-check
+evidence remain. Meaningful documentation continuity supports review; it is not
+a mechanical Git blocker. See dev-retirement-2026-10-24.md.
+
 Datum: 2026-06-16
 Statusz: local policy anchor
 Scope: rovid helyi policy-anchor az `impact_hub` repo sajat governance lancahoz.

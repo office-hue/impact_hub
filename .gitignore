@@ -55,6 +55,11 @@ wp-content/mu-plugins/*
 /ads-bridge/
 /impact-bridge-local/
 /scripts/*
+!/scripts/workspace.py
+!/scripts/workspace-hooks.py
+!/scripts/workspace-native.py
+!/scripts/worktree-repin-current.sh
+!/scripts/workspace-ci.py
 !/scripts/impactshop-ngo-card-restore.sh
 !/scripts/start-feature-worktree.sh
 !/scripts/git-health-check.sh
@@ -65,6 +70,7 @@ wp-content/mu-plugins/*
 !/scripts/worktree-continuity-guard.sh
 !/scripts/guarded-push.sh
 /docs/*
+!/docs/dev-retirement-2026-10-24.md
 !/docs/system-recovery-map.md
 !/docs/impactshop-badge-system.md
 !/docs/pr-policy.md
